@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+    <style>
+        body { font-family: Arial; margin: 20px; background: #000; color: #0f0; }
+        pre { background: #111; padding: 20px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>API Connection Test</h1>
+    <pre id="result">Testing...</pre>
+    <script>
+        const API_BASE_URL = 'http://localhost:8080';
+        console.log('Attempting to fetch from:', API_BASE_URL + '/candidates');
+        fetch(API_BASE_URL + '/candidates')
+            .then(r => {
+                console.log('Response:', r.status, r.statusText);
+                return r.json();
+            })
+            .then(d => {
+                console.log('Data:', d);
+                document.getElementById('result').innerText = JSON.stringify(d, null, 2);
+            })
+            .catch(e => {
+                console.error('Error:', e);
+                document.getElementById('result').innerText = 'Error: ' + e.message + '\n\nCheck console for details.';
+            });
+    </script>
+</body>
+</html>

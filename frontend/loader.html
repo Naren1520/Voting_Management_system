@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading - Voting System</title>
+    <style>
+        :root {
+            --primary: #00ff88;
+            --primary-glow: rgba(0, 255, 136, 0.5);
+            --secondary: #00d9ff;
+            --secondary-glow: rgba(0, 217, 255, 0.5);
+            --accent: #ff0080;
+            --accent-glow: rgba(255, 0, 128, 0.5);
+            --bg-primary: #000000;
+            --bg-secondary: #0a0a0a;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #000000;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 217, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(255, 0, 128, 0.1) 0%, transparent 50%);
+            background-size: 200% 200%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 255, 136, 0.03) 2px,
+                    rgba(0, 255, 136, 0.03) 4px
+                );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .loader-container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .logo-animation {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(0, 255, 136, 0.3);
+            border: 3px solid rgba(0, 255, 136, 0.2);
+            animation: float 3s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-animation img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(0, 255, 136, 0.2);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loader-text {
+            font-size: 24px;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInOut 2s ease-in-out infinite;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .loader-subtext {
+            color: var(--text-secondary);
+            font-size: 14px;
+            animation: slideText 3s ease-in-out infinite;
+        }
+
+        @keyframes slideText {
+            0% { content: 'Initializing...'; opacity: 1; }
+            33% { opacity: 0.7; }
+            66% { opacity: 1; }
+        }
+
+        .progress-bar {
+            width: 300px;
+            height: 4px;
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+            animation: fillProgress 2.5s ease-in-out infinite;
+        }
+
+        @keyframes fillProgress {
+            0% { width: 0%; }
+            50% { width: 100%; }
+            100% { width: 0%; }
+        }
+
+        .dots {
+            font-size: 20px;
+            letter-spacing: 4px;
+            color: var(--text-secondary);
+        }
+
+        .dot {
+            display: inline-block;
+            animation: dotBounce 1.4s infinite;
+        }
+
+        .dot:nth-child(1) { animation-delay: 0s; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes dotBounce {
+            0%, 60%, 100% { opacity: 0.3; }
+            30% { opacity: 1; }
+        }
+
+        .loading-info {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .loading-info p {
+            margin: 4px 0;
+        }
+
+        @media (max-width: 480px) {
+            .logo-animation {
+                font-size: 60px;
+            }
+
+            .loader-text {
+                font-size: 20px;
+            }
+
+            .progress-bar {
+                width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader-container">
+        <div class="logo-animation">
+            <img src="assets/Logo.png" alt="Voting System Logo">
+        </div>
+        <div class="spinner"></div>
+        <div class="loader-text">Voting System</div>
+        <div class="loader-subtext">
+            <span class="dots">
+                <span class="dot">.</span>
+                <span class="dot">.</span>
+                <span class="dot">.</span>
+            </span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+    </div>
+
+    <div class="loading-info">
+        <p>🚀 Starting servers...</p>
+        <p>Please wait while we initialize the application</p>
+    </div>
+
+    <script>
+        // Simulate loading progress
+        let progress = 0;
+        const messages = [
+            'Initializing systems...',
+            'Loading database...',
+            'Starting backend...',
+            'Connecting frontend...',
+            'Almost ready...'
+        ];
+        
+        let messageIndex = 0;
+        const loaderSubtext = document.querySelector('.loader-subtext');
+
+        setInterval(() => {
+            messageIndex = (messageIndex + 1) % messages.length;
+            // You can update loader text here if needed
+        }, 1000);
+
+        // Auto-redirect after 3 seconds
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 3000);
+
+        // Allow skipping the loader by clicking
+        document.body.addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        // Allow pressing any key to skip
+        document.addEventListener('keydown', () => {
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
