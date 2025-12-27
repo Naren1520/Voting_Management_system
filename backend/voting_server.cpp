@@ -1,10 +1,3 @@
-/**
- * @file voting_server.cpp
- * @brief Voting System - Pure C++ Backend (Single-threaded)
- * 
- * Simple HTTP server for voting system
- * Compile: g++ -std=c++17 -o voting_server.exe voting_server.cpp -lws2_32
- */
 
 #include <iostream>
 #include <string>
@@ -20,9 +13,9 @@
 
 using json = nlohmann::json;
 
-// ============================================================================
+
 // MODELS
-// ============================================================================
+
 class Candidate {
 public:
     std::string name;
@@ -75,9 +68,9 @@ public:
     }
 };
 
-// ============================================================================
+
 // VOTING CONTROLLER
-// ============================================================================
+
 class VotingController {
 private:
     std::vector<Candidate> candidates;
@@ -413,9 +406,9 @@ public:
     }
 };
 
-// ============================================================================
+
 // HTTP SERVER
-// ============================================================================
+
 class HttpServer {
 private:
     VotingController controller;
@@ -684,9 +677,9 @@ public:
     }
 };
 
-// ============================================================================
+
 // MAIN
-// ============================================================================
+
 int main() {
     HttpServer server(8080);
     server.start();

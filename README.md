@@ -805,5 +805,5 @@ Before running the system, ensure:
 
 - command to run
 
-## cd "c:\Users\Naren S J\Downloads\voting1" ; .\run.bat
+## -->>>>        cd "c:\Users\Naren S J\Downloads\voting1" ; .\run.bat
 
