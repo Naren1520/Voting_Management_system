@@ -1,7 +1,8 @@
 /**
  * voting_server_linux.cpp
- * Linux-compatible C++ HTTP server (POSIX sockets, no Winsock)
- * Compile: g++ -std=c++17 -o voting_server voting_server_linux.cpp -pthread
+ * Linux C++ HTTP server with Supabase PostgreSQL backend
+ * Uses Supabase REST API over HTTPS via /usr/bin/curl (subprocess)
+ * Compile: g++ -std=c++17 -O2 -o voting_server voting_server_linux.cpp -pthread
  */
 
 #include <iostream>
@@ -12,8 +13,10 @@
 #include <algorithm>
 #include <cstring>
 #include <cstdlib>
+#include <stdexcept>
+#include <array>
 
-// POSIX socket headers (Linux/Unix)
+// POSIX socket headers
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -25,179 +28,89 @@
 using json = nlohmann::json;
 
 // ============================================================================
-// MODELS
+// SUPABASE CONFIG
 // ============================================================================
 
-class Candidate {
-public:
-    std::string name;
-    int votes;
-
-    Candidate(const std::string& n = "", int v = 0) : name(n), votes(v) {}
-
-    json toJson() const {
-        json j;
-        j["name"] = name;
-        j["votes"] = votes;
-        return j;
-    }
-};
-
-class Voter {
-public:
-    std::string voterId;
-    std::string candidateName;
-
-    Voter(const std::string& id = "", const std::string& cand = "")
-        : voterId(id), candidateName(cand) {}
-
-    json toJson() const {
-        json j;
-        j["voter_id"] = voterId;
-        j["candidate_name"] = candidateName;
-        return j;
-    }
-};
-
-class RegisteredVoter {
-public:
-    std::string id;
-    std::string name;
-    std::string email;
-    std::string phone;
-
-    RegisteredVoter(const std::string& vid = "", const std::string& vname = "",
-                    const std::string& vemail = "", const std::string& vphone = "")
-        : id(vid), name(vname), email(vemail), phone(vphone) {}
-
-    json toJson() const {
-        json j;
-        j["id"] = id;
-        j["name"] = name;
-        j["email"] = email;
-        j["phone"] = phone;
-        return j;
-    }
-};
+const std::string SUPABASE_URL  = "https://drwkzpoxyhluWuxzcjxx.supabase.co";
+const std::string SUPABASE_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyd2t6cG94eWhsdXd1eHpjanh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3ODk2NDEsImV4cCI6MjA5ODM2NTY0MX0.ZC6uOOGc8frORkSolT47YwRIQ6QxnBbnkHxpyYQ61Pw";
+const std::string ADMIN_PASSWORD = "admin123";
 
 // ============================================================================
-// VOTING CONTROLLER
+// SUPABASE HTTP CLIENT (via curl subprocess)
+// ============================================================================
+
+struct HttpResult {
+    int statusCode;
+    std::string body;
+};
+
+// Run curl and capture output
+HttpResult supabaseRequest(const std::string& method,
+                            const std::string& endpoint,
+                            const std::string& body = "",
+                            const std::string& extraHeaders = "") {
+    std::string url = SUPABASE_URL + "/rest/v1/" + endpoint;
+
+    std::string cmd = "curl -s -w '\\n%{http_code}' -X " + method;
+    cmd += " -H 'apikey: " + SUPABASE_KEY + "'";
+    cmd += " -H 'Authorization: Bearer " + SUPABASE_KEY + "'";
+    cmd += " -H 'Content-Type: application/json'";
+    cmd += " -H 'Prefer: return=representation'";
+    if (!extraHeaders.empty()) cmd += " " + extraHeaders;
+    if (!body.empty()) cmd += " -d '" + body + "'";
+    cmd += " '" + url + "'";
+
+    std::array<char, 4096> buf;
+    std::string result;
+    FILE* pipe = popen(cmd.c_str(), "r");
+    if (!pipe) return {500, "{}"};
+
+    while (fgets(buf.data(), buf.size(), pipe) != nullptr) {
+        result += buf.data();
+    }
+    pclose(pipe);
+
+    // Last line is the HTTP status code
+    size_t lastNewline = result.rfind('\n');
+    HttpResult hr;
+    if (lastNewline != std::string::npos) {
+        hr.statusCode = std::stoi(result.substr(lastNewline + 1));
+        hr.body = result.substr(0, lastNewline);
+    } else {
+        hr.statusCode = 200;
+        hr.body = result;
+    }
+    return hr;
+}
+
+// ============================================================================
+// VOTING CONTROLLER (Supabase-backed)
 // ============================================================================
 
 class VotingController {
-private:
-    std::vector<Candidate> candidates;
-    std::vector<Voter> voters;
-    std::vector<RegisteredVoter> registeredVoters;
-
-    // Linux uses forward slashes
-    const std::string CANDIDATES_FILE = "data/candidates.json";
-    const std::string VOTERS_FILE = "data/voters.json";
-    const std::string REGISTERED_VOTERS_FILE = "data/registered_voters.json";
-    const std::string ADMIN_PASSWORD = "admin123";
-
 public:
-    VotingController() {
-        loadCandidates();
-        loadVoters();
-        loadRegisteredVoters();
-    }
 
-    void loadCandidates() {
-        std::ifstream file(CANDIDATES_FILE);
-        if (file.is_open()) {
-            try {
-                json j;
-                file >> j;
-                for (const auto& item : j) {
-                    candidates.push_back(Candidate(item["name"], item["votes"]));
-                }
-            } catch (...) {}
-            file.close();
-        }
-    }
-
-    void loadVoters() {
-        std::ifstream file(VOTERS_FILE);
-        if (file.is_open()) {
-            try {
-                json j;
-                file >> j;
-                for (const auto& item : j) {
-                    voters.push_back(Voter(item["voter_id"], item["candidate_name"]));
-                }
-            } catch (...) {}
-            file.close();
-        }
-    }
-
-    void loadRegisteredVoters() {
-        std::ifstream file(REGISTERED_VOTERS_FILE);
-        if (file.is_open()) {
-            try {
-                json j;
-                file >> j;
-                for (const auto& item : j) {
-                    registeredVoters.push_back(RegisteredVoter(
-                        item["id"],
-                        item["name"],
-                        item["email"],
-                        item.value("phone", "")
-                    ));
-                }
-            } catch (...) {}
-            file.close();
-        }
-    }
-
-    void saveCandidates() {
-        std::ofstream file(CANDIDATES_FILE);
-        json j = json::array();
-        for (const auto& c : candidates) j.push_back(c.toJson());
-        file << j.dump(4);
-        file.close();
-    }
-
-    void saveVoters() {
-        std::ofstream file(VOTERS_FILE);
-        json j = json::array();
-        for (const auto& v : voters) j.push_back(v.toJson());
-        file << j.dump(4);
-        file.close();
-    }
-
-    void saveRegisteredVoters() {
-        std::ofstream file(REGISTERED_VOTERS_FILE);
-        json j = json::array();
-        for (const auto& v : registeredVoters) {
-            json voter;
-            voter["id"] = v.id;
-            voter["name"] = v.name;
-            voter["email"] = v.email;
-            voter["phone"] = v.phone;
-            j.push_back(voter);
-        }
-        file << j.dump(4);
-        file.close();
-    }
-
+    // ---------- GET ALL CANDIDATES ----------
     json getAllCandidates() {
-        json j = json::array();
-        for (const auto& c : candidates) j.push_back(c.toJson());
-        return j;
+        auto res = supabaseRequest("GET", "candidates?select=name,votes&order=votes.desc");
+        try {
+            return json::parse(res.body);
+        } catch (...) {
+            return json::array();
+        }
     }
 
+    // ---------- GET ALL VOTES ----------
     json getAllVotes() {
-        json j = json::array();
-        for (const auto& v : voters) j.push_back(v.toJson());
-        return j;
+        auto res = supabaseRequest("GET", "voters?select=voter_id,candidate_name");
+        try {
+            return json::parse(res.body);
+        } catch (...) {
+            return json::array();
+        }
     }
 
-    bool isVoterRegistered(const std::string& voterId) {
-        return std::any_of(registeredVoters.begin(), registeredVoters.end(),
-            [&voterId](const RegisteredVoter& v) { return v.id == voterId; });
-    }
-
+    // ---------- CHECK VOTER REGISTERED ----------
     json checkVoterRegistration(const std::string& voterId) {
         json response;
         if (voterId.empty()) {
@@ -205,18 +118,28 @@ public:
             response["message"] = "Voter ID cannot be empty";
             return response;
         }
-        if (isVoterRegistered(voterId)) {
-            response["success"] = true;
-            response["message"] = "Voter is registered and can vote";
-            response["registered"] = true;
-        } else {
+
+        auto res = supabaseRequest("GET",
+            "registered_voters?select=id&id=eq." + voterId + "&limit=1");
+        try {
+            auto arr = json::parse(res.body);
+            if (arr.is_array() && !arr.empty()) {
+                response["success"] = true;
+                response["registered"] = true;
+                response["message"] = "Voter is registered and can vote";
+            } else {
+                response["success"] = false;
+                response["registered"] = false;
+                response["message"] = "Voter ID not found in registered voters list";
+            }
+        } catch (...) {
             response["success"] = false;
-            response["message"] = "Voter ID not found in registered voters list";
-            response["registered"] = false;
+            response["message"] = "Database error";
         }
         return response;
     }
 
+    // ---------- CAST VOTE ----------
     json castVote(const std::string& voterId, const std::string& candidateName) {
         json response;
 
@@ -225,37 +148,73 @@ public:
             response["message"] = "Voter ID cannot be empty";
             return response;
         }
-        if (!isVoterRegistered(voterId)) {
-            response["success"] = false;
-            response["message"] = "Voter ID not registered. Please register before voting.";
-            response["registered"] = false;
-            return response;
-        }
         if (candidateName.empty()) {
             response["success"] = false;
             response["message"] = "Candidate name cannot be empty";
             return response;
         }
-        if (std::any_of(voters.begin(), voters.end(),
-            [&voterId](const Voter& v) { return v.voterId == voterId; })) {
+
+        // 1. Check voter is registered
+        auto regRes = supabaseRequest("GET",
+            "registered_voters?select=id&id=eq." + voterId + "&limit=1");
+        try {
+            auto arr = json::parse(regRes.body);
+            if (!arr.is_array() || arr.empty()) {
+                response["success"] = false;
+                response["registered"] = false;
+                response["message"] = "Voter ID not registered. Please register before voting.";
+                return response;
+            }
+        } catch (...) {
             response["success"] = false;
-            response["message"] = "This voter ID has already voted";
+            response["message"] = "Database error checking registration";
             return response;
         }
 
-        auto it = std::find_if(candidates.begin(), candidates.end(),
-            [&candidateName](const Candidate& c) { return c.name == candidateName; });
+        // 2. Check not already voted
+        auto votedRes = supabaseRequest("GET",
+            "voters?select=voter_id&voter_id=eq." + voterId + "&limit=1");
+        try {
+            auto arr = json::parse(votedRes.body);
+            if (arr.is_array() && !arr.empty()) {
+                response["success"] = false;
+                response["message"] = "This voter ID has already voted";
+                return response;
+            }
+        } catch (...) {}
 
-        if (it == candidates.end()) {
+        // 3. Check candidate exists
+        auto candRes = supabaseRequest("GET",
+            "candidates?select=name,votes&name=eq." + urlEncode(candidateName) + "&limit=1");
+        json candArr;
+        try {
+            candArr = json::parse(candRes.body);
+            if (!candArr.is_array() || candArr.empty()) {
+                response["success"] = false;
+                response["message"] = "Candidate not found: " + candidateName;
+                return response;
+            }
+        } catch (...) {
             response["success"] = false;
-            response["message"] = "Candidate not found: " + candidateName;
+            response["message"] = "Database error checking candidate";
             return response;
         }
 
-        it->votes++;
-        voters.push_back(Voter(voterId, candidateName));
-        saveCandidates();
-        saveVoters();
+        // 4. Increment vote count using RPC
+        int currentVotes = candArr[0]["votes"].get<int>();
+        int newVotes = currentVotes + 1;
+
+        json updateBody;
+        updateBody["votes"] = newVotes;
+        auto updateRes = supabaseRequest("PATCH",
+            "candidates?name=eq." + urlEncode(candidateName),
+            updateBody.dump());
+
+        // 5. Record the voter
+        json voterBody;
+        voterBody["voter_id"] = voterId;
+        voterBody["candidate_name"] = candidateName;
+        supabaseRequest("POST", "voters", voterBody.dump());
 
         response["success"] = true;
         response["message"] = "Vote recorded successfully for " + candidateName;
@@ -263,6 +222,7 @@ public:
         return response;
     }
 
+    // ---------- ADD CANDIDATE ----------
     json addCandidate(const std::string& candidateName, const std::string& password) {
         json response;
         if (password != ADMIN_PASSWORD) {
@@ -275,20 +235,36 @@ public:
             response["message"] = "Candidate name cannot be empty";
             return response;
         }
-        if (std::any_of(candidates.begin(), candidates.end(),
-            [&candidateName](const Candidate& c) { return c.name == candidateName; })) {
+
+        // Check duplicate
+        auto check = supabaseRequest("GET",
+            "candidates?select=name&name=eq." + urlEncode(candidateName) + "&limit=1");
+        try {
+            auto arr = json::parse(check.body);
+            if (arr.is_array() && !arr.empty()) {
+                response["success"] = false;
+                response["message"] = "Candidate already exists: " + candidateName;
+                return response;
+            }
+        } catch (...) {}
+
+        json body;
+        body["name"] = candidateName;
+        body["votes"] = 0;
+        auto res = supabaseRequest("POST", "candidates", body.dump());
+
+        if (res.statusCode == 200 || res.statusCode == 201) {
+            response["success"] = true;
+            response["message"] = "Candidate added successfully: " + candidateName;
+            response["candidates"] = getAllCandidates();
+        } else {
             response["success"] = false;
-            response["message"] = "Candidate already exists: " + candidateName;
-            return response;
+            response["message"] = "Failed to add candidate";
         }
-        candidates.push_back(Candidate(candidateName, 0));
-        saveCandidates();
-        response["success"] = true;
-        response["message"] = "Candidate added successfully: " + candidateName;
-        response["candidates"] = getAllCandidates();
         return response;
     }
 
+    // ---------- DELETE CANDIDATE ----------
     json deleteCandidate(const std::string& candidateName, const std::string& password) {
         json response;
         if (password != ADMIN_PASSWORD) {
@@ -301,21 +277,17 @@ public:
             response["message"] = "Candidate name cannot be empty";
             return response;
         }
-        auto it = std::find_if(candidates.begin(), candidates.end(),
-            [&candidateName](const Candidate& c) { return c.name == candidateName; });
-        if (it == candidates.end()) {
-            response["success"] = false;
-            response["message"] = "Candidate not found: " + candidateName;
-            return response;
-        }
-        candidates.erase(it);
-        saveCandidates();
+
+        auto res = supabaseRequest("DELETE",
+            "candidates?name=eq." + urlEncode(candidateName));
+
         response["success"] = true;
         response["message"] = "Candidate deleted successfully: " + candidateName;
         response["candidates"] = getAllCandidates();
         return response;
     }
 
+    // ---------- DELETE VOTER ----------
     json deleteVoter(const std::string& voterId, const std::string& password) {
         json response;
         if (password != ADMIN_PASSWORD) {
@@ -328,20 +300,15 @@ public:
             response["message"] = "Voter ID cannot be empty";
             return response;
         }
-        auto it = std::find_if(voters.begin(), voters.end(),
-            [&voterId](const Voter& v) { return v.voterId == voterId; });
-        if (it == voters.end()) {
-            response["success"] = false;
-            response["message"] = "Voter not found: " + voterId;
-            return response;
-        }
-        voters.erase(it);
-        saveVoters();
+
+        supabaseRequest("DELETE", "voters?voter_id=eq." + voterId);
+
         response["success"] = true;
         response["message"] = "Voter deleted successfully: " + voterId;
         return response;
     }
 
+    // ---------- SYNC CANDIDATES ----------
     json syncCandidates(const json& candidateList, const std::string& password) {
         json response;
         if (password != ADMIN_PASSWORD) {
@@ -349,17 +316,23 @@ public:
             response["message"] = "Invalid admin password";
             return response;
         }
-        candidates.clear();
+
+        // Delete all and re-insert
+        supabaseRequest("DELETE", "candidates?id=gte.0");
         for (const auto& item : candidateList) {
-            candidates.push_back(Candidate(item["name"], item.value("votes", 0)));
+            json body;
+            body["name"] = item["name"];
+            body["votes"] = item.value("votes", 0);
+            supabaseRequest("POST", "candidates", body.dump());
         }
-        saveCandidates();
+
         response["success"] = true;
         response["message"] = "Candidates synced successfully";
         response["candidates"] = getAllCandidates();
         return response;
     }
 
+    // ---------- SYNC VOTERS (registered) ----------
     json syncVoters(const json& voterList, const std::string& password) {
         json response;
         if (password != ADMIN_PASSWORD) {
@@ -367,24 +340,44 @@ public:
             response["message"] = "Invalid admin password";
             return response;
         }
-        registeredVoters.clear();
+
+        // Upsert registered voters
         for (const auto& item : voterList) {
-            registeredVoters.push_back(RegisteredVoter(
-                item["id"],
-                item["name"],
-                item["email"],
-                item.value("phone", "")
-            ));
+            json body;
+            body["id"]    = item["id"];
+            body["name"]  = item["name"];
+            body["email"] = item["email"];
+            body["phone"] = item.value("phone", "");
+            supabaseRequest("POST",
+                "registered_voters",
+                body.dump(),
+                "-H 'Prefer: resolution=merge-duplicates'");
         }
-        saveRegisteredVoters();
+
         response["success"] = true;
         response["message"] = "Voters synced successfully";
         return response;
     }
+
+private:
+    // Simple URL encoder for candidate names with spaces/special chars
+    std::string urlEncode(const std::string& s) {
+        std::string result;
+        for (unsigned char c : s) {
+            if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+                result += c;
+            } else {
+                char buf[4];
+                snprintf(buf, sizeof(buf), "%%%02X", c);
+                result += buf;
+            }
+        }
+        return result;
+    }
 };
 
 // ============================================================================
-// HTTP SERVER (POSIX)
+// HTTP SERVER (POSIX - identical to before)
 // ============================================================================
 
 class HttpServer {
@@ -395,9 +388,7 @@ private:
 
     std::string parseBodyFromRequest(const std::string& request) {
         size_t pos = request.find("\r\n\r\n");
-        if (pos != std::string::npos) {
-            return request.substr(pos + 4);
-        }
+        if (pos != std::string::npos) return request.substr(pos + 4);
         return "";
     }
 
@@ -405,11 +396,10 @@ private:
         size_t start = request.find(' ');
         size_t end = request.find(' ', start + 1);
         if (start != std::string::npos && end != std::string::npos) {
-            std::string fullPath = request.substr(start + 1, end - start - 1);
-            // Strip query string if any
-            size_t qPos = fullPath.find('?');
-            if (qPos != std::string::npos) fullPath = fullPath.substr(0, qPos);
-            return fullPath;
+            std::string p = request.substr(start + 1, end - start - 1);
+            size_t q = p.find('?');
+            if (q != std::string::npos) p = p.substr(0, q);
+            return p;
         }
         return "/";
     }
@@ -434,14 +424,12 @@ private:
         response += "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n";
         response += "Access-Control-Allow-Headers: Content-Type\r\n";
         response += "Content-Length: " + std::to_string(body.length()) + "\r\n";
-        response += "Connection: close\r\n";
-        response += "\r\n";
+        response += "Connection: close\r\n\r\n";
         response += body;
         return response;
     }
 
     void handleClient(int clientFd) {
-        // Read the full request (handle chunked reads)
         std::string request;
         char buffer[4096];
         ssize_t bytesRead;
@@ -449,10 +437,8 @@ private:
         while ((bytesRead = read(clientFd, buffer, sizeof(buffer) - 1)) > 0) {
             buffer[bytesRead] = '\0';
             request += buffer;
-            // Stop reading once we have the full headers + body
             size_t headerEnd = request.find("\r\n\r\n");
             if (headerEnd != std::string::npos) {
-                // Check Content-Length to know if we have the full body
                 size_t clPos = request.find("Content-Length: ");
                 if (clPos != std::string::npos) {
                     size_t clEnd = request.find("\r\n", clPos);
@@ -460,20 +446,16 @@ private:
                     int bodyReceived = (int)request.size() - (int)(headerEnd + 4);
                     if (bodyReceived >= contentLength) break;
                 } else {
-                    break; // No body expected (GET / OPTIONS)
+                    break;
                 }
             }
         }
 
-        if (request.empty()) {
-            close(clientFd);
-            return;
-        }
+        if (request.empty()) { close(clientFd); return; }
 
         std::string method = getMethod(request);
-        std::string path = getPath(request);
-        std::string body = parseBodyFromRequest(request);
-
+        std::string path   = getPath(request);
+        std::string body   = parseBodyFromRequest(request);
         std::string response;
 
         try {
@@ -493,99 +475,81 @@ private:
             }
             else if (method == "POST" && path == "/checkVoter") {
                 if (body.empty()) {
-                    json error; error["success"] = false; error["message"] = "Request body cannot be empty";
-                    response = buildHttpResponse(400, error.dump());
+                    json e; e["success"]=false; e["message"]="Request body cannot be empty";
+                    response = buildHttpResponse(400, e.dump());
                 } else {
-                    auto reqBody = json::parse(body);
-                    auto result = controller.checkVoterRegistration(reqBody.value("voter_id", ""));
-                    response = buildHttpResponse(result["success"].get<bool>() ? 200 : 400, result.dump());
+                    auto rb = json::parse(body);
+                    auto r = controller.checkVoterRegistration(rb.value("voter_id",""));
+                    response = buildHttpResponse(r["success"].get<bool>() ? 200:400, r.dump());
                 }
             }
             else if (method == "POST" && path == "/vote") {
                 if (body.empty()) {
-                    json error; error["success"] = false; error["message"] = "Request body cannot be empty";
-                    response = buildHttpResponse(400, error.dump());
+                    json e; e["success"]=false; e["message"]="Request body cannot be empty";
+                    response = buildHttpResponse(400, e.dump());
                 } else {
-                    auto reqBody = json::parse(body);
-                    auto result = controller.castVote(
-                        reqBody.value("voter_id", ""),
-                        reqBody.value("candidate_name", "")
-                    );
-                    response = buildHttpResponse(result["success"].get<bool>() ? 200 : 400, result.dump());
+                    auto rb = json::parse(body);
+                    auto r = controller.castVote(rb.value("voter_id",""), rb.value("candidate_name",""));
+                    response = buildHttpResponse(r["success"].get<bool>() ? 200:400, r.dump());
                 }
             }
             else if (method == "POST" && path == "/addCandidate") {
                 if (body.empty()) {
-                    json error; error["success"] = false; error["message"] = "Request body cannot be empty";
-                    response = buildHttpResponse(400, error.dump());
+                    json e; e["success"]=false; e["message"]="Request body cannot be empty";
+                    response = buildHttpResponse(400, e.dump());
                 } else {
-                    auto reqBody = json::parse(body);
-                    auto result = controller.addCandidate(
-                        reqBody.value("candidate_name", ""),
-                        reqBody.value("admin_password", "")
-                    );
-                    response = buildHttpResponse(result["success"].get<bool>() ? 200 : 400, result.dump());
+                    auto rb = json::parse(body);
+                    auto r = controller.addCandidate(rb.value("candidate_name",""), rb.value("admin_password",""));
+                    response = buildHttpResponse(r["success"].get<bool>() ? 200:400, r.dump());
                 }
             }
             else if (method == "POST" && path == "/syncCandidates") {
                 if (body.empty()) {
-                    json error; error["success"] = false; error["message"] = "Request body cannot be empty";
-                    response = buildHttpResponse(400, error.dump());
+                    json e; e["success"]=false; e["message"]="Request body cannot be empty";
+                    response = buildHttpResponse(400, e.dump());
                 } else {
-                    auto reqBody = json::parse(body);
-                    auto result = controller.syncCandidates(
-                        reqBody.value("candidates", json::array()),
-                        reqBody.value("admin_password", "")
-                    );
-                    response = buildHttpResponse(result["success"].get<bool>() ? 200 : 400, result.dump());
+                    auto rb = json::parse(body);
+                    auto r = controller.syncCandidates(rb.value("candidates", json::array()), rb.value("admin_password",""));
+                    response = buildHttpResponse(r["success"].get<bool>() ? 200:400, r.dump());
                 }
             }
             else if (method == "POST" && path == "/syncVoters") {
                 if (body.empty()) {
-                    json error; error["success"] = false; error["message"] = "Request body cannot be empty";
-                    response = buildHttpResponse(400, error.dump());
+                    json e; e["success"]=false; e["message"]="Request body cannot be empty";
+                    response = buildHttpResponse(400, e.dump());
                 } else {
-                    auto reqBody = json::parse(body);
-                    auto result = controller.syncVoters(
-                        reqBody.value("voters", json::array()),
-                        reqBody.value("admin_password", "")
-                    );
-                    response = buildHttpResponse(result["success"].get<bool>() ? 200 : 400, result.dump());
+                    auto rb = json::parse(body);
+                    auto r = controller.syncVoters(rb.value("voters", json::array()), rb.value("admin_password",""));
+                    response = buildHttpResponse(r["success"].get<bool>() ? 200:400, r.dump());
                 }
             }
             else if (method == "POST" && path == "/deleteCandidate") {
                 if (body.empty()) {
-                    json error; error["success"] = false; error["message"] = "Request body cannot be empty";
-                    response = buildHttpResponse(400, error.dump());
+                    json e; e["success"]=false; e["message"]="Request body cannot be empty";
+                    response = buildHttpResponse(400, e.dump());
                 } else {
-                    auto reqBody = json::parse(body);
-                    auto result = controller.deleteCandidate(
-                        reqBody.value("candidate_name", ""),
-                        reqBody.value("admin_password", "")
-                    );
-                    response = buildHttpResponse(result["success"].get<bool>() ? 200 : 400, result.dump());
+                    auto rb = json::parse(body);
+                    auto r = controller.deleteCandidate(rb.value("candidate_name",""), rb.value("admin_password",""));
+                    response = buildHttpResponse(r["success"].get<bool>() ? 200:400, r.dump());
                 }
             }
             else if (method == "POST" && path == "/deleteVoter") {
                 if (body.empty()) {
-                    json error; error["success"] = false; error["message"] = "Request body cannot be empty";
-                    response = buildHttpResponse(400, error.dump());
+                    json e; e["success"]=false; e["message"]="Request body cannot be empty";
+                    response = buildHttpResponse(400, e.dump());
                 } else {
-                    auto reqBody = json::parse(body);
-                    auto result = controller.deleteVoter(
-                        reqBody.value("voter_id", ""),
-                        reqBody.value("admin_password", "")
-                    );
-                    response = buildHttpResponse(result["success"].get<bool>() ? 200 : 400, result.dump());
+                    auto rb = json::parse(body);
+                    auto r = controller.deleteVoter(rb.value("voter_id",""), rb.value("admin_password",""));
+                    response = buildHttpResponse(r["success"].get<bool>() ? 200:400, r.dump());
                 }
             }
             else {
-                json error; error["error"] = "Not found";
-                response = buildHttpResponse(404, error.dump());
+                json e; e["error"]="Not found";
+                response = buildHttpResponse(404, e.dump());
             }
         } catch (const std::exception& e) {
-            json error; error["success"] = false; error["message"] = "Invalid request";
-            response = buildHttpResponse(400, error.dump());
+            json err; err["success"]=false; err["message"]="Invalid request";
+            response = buildHttpResponse(400, err.dump());
         }
 
         write(clientFd, response.c_str(), response.length());
@@ -596,57 +560,37 @@ public:
     HttpServer(int p = 8080) : listenFd(-1), port(p) {}
 
     bool start() {
-        // Ignore SIGPIPE (client disconnects)
         signal(SIGPIPE, SIG_IGN);
 
         listenFd = socket(AF_INET, SOCK_STREAM, 0);
-        if (listenFd < 0) {
-            std::cerr << "Failed to create socket" << std::endl;
-            return false;
-        }
+        if (listenFd < 0) { std::cerr << "Failed to create socket" << std::endl; return false; }
 
-        // Allow port reuse (prevents "Address already in use" on restart)
         int opt = 1;
         setsockopt(listenFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
         sockaddr_in serverAddr{};
-        serverAddr.sin_family = AF_INET;
-        serverAddr.sin_addr.s_addr = INADDR_ANY;  // Listen on all interfaces
-        serverAddr.sin_port = htons(port);
+        serverAddr.sin_family      = AF_INET;
+        serverAddr.sin_addr.s_addr = INADDR_ANY;
+        serverAddr.sin_port        = htons(port);
 
         if (bind(listenFd, (sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
             std::cerr << "Bind failed on port " << port << std::endl;
-            close(listenFd);
-            return false;
+            close(listenFd); return false;
         }
-
         if (listen(listenFd, SOMAXCONN) < 0) {
             std::cerr << "Listen failed" << std::endl;
-            close(listenFd);
-            return false;
+            close(listenFd); return false;
         }
 
         std::cout << "=====================================" << std::endl;
-        std::cout << "Voting System REST API Server" << std::endl;
-        std::cout << "=====================================" << std::endl;
+        std::cout << "Voting System - Supabase Edition" << std::endl;
         std::cout << "Server running on port " << port << std::endl;
-        std::cout << "Endpoints:" << std::endl;
-        std::cout << "  GET  /candidates" << std::endl;
-        std::cout << "  POST /checkVoter" << std::endl;
-        std::cout << "  POST /vote" << std::endl;
-        std::cout << "  POST /addCandidate" << std::endl;
-        std::cout << "  POST /syncCandidates" << std::endl;
-        std::cout << "  POST /syncVoters" << std::endl;
-        std::cout << "  POST /deleteCandidate" << std::endl;
-        std::cout << "  POST /deleteVoter" << std::endl;
+        std::cout << "Database: Supabase PostgreSQL" << std::endl;
         std::cout << "=====================================" << std::endl;
 
         while (true) {
             int clientFd = accept(listenFd, nullptr, nullptr);
-            if (clientFd < 0) {
-                std::cerr << "Accept failed" << std::endl;
-                continue;
-            }
+            if (clientFd < 0) { continue; }
             handleClient(clientFd);
         }
 
@@ -660,12 +604,9 @@ public:
 // ============================================================================
 
 int main() {
-    // Railway injects PORT env variable — use it if available, else default 8080
     int port = 8080;
     const char* envPort = std::getenv("PORT");
-    if (envPort != nullptr) {
-        port = std::atoi(envPort);
-    }
+    if (envPort != nullptr) port = std::atoi(envPort);
 
     HttpServer server(port);
     server.start();
