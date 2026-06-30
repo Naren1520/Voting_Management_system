@@ -1328,7 +1328,13 @@
         <span id="toastMessage">Success!</span>
     </div>
 
+    <script src="config.js"></script>
     <script>
+        // DEPLOYMENT: Replace this with your Railway backend URL after deploying
+        // e.g. 'https://your-app-name.railway.app'
+        // For local development keep it as 'http://localhost:8080'
+        const API_BASE_URL = window.BACKEND_URL || 'http://localhost:8080';
+
         const ADMIN_PASSWORD = 'admin123';
         let allVoters = [];
         let allCandidates = [];
@@ -1557,7 +1563,7 @@
 
         function loadCandidates() {
             // Fetch candidates from backend to get updated vote counts
-            fetch('http://localhost:8080/candidates')
+            fetch(`${API_BASE_URL}/candidates`)
                 .then(r => r.json())
                 .then(candidates => {
                     console.log('Loaded candidates from backend:', candidates);
@@ -1647,7 +1653,7 @@
             const voters = getVoters();
 
             // Fetch candidates from backend to get updated vote counts
-            fetch('http://localhost:8080/candidates')
+            fetch(`${API_BASE_URL}/candidates`)
                 .then(r => r.json())
                 .then(candidates => {
                     // Fetch votes from backend
@@ -1970,7 +1976,7 @@
             
             console.log('Syncing voters to backend. Payload:', JSON.stringify(payload));
             
-            return fetch('http://localhost:8080/syncVoters', {
+            return fetch(`${API_BASE_URL}/syncVoters`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -2045,7 +2051,7 @@
             const jsonBody = JSON.stringify(payload);
             console.log('Syncing candidates to backend. Payload:', jsonBody);
             
-            fetch('http://localhost:8080/syncCandidates', {
+            fetch(`${API_BASE_URL}/syncCandidates`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -2072,7 +2078,7 @@
         function getVotes() {
             // Fetch votes from backend instead of localStorage
             return new Promise((resolve) => {
-                fetch('http://localhost:8080/getVotes')
+                fetch(`${API_BASE_URL}/getVotes`)
                     .then(r => r.json())
                     .then(data => {
                         console.log('Fetched votes from backend:', data);

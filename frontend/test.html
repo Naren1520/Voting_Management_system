@@ -10,8 +10,9 @@
 <body>
     <h1>API Connection Test</h1>
     <pre id="result">Testing...</pre>
+    <script src="config.js"></script>
     <script>
-        const API_BASE_URL = 'http://localhost:8080';
+        const API_BASE_URL = window.BACKEND_URL || 'http://localhost:8080';
         console.log('Attempting to fetch from:', API_BASE_URL + '/candidates');
         fetch(API_BASE_URL + '/candidates')
             .then(r => {

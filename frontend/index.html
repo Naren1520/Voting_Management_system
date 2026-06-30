@@ -727,9 +727,13 @@
         </footer>
     </div>
 
+    <script src="config.js"></script>
     <script>
         
-        const API_BASE_URL = 'http://localhost:8080';
+        // DEPLOYMENT: Replace this with your Railway backend URL after deploying
+        // e.g. 'https://your-app-name.railway.app'
+        // For local development keep it as 'http://localhost:8080'
+        const API_BASE_URL = window.BACKEND_URL || 'http://localhost:8080';
         const VOTED_VOTER_ID_KEY = 'votedVoterId';
 
         
@@ -787,7 +791,7 @@
                 })
                 .catch(error => {
                     console.error('Error loading candidates:', error);
-                    showError('candidatesList', 'Failed to load candidates. Make sure the server is running on http://localhost:8080');
+                    showError('candidatesList', 'Failed to load candidates. Make sure the backend server is running.');
                 });
         }
 
@@ -977,6 +981,14 @@
             div.textContent = text;
             return div.innerHTML;
         }
+
+        // Keep-alive ping for Render free tier (wakes server every 10 mins)
+        function keepAlive() {
+            if (window.BACKEND_URL) {
+                fetch(`${API_BASE_URL}/candidates`).catch(() => {});
+            }
+        }
+        setInterval(keepAlive, 10 * 60 * 1000); // every 10 minutes
     </script>
 </body>
 </html>

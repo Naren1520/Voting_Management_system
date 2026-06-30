@@ -1,0 +1,6 @@
+# Compiled binaries (Windows)
+backend/voting_server.exe
+
+# OS files
+.DS_Store
+Thumbs.db
