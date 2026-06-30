@@ -32,6 +32,7 @@ using json = nlohmann::json;
 // ============================================================================
 
 const std::string SUPABASE_URL  = "https://drwkzpoxyhluWuxzcjxx.supabase.co";
+// NOTE: verify this URL matches exactly what's shown in Supabase Settings > API > Project URL
 const std::string SUPABASE_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyd2t6cG94eWhsdXd1eHpjanh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3ODk2NDEsImV4cCI6MjA5ODM2NTY0MX0.ZC6uOOGc8frORkSolT47YwRIQ6QxnBbnkHxpyYQ61Pw";
 const std::string ADMIN_PASSWORD = "admin123";
 
@@ -51,35 +52,57 @@ HttpResult supabaseRequest(const std::string& method,
                             const std::string& extraHeaders = "") {
     std::string url = SUPABASE_URL + "/rest/v1/" + endpoint;
 
-    std::string cmd = "curl -s -w '\\n%{http_code}' -X " + method;
-    cmd += " -H 'apikey: " + SUPABASE_KEY + "'";
-    cmd += " -H 'Authorization: Bearer " + SUPABASE_KEY + "'";
-    cmd += " -H 'Content-Type: application/json'";
-    cmd += " -H 'Prefer: return=representation'";
-    if (!extraHeaders.empty()) cmd += " " + extraHeaders;
-    if (!body.empty()) cmd += " -d '" + body + "'";
-    cmd += " '" + url + "'";
+    // Write body to a temp file to avoid shell quoting issues
+    std::string tmpFile = "";
+    if (!body.empty()) {
+        tmpFile = "/tmp/sb_body_" + std::to_string(getpid()) + ".json";
+        std::ofstream f(tmpFile);
+        f << body;
+        f.close();
+    }
 
-    std::array<char, 4096> buf;
+    std::string cmd = "curl -s -w \"\\n%{http_code}\" -X " + method;
+    cmd += " -H \"apikey: " + SUPABASE_KEY + "\"";
+    cmd += " -H \"Authorization: Bearer " + SUPABASE_KEY + "\"";
+    cmd += " -H \"Content-Type: application/json\"";
+    cmd += " -H \"Prefer: return=representation\"";
+    if (!extraHeaders.empty()) cmd += " " + extraHeaders;
+    if (!tmpFile.empty()) cmd += " -d @" + tmpFile;
+    cmd += " \"" + url + "\"";
+
+    std::array<char, 65536> buf;
     std::string result;
     FILE* pipe = popen(cmd.c_str(), "r");
-    if (!pipe) return {500, "{}"};
+    if (!pipe) {
+        if (!tmpFile.empty()) remove(tmpFile.c_str());
+        return {500, "{}"};
+    }
 
     while (fgets(buf.data(), buf.size(), pipe) != nullptr) {
         result += buf.data();
     }
     pclose(pipe);
 
+    // Cleanup temp file
+    if (!tmpFile.empty()) remove(tmpFile.c_str());
+
     // Last line is the HTTP status code
     size_t lastNewline = result.rfind('\n');
     HttpResult hr;
     if (lastNewline != std::string::npos) {
-        hr.statusCode = std::stoi(result.substr(lastNewline + 1));
+        std::string codeStr = result.substr(lastNewline + 1);
+        // trim whitespace
+        codeStr.erase(codeStr.find_last_not_of(" \t\r\n") + 1);
+        hr.statusCode = codeStr.empty() ? 200 : std::stoi(codeStr);
         hr.body = result.substr(0, lastNewline);
     } else {
         hr.statusCode = 200;
         hr.body = result;
     }
+
+    std::cerr << "[Supabase] " << method << " " << endpoint
+              << " -> " << hr.statusCode << " : " << hr.body.substr(0, 200) << std::endl;
+
     return hr;
 }
 
