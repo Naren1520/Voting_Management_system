@@ -58,14 +58,21 @@ const std::string SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 // ============================================================================
 
 std::string hashPassword(const std::string& password) {
-    std::string cmd = "echo -n '" + password + "' | openssl dgst -sha256 -hex 2>/dev/null | awk '{print $2}'";
+    // Write password to temp file to avoid shell injection/quoting issues
+    std::string tmpFile = "/tmp/vs_pwd_" + std::to_string(getpid()) + ".txt";
+    std::ofstream f(tmpFile);
+    f << password;
+    f.close();
+
+    // Use file input instead of echo to avoid quoting issues
+    std::string cmd = "openssl dgst -sha256 -hex < " + tmpFile + " 2>/dev/null | awk '{print $NF}'";
     std::array<char, 128> buf;
     std::string result;
     FILE* pipe = popen(cmd.c_str(), "r");
-    if (!pipe) return "";
+    if (!pipe) { remove(tmpFile.c_str()); return ""; }
     while (fgets(buf.data(), buf.size(), pipe)) result += buf.data();
     pclose(pipe);
-    // trim newline
+    remove(tmpFile.c_str());
     if (!result.empty() && result.back() == '\n') result.pop_back();
     return result;
 }
@@ -220,6 +227,8 @@ public:
                 res["user"]["name"] = name;
                 res["user"]["email"] = email;
             } else {
+                std::cerr << "[SIGNUP] Supabase insert failed. Status: " << r.statusCode
+                          << " Body: " << r.body << std::endl;
                 res["success"] = false;
                 res["message"] = "Failed to create account";
             }
