@@ -49,7 +49,7 @@ using json = nlohmann::json;
 // CONFIG
 // ============================================================================
 
-const std::string SUPABASE_URL = "https://drwkzpoxyhluWuxzcjxx.supabase.co";
+const std::string SUPABASE_URL = "https://drwkzpoxyhluwuxzcjxx.supabase.co";
 const std::string SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyd2t6cG94eWhsdXd1eHpjanh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3ODk2NDEsImV4cCI6MjA5ODM2NTY0MX0.ZC6uOOGc8frORkSolT47YwRIQ6QxnBbnkHxpyYQ61Pw";
 
 // ============================================================================
