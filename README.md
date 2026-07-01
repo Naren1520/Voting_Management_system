@@ -1,127 +1,154 @@
-# Secure Voting System - Full Stack Application
+# VoteStack — Secure Online Voting Platform
 
-A complete full-stack voting system built with **C++ backend** and **vanilla HTML/CSS/JavaScript frontend**. This project demonstrates professional software engineering practices including RESTful APIs, data persistence, input validation, and XSS prevention.
+> A full-stack online voting system built with a high-performance **C++ backend** and a modern **Vanilla JS frontend**. Supports multi-election management, registered voter lists, real-time results, and full data isolation per user.
+
+<br/>
+
+![C++](https://img.shields.io/badge/C++-17-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=black)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
+
+<br/>
 
 ---
 
 ## Table of Contents
 
-1. [Project Overview](#project-overview)
-2. [Features](#features)
-3. [System Architecture](#system-architecture)
-4. [Project Structure](#project-structure)
-5. [Getting Started](#getting-started)
-6. [Backend Setup & Compilation](#backend-setup--compilation)
-7. [Frontend Setup](#frontend-setup)
-8. [API Endpoints](#api-endpoints)
-9. [Usage Examples](#usage-examples)
-10. [Security Features](#security-features)
-11. [How Voting Restriction Works](#how-voting-restriction-works)
-12. [Troubleshooting](#troubleshooting)
+1. [Overview](#overview)
+2. [Tech Stack](#tech-stack)
+3. [Features](#features)
+4. [System Architecture](#system-architecture)
+5. [Project Structure](#project-structure)
+6. [Getting Started](#getting-started)
+7. [Backend — Build & Run](#backend--build--run)
+8. [Frontend — Setup & Run](#frontend--setup--run)
+9. [API Reference](#api-reference)
+10. [Deployment](#deployment)
+11. [Security](#security)
+12. [Developer](#developer)
 
 ---
 
-## Project Overview
+## Overview
 
-This voting system is designed to demonstrate a complete, production-ready implementation of:
+VoteStack is a production-ready voting platform that allows any authenticated user to:
 
-- **RESTful API Server** in C++ using Crow framework
-- **Modern Frontend UI** with responsive design
-- **Data Persistence** using JSON files
-- **Duplicate Vote Prevention** using voter IDs
-- **Admin Panel** for candidate management
-- **Real-time Vote Counting** with live updates
-- **Input Validation** and security best practices
+- Create and manage multiple independent elections
+- Register voters with unique voter IDs
+- Share a unique voting link per election
+- Prevent duplicate voting at the server level
+- View live results with vote breakdowns
 
-### Tech Stack
-
-**Backend:**
-- C++ 17 (standard)
-- Crow Framework (lightweight HTTP server)
-- nlohmann/json library (JSON serialization)
-- Boost.Asio (networking)
-
-**Frontend:**
-- HTML5
-- CSS3 (with modern features like CSS Grid)
-- Vanilla JavaScript (no frameworks)
-- Local Storage API
-- Fetch API
+Each election is fully isolated — candidates, voters, and votes are never mixed across elections or users.
 
 ---
 
-## ✨ Features
+## Tech Stack
 
-### Voting Features
- **Multiple Candidates** - Support for unlimited candidates  
- **Vote Casting** - Submit votes through intuitive UI  
- **Duplicate Prevention** - Each voter ID can vote only once  
- **Live Results** - Real-time vote count updates  
- **Error Handling** - Clear error messages for invalid operations  
+### Backend
+| Technology | Purpose |
+|---|---|
+| C++ 17 | Core server language |
+| Raw TCP / HTTP (custom) | HTTP request handling without frameworks |
+| nlohmann/json | JSON serialization & deserialization |
+| Supabase REST API | Cloud database (via `curl`) |
+| OpenSSL | Password hashing & token generation |
+| POSIX Threads / pthreads | Multi-threaded request handling |
 
-### Admin Features
- **Add Candidates** - Dynamically add candidates (password protected)  
- **Admin Authentication** - Simple password-based access control  
- **Audit Trail** - Track all voters who have participated  
+### Frontend
+| Technology | Purpose |
+|---|---|
+| HTML5 | Page structure |
+| CSS3 (custom design system) | Styling, animations, layout |
+| Vanilla JavaScript (ES6+) | Client logic, API calls, auth |
+| Lucide Icons | UI icon set |
+| Google Fonts (Inter) | Typography |
+| Fetch API | HTTP communication with backend |
+| localStorage | Client-side session management |
 
-### Technical Features
- **RESTful API** - Clean, standard API design  
- **CORS Support** - Cross-origin resource sharing enabled  
- **Data Persistence** - JSON-based local file storage  
- **Input Validation** - Server and client-side validation  
- **XSS Prevention** - HTML escaping and sanitization  
- **Responsive Design** - Works on desktop, tablet, and mobile  
+### Infrastructure
+| Technology | Purpose |
+|---|---|
+| Docker | Backend containerisation |
+| Render | Backend cloud deployment |
+| Netlify | Frontend static hosting |
+| GitHub | Source control |
 
 ---
 
-##  System Architecture
+## Features
+
+### Voter Experience
+- Single-page voting flow with step indicator
+- Voter ID verification before ballot is shown
+- Duplicate vote prevention (server-enforced)
+- Vote confirmation screen with lock badge
+
+### Election Management
+- Create unlimited elections per account
+- Add / remove candidates dynamically
+- Register voters (voter ID, name, email, phone)
+- Toggle election active / closed status
+- Shareable per-election voting link
+- Delete elections with full data cleanup
+
+### Results & Analytics
+- Live vote count per candidate
+- Visual progress bars scaled to max votes
+- Total vote counter
+- Refresh on demand
+
+### Auth & Security
+- JWT-based authentication
+- Bcrypt password hashing (via OpenSSL)
+- Per-user data isolation
+- Guest route protection (redirect if not logged in)
+- Auth route protection (redirect if already logged in)
+
+---
+
+## System Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    FRONTEND (Browser)                        │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │  HTML5 + CSS3 + Vanilla JavaScript                   │   │
-│  │  - Vote Interface                                    │   │
-│  │  - Real-time Results Display                         │   │
-│  │  - Admin Panel                                       │   │
-│  │  - Local Storage (Voter ID persistence)             │   │
-│  └──────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
-                            ↕
-                   HTTP REST API (CORS)
-                            ↕
-┌─────────────────────────────────────────────────────────────┐
-│                 BACKEND (C++ Server)                        │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │  Port: 8080                                          │   │
-│  │  Framework: Crow                                     │   │
-│  │                                                      │   │
-│  │  Routes:                                             │   │
-│  │  • GET  /candidates     - List all candidates        │   │
-│  │  • POST /vote          - Cast a vote                 │   │
-│  │  • POST /addCandidate  - Add new candidate (admin)   │   │
-│  └──────────────────────────────────────────────────────┘   │
-│                                                             │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │  Controllers                                         │   │
-│  │  └─ VotingController                                 │   │
-│  │     • Vote validation                                │   │
-│  │     • Duplicate prevention                           │   │
-│  │     • Candidate management                           │   │
-│  └──────────────────────────────────────────────────────┘   │
-│                                                             │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │  Models                                              │   │
-│  │  ├─ Candidate (name, vote count)                     │   │
-│  │  └─ Voter (ID, voted candidate)                      │   │
-│  └──────────────────────────────────────────────────────┘   │
-│                                                             │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │  Data Persistence (JSON Files)                       │   │
-│  │  ├─ data/candidates.json                             │   │
-│  │  └─ data/voters.json                                 │   │
-│  └──────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                        BROWSER (Client)                         │
+│                                                                 │
+│   landing/    auth/    dashboard/    election/    vote/         │
+│   index.html  login    index.html    manage.html  index.html    │
+│              signup                                             │
+│                    │                                            │
+│         shared/api.js  +  shared/styles.css                     │
+│              config.js (API_BASE URL)                           │
+└──────────────────────────┬──────────────────────────────────────┘
+                           │  HTTPS  (REST/JSON)
+                           ▼
+┌─────────────────────────────────────────────────────────────────┐
+│               C++ HTTP Server  (port 8080)                      │
+│                                                                 │
+│   POST /api/auth/signup        POST /api/auth/login             │
+│   GET  /api/elections          POST /api/elections              │
+│   GET  /api/elections/:id      DELETE /api/elections/:id        │
+│   GET  /api/elections/:id/candidates                            │
+│   POST /api/elections/:id/candidates                            │
+│   GET  /api/elections/:id/voters                                │
+│   POST /api/elections/:id/voters                                │
+│   GET  /api/vote/:id/candidates   (public)                      │
+│   POST /api/vote/:id/check        (public)                      │
+│   POST /api/vote/:id/cast         (public)                      │
+│   GET  /api/vote/:id/results      (public)                      │
+└──────────────────────────┬──────────────────────────────────────┘
+                           │  HTTPS  (Supabase REST)
+                           ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    Supabase (PostgreSQL)                         │
+│                                                                 │
+│   users          elections        candidates                    │
+│   voters         votes            sessions                      │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -129,25 +156,51 @@ This voting system is designed to demonstrate a complete, production-ready imple
 ## Project Structure
 
 ```
-voting1/
-├── backend/
-│   ├── main.cpp                      # Main server file with route handlers
-│   ├── crow_all.h                    # Crow framework header
-│   ├── models/
-│   │   ├── Candidate.hpp            # Candidate model class
-│   │   └── Voter.hpp                # Voter model class
-│   ├── controllers/
-│   │   └── VotingController.hpp      # Main voting logic controller
-│   └── data/                         # Data storage (created at runtime)
-│       ├── candidates.json           # Persistent candidates data
-│       └── voters.json               # Persistent voters data
-│
-├── frontend/
-│   ├── index.html                    # Main HTML interface
-│   ├── style.css                     # Professional styling
-│   └── script.js                     # Client-side logic & API calls
-│
-└── README.md                         # This file
+VotingSystem/
+|
++-- backend/
+|   |
+|   +-- data/                          # Runtime data (auto-generated, git-ignored)
+|   |   +-- candidates.json
+|   |   +-- voters.json
+|   |   \-- registered_voters.json
+|   |
+|   +-- json.hpp                       # nlohmann/json single-header library
+|   +-- voting_server.cpp              # Windows build — main HTTP server source
+|   \-- voting_server_linux.cpp        # Linux build — used by Docker
+|
++-- frontend/
+|   |
+|   +-- assets/
+|   |   \-- Logo.png                   # Application logo
+|   |
+|   +-- auth/
+|   |   +-- login.html                 # Login page
+|   |   \-- signup.html                # Registration page
+|   |
+|   +-- dashboard/
+|   |   \-- index.html                 # Authenticated user dashboard (election list)
+|   |
+|   +-- election/
+|   |   \-- manage.html                # Election management (candidates, voters, results)
+|   |
+|   +-- landing/
+|   |   \-- index.html                 # Public landing / marketing page
+|   |
+|   +-- shared/
+|   |   +-- api.js                     # Centralised API client + Auth helpers
+|   |   \-- styles.css                 # Shared design system (tokens, components)
+|   |
+|   +-- vote/
+|   |   \-- index.html                 # Public voter-facing ballot page
+|   |
+|   +-- config.js                      # Runtime config (API_BASE URL)
+|   \-- netlify.toml                   # Netlify deployment config
+|
++-- Dockerfile                         # Multi-stage Docker build (gcc -> debian-slim)
++-- render.yaml                        # Render.com deployment config
++-- run.bat                            # Local dev launcher (Windows)
+\-- README.md
 ```
 
 ---
@@ -156,654 +209,326 @@ voting1/
 
 ### Prerequisites
 
-**For Backend:**
-- C++17 compatible compiler (GCC, Clang, or MSVC)
-- CMake (optional, for advanced builds)
-- Boost libraries installed (for Asio)
-- nlohmann/json library installed
-
-**For Frontend:**
-- Any modern web browser (Chrome, Firefox, Safari, Edge)
-- No build tools required - just open HTML file
-
-### Quick Start (5 minutes)
-
-#### Step 1: Compile Backend
-```bash
-cd backend
-g++ -std=c++17 -o voting_server main.cpp -I. -pthread
-```
-
-#### Step 2: Run Backend Server
-```bash
-./voting_server
-# Output: Server starting on http://localhost:8080
-```
-
-#### Step 3: Open Frontend
-```bash
-# Open in browser:
-file:///path/to/voting1/frontend/index.html
-# Or serve with a simple HTTP server
-cd frontend
-python -m http.server 3000
-# Then open: http://localhost:3000
-```
-
-That's it! The voting system is now running.
+| Requirement | Version | Notes |
+|---|---|---|
+| GCC / G++ | 12+ | For Linux/Windows build |
+| Docker | 20+ | For containerised build |
+| Python | 3.x | To serve frontend locally |
+| Git | any | Clone the repo |
 
 ---
 
-##  Backend Setup & Compilation
+## Backend — Build & Run
 
-### Installing Dependencies
+### Option A — Local Build (Windows)
 
-#### On Windows (MSVC)
-```bash
-# Install Visual C++ Build Tools
-# Download and install: https://visualstudio.microsoft.com/visual-cpp-build-tools/
-
-# Install Boost (using vcpkg)
-vcpkg install boost-asio:x64-windows
-vcpkg install nlohmann-json:x64-windows
-```
-
-#### On macOS
-```bash
-# Install Brew packages
-brew install boost
-brew install nlohmann-json
-
-# Or using Conan
-conan install . --build=missing
-```
-
-#### On Linux (Ubuntu/Debian)
-```bash
-sudo apt-get update
-sudo apt-get install libboost-all-dev nlohmann-json3-dev g++ cmake
-```
-
-### Compilation Steps
-
-**Using GCC (Linux/macOS):**
 ```bash
 cd backend
-g++ -std=c++17 -o voting_server main.cpp -I. -pthread -lstdc++fs
-./voting_server
-```
-
-**Using MSVC (Windows):**
-```bash
-cd backend
-cl /std:c++17 main.cpp /link ws2_32.lib
+g++ -std=c++17 -O2 -o voting_server.exe voting_server.cpp -lws2_32 -pthread
 voting_server.exe
 ```
 
-**Using Clang:**
+### Option B — Local Build (Linux / macOS)
+
 ```bash
 cd backend
-clang++ -std=c++17 -o voting_server main.cpp -I. -pthread
+g++ -std=c++17 -O2 -o voting_server voting_server_linux.cpp -pthread
 ./voting_server
 ```
 
-### Troubleshooting Compilation
+### Option C — Docker Build
 
-If you get "crow_all.h not found":
-- Make sure you're in the `backend/` directory
-- The `crow_all.h` file must be in the same directory as `main.cpp`
+```bash
+# Build the image
+docker build -t votestack-backend .
 
-If you get Boost library errors:
-- Install Boost development files for your OS
-- On Linux: `sudo apt-get install libboost-dev`
-- On macOS: `brew install boost`
+# Run the container
+docker run -p 8080:8080 votestack-backend
+```
 
-If you get JSON library errors:
-- The `nlohmann/json.hpp` must be in your include path
-- Download from: https://github.com/nlohmann/json/releases
+Server starts on **http://localhost:8080**
+
+### Quick Start (Windows — One Command)
+
+```bat
+.\run.bat
+```
+
+This starts the backend on port `8080` and the frontend on port `3000`, then opens the browser automatically.
 
 ---
 
-## 💻 Frontend Setup
+## Frontend — Setup & Run
 
-### Running the Frontend
+### Option A — Python HTTP Server (Recommended for local dev)
 
-**Option 1: Direct File Access**
-```bash
-# Simply open the HTML file in your browser
-file:///path/to/voting1/frontend/index.html
-```
-
-**Option 2: Python HTTP Server (Recommended)**
 ```bash
 cd frontend
-python -m http.server 8000
-# Open: http://localhost:8000
+python -m http.server 3000
 ```
 
-**Option 3: Node.js HTTP Server**
+Open **http://localhost:3000/landing/index.html**
+
+### Option B — Node.js HTTP Server
+
 ```bash
 cd frontend
-npx http-server
+npx http-server -p 3000
 ```
 
-**Option 4: Using VSCode Live Server**
-- Install "Live Server" extension
-- Right-click `index.html` → "Open with Live Server"
+### Option C — VS Code Live Server
 
-### Frontend Files Overview
+- Install the **Live Server** extension
+- Right-click `frontend/landing/index.html` → **Open with Live Server**
 
-**index.html** - Main voting interface containing:
-- Voter ID input
-- Candidate selection (radio buttons)
-- Vote submission button
-- Live results display
-- Admin panel for adding candidates
-- Voting rules section
+### Configuring the API URL
 
-**style.css** - Professional styling featuring:
-- Modern gradient header
-- Responsive grid layout
-- Smooth animations
-- Mobile-friendly design
-- Accessible color scheme
-- CSS custom properties (variables)
+Edit `frontend/config.js` to point at your backend:
 
-**script.js** - Frontend logic including:
-- API communication with backend
-- Local storage management
-- Real-time result updates
-- Input validation
-- Error/success message handling
-- XSS prevention (HTML escaping)
+```js
+// Local development
+window.API_BASE = 'http://localhost:8080';
+
+// Production (Render)
+window.API_BASE = 'https://voting-management-system-1-zh39.onrender.com';
+```
 
 ---
 
-## 🔌 API Endpoints
+## API Reference
 
 ### Base URL
-```
-http://localhost:8080
-```
 
-### 1. GET /candidates
-**Description:** Retrieve all candidates with their current vote counts.
-
-**Request:**
-```bash
-curl -X GET http://localhost:8080/candidates
+```
+https://voting-management-system-1-zh39.onrender.com
 ```
 
-**Response (200 OK):**
-```json
-[
-  {
-    "name": "Alice Johnson",
-    "votes": 5
-  },
-  {
-    "name": "Bob Smith",
-    "votes": 3
-  },
-  {
-    "name": "Charlie Brown",
-    "votes": 2
-  }
-]
+### Authentication
+
+All protected routes require:
+
+```
+Authorization: Bearer <jwt_token>
 ```
 
 ---
 
-### 2. POST /vote
-**Description:** Cast a vote for a candidate. Each voter ID can only vote once.
+### Auth
 
-**Request:**
-```bash
-curl -X POST http://localhost:8080/vote \
-  -H "Content-Type: application/json" \
-  -d '{
-    "voter_id": "VOTER001",
-    "candidate_name": "Alice Johnson"
-  }'
+#### POST `/api/auth/signup`
+Register a new user.
+
+**Request body:**
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "secret123"
+}
 ```
 
-**Response (200 OK - Success):**
+**Response:**
 ```json
 {
   "success": true,
-  "message": "Vote recorded successfully for Alice Johnson",
+  "token": "<jwt>",
+  "user": { "id": "...", "name": "John Doe", "email": "john@example.com" }
+}
+```
+
+---
+
+#### POST `/api/auth/login`
+Authenticate an existing user.
+
+**Request body:**
+```json
+{
+  "email": "john@example.com",
+  "password": "secret123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "token": "<jwt>",
+  "user": { "id": "...", "name": "John Doe", "email": "john@example.com" }
+}
+```
+
+---
+
+### Elections
+
+#### GET `/api/elections`  *(auth required)*
+Returns all elections owned by the authenticated user.
+
+#### POST `/api/elections`  *(auth required)*
+Create a new election.
+
+**Request body:**
+```json
+{ "title": "Student Council 2025" }
+```
+
+#### GET `/api/elections/:id`  *(auth required)*
+Get a single election by ID.
+
+#### DELETE `/api/elections/:id`  *(auth required)*
+Permanently delete an election and all its data.
+
+---
+
+### Candidates
+
+#### GET `/api/elections/:id/candidates`  *(auth required)*
+List all candidates for an election.
+
+#### POST `/api/elections/:id/candidates`  *(auth required)*
+Add a candidate.
+
+```json
+{ "name": "Alice Johnson" }
+```
+
+#### DELETE `/api/elections/:id/candidates`  *(auth required)*
+Remove a candidate.
+
+```json
+{ "name": "Alice Johnson" }
+```
+
+---
+
+### Voters
+
+#### GET `/api/elections/:id/voters`  *(auth required)*
+List all registered voters for an election.
+
+#### POST `/api/elections/:id/voters`  *(auth required)*
+Register a voter.
+
+```json
+{
+  "voter_id": "V001",
+  "name": "Jane Smith",
+  "email": "jane@example.com",
+  "phone": "+91..."
+}
+```
+
+#### DELETE `/api/elections/:id/voters`  *(auth required)*
+Remove a registered voter.
+
+```json
+{ "voter_id": "V001" }
+```
+
+---
+
+### Public Voting  *(no auth required)*
+
+#### GET `/api/vote/:id/candidates`
+Get the candidate list for a public ballot page.
+
+#### GET `/api/vote/:id/info`
+Get the election title and active status.
+
+#### POST `/api/vote/:id/check`
+Verify a voter ID before showing the ballot.
+
+```json
+{ "voter_id": "V001" }
+```
+
+**Response:**
+```json
+{ "success": true, "already_voted": false }
+```
+
+#### POST `/api/vote/:id/cast`
+Cast a vote.
+
+```json
+{
+  "voter_id": "V001",
+  "candidate_name": "Alice Johnson"
+}
+```
+
+#### GET `/api/vote/:id/results`
+Get live results for an election.
+
+```json
+{
+  "success": true,
+  "total_votes": 12,
   "candidates": [
-    {"name": "Alice Johnson", "votes": 6},
-    {"name": "Bob Smith", "votes": 3},
-    {"name": "Charlie Brown", "votes": 2}
+    { "name": "Alice Johnson", "votes": 8 },
+    { "name": "Bob Smith", "votes": 4 }
   ]
 }
 ```
 
-**Response (400 Bad Request - Error):**
-```json
-{
-  "success": false,
-  "message": "This voter ID has already voted"
-}
-```
-
-**Error Cases:**
-- `Voter ID cannot be empty` - Missing voter ID
-- `Candidate name cannot be empty` - Missing candidate name
-- `This voter ID has already voted` - Duplicate vote attempt
-- `Candidate not found: [name]` - Invalid candidate name
-
 ---
 
-### 3. POST /addCandidate
-**Description:** Add a new candidate to the voting system (Admin only).
+## Deployment
 
-**Request:**
-```bash
-curl -X POST http://localhost:8080/addCandidate \
-  -H "Content-Type: application/json" \
-  -d '{
-    "candidate_name": "Diana Prince",
-    "admin_password": "admin123"
-  }'
+### Backend — Render.com
+
+The backend is containerised with Docker and deployed to [Render](https://render.com) via `render.yaml`.
+
+```yaml
+services:
+  - type: web
+    name: voting-system-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    branch: main
+    plan: free
+    healthCheckPath: /candidates
 ```
 
-**Response (200 OK - Success):**
-```json
-{
-  "success": true,
-  "message": "Candidate added successfully: Diana Prince",
-  "candidates": [
-    {"name": "Alice Johnson", "votes": 6},
-    {"name": "Bob Smith", "votes": 3},
-    {"name": "Charlie Brown", "votes": 2},
-    {"name": "Diana Prince", "votes": 0}
-  ]
-}
+Push to `main` branch triggers an automatic redeploy.
+
+### Frontend — Netlify
+
+The `frontend/` directory is deployed as a static site on Netlify.
+
+```toml
+# frontend/netlify.toml
 ```
 
-**Response (400 Bad Request - Error):**
-```json
-{
-  "success": false,
-  "message": "Invalid admin password"
-}
+Set the **Publish directory** to `frontend/` in Netlify dashboard settings.
+
+**Environment variable to set in Netlify:**
 ```
-
-**Admin Password:** `admin123` (default)
-
-**Error Cases:**
-- `Invalid admin password` - Wrong password provided
-- `Candidate name cannot be empty` - Missing candidate name
-- `Candidate already exists: [name]` - Duplicate candidate
-
----
-
-## Usage Examples
-
-### Example 1: Complete Voting Flow
-
-```bash
-# 1. Get all candidates
-curl http://localhost:8080/candidates
-
-# 2. Vote for a candidate
-curl -X POST http://localhost:8080/vote \
-  -H "Content-Type: application/json" \
-  -d '{
-    "voter_id": "USER123",
-    "candidate_name": "Alice Johnson"
-  }'
-
-# 3. Check updated vote counts
-curl http://localhost:8080/candidates
-```
-
-### Example 2: Add New Candidate (Admin)
-
-```bash
-# Add a new candidate
-curl -X POST http://localhost:8080/addCandidate \
-  -H "Content-Type: application/json" \
-  -d '{
-    "candidate_name": "Eve Wilson",
-    "admin_password": "admin123"
-  }'
-```
-
-### Example 3: Using JavaScript Fetch API
-
-```javascript
-// Get candidates
-fetch('http://localhost:8080/candidates')
-  .then(res => res.json())
-  .then(data => console.log(data));
-
-// Cast a vote
-fetch('http://localhost:8080/vote', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    voter_id: 'USER123',
-    candidate_name: 'Alice Johnson'
-  })
-})
-.then(res => res.json())
-.then(data => console.log(data));
-```
-
-### Example 4: Using Python Requests
-
-```python
-import requests
-import json
-
-API_URL = 'http://localhost:8080'
-
-# Get candidates
-response = requests.get(f'{API_URL}/candidates')
-print(json.dumps(response.json(), indent=2))
-
-# Cast a vote
-payload = {
-    'voter_id': 'USER123',
-    'candidate_name': 'Alice Johnson'
-}
-response = requests.post(f'{API_URL}/vote', json=payload)
-print(json.dumps(response.json(), indent=2))
+API_BASE = https://voting-management-system-1-zh39.onrender.com
 ```
 
 ---
 
-## 🔐 Security Features
+## Security
 
-### 1. **Duplicate Vote Prevention**
-- Each voter ID can vote only once
-- Voter IDs stored in `voters.json` for persistence
-- Server-side validation prevents duplicate votes
-
-### 2. **Password-Protected Admin Panel**
-- Only candidates added with correct password
-- Default password: `admin123`
-- Change in `VotingController.hpp` line 19
-
-### 3. **Input Validation**
-- Server-side validation for all inputs
-- Client-side validation for better UX
-- Rejects empty or invalid inputs
-
-### 4. **XSS Prevention**
-- HTML entity encoding on frontend
-- No direct DOM manipulation with unsanitized input
-- All user inputs properly escaped
-
-### 5. **CORS Support**
-- Configured for cross-origin requests
-- Only necessary headers exposed
-- Prevents unauthorized cross-site access
-
-### 6. **Local Storage Security**
-- Browser localStorage used only for voter ID
-- No sensitive data stored client-side
-- Voter ID used as reference only
+| Concern | Implementation |
+|---|---|
+| Password storage | Bcrypt hashing via OpenSSL |
+| Session management | JWT tokens with expiry |
+| Duplicate vote prevention | Server-side voter ID check per election |
+| Data isolation | All queries scoped to authenticated user ID |
+| XSS prevention | `escHtml()` sanitiser on all user-supplied output |
+| CORS | Configured on backend for allowed origins |
+| Auth guards | `Auth.requireAuth()` / `Auth.requireGuest()` on every page load |
 
 ---
 
-## How Voting Restriction Works
+## Developer
 
-### Frontend Logic
-
-1. **Initial Check** (when page loads)
-   - Checks browser's localStorage for key `votedVoterId`
-   - If found, displays message: "You have already voted"
-   - Disables voting interface
-
-2. **Voter ID Input**
-   - User enters their unique voter ID
-   - ID can be username, email, passport number, etc.
-
-3. **Vote Submission**
-   - Frontend sends voter ID + candidate name to backend
-   - Backend validates voter hasn't already voted
-   - If valid, vote is recorded
-
-4. **Post-Vote Storage**
-   - Voter ID stored in browser localStorage
-   - Prevents double-voting even after page refresh
-   - Can be cleared by user through browser settings
-
-### Backend Logic
-
-1. **Voter Registration** (in `VotingController.hpp`)
-   ```cpp
-   // Check if voter exists in voters list
-   auto voterExists = std::find_if(voters.begin(), voters.end(),
-       [&voterId](const Voter& v) { return v.getVoterId() == voterId; });
-   
-   if (voterExists != voters.end()) {
-       return {false, "This voter ID has already voted"};
-   }
-   ```
-
-2. **Vote Recording**
-   - Voter ID logged to `voters.json`
-   - Prevents voting again in future sessions
-   - Provides audit trail for election integrity
-
-### Data Persistence
-
-**voters.json** structure:
-```json
-[
-  {
-    "voter_id": "VOTER001",
-    "candidate_name": "Alice Johnson"
-  },
-  {
-    "voter_id": "VOTER002",
-    "candidate_name": "Bob Smith"
-  }
-]
-```
+**Naren S J**
+📧 [narensonu1520@gmail.com](mailto:narensonu1520@gmail.com)
 
 ---
 
-## Data Files
-
-### candidates.json
-Location: `backend/data/candidates.json`
-
-```json
-[
-  {
-    "name": "Alice Johnson",
-    "votes": 5
-  },
-  {
-    "name": "Bob Smith",
-    "votes": 3
-  }
-]
-```
-
-**Automatically created** when you add the first candidate.
-
-### voters.json
-Location: `backend/data/voters.json`
-
-```json
-[
-  {
-    "voter_id": "VOTER001",
-    "candidate_name": "Alice Johnson"
-  },
-  {
-    "voter_id": "VOTER002",
-    "candidate_name": "Bob Smith"
-  }
-]
-```
-
-**Automatically created** when the first vote is cast.
-
-### Adding Initial Candidates
-
-You can manually create `backend/data/candidates.json` with initial candidates:
-
-```json
-[
-  {"name": "Alice Johnson", "votes": 0},
-  {"name": "Bob Smith", "votes": 0},
-  {"name": "Charlie Brown", "votes": 0}
-]
-```
-
-Or use the admin panel in the frontend.
-
----
-
-## Troubleshooting
-
-### Problem: "Cannot GET /candidates" (404 Error)
-
-**Solutions:**
-1. Ensure backend server is running
-   ```bash
-   cd backend && ./voting_server
-   ```
-2. Check server is on port 8080
-   - Look for: "Server starting on http://localhost:8080"
-3. Check CORS is enabled (already included in code)
-
-### Problem: Voter ID Not Persisting After Voting
-
-**Solutions:**
-1. Check browser localStorage is enabled
-   - Some browsers block localStorage in private/incognito mode
-2. Clear browser cache: Ctrl+Shift+Delete (or Cmd+Shift+Delete on Mac)
-3. Try in a different browser
-
-### Problem: "Invalid admin password" When Adding Candidate
-
-**Solution:**
-- Default password is: `admin123`
-- Check for typos
-- To change password, edit `VotingController.hpp` line 19
-
-### Problem: Compilation Errors on Windows
-
-**Solution:**
-```bash
-# Try using MSVC with appropriate flags
-cl /std:c++17 /EHsc main.cpp /link ws2_32.lib
-```
-
-### Problem: Data Not Persisting Between Server Restarts
-
-**Solution:**
-- Check `data/` directory exists and contains JSON files
-- Verify file permissions allow read/write
-- Check files aren't corrupted (valid JSON)
-
-### Problem: Port 8080 Already in Use
-
-**Solution:**
-1. Find what's using port 8080
-2. Either kill that process or change port in `main.cpp`
-   ```cpp
-   app.port(8080).multithreaded().run();  // Change 8080 to another port
-   ```
-
----
-
-##  Code Quality & Design Patterns
-
-### Object-Oriented Design
-- **Models**: `Candidate` and `Voter` classes encapsulate data
-- **Controller**: `VotingController` separates business logic from routes
-- **Single Responsibility**: Each class has one reason to change
-
-### SOLID Principles
-- **S**ingle Responsibility: Each class does one thing
-- **O**pen/Closed: Code open for extension (add methods) but closed for modification
-- **L**iskov Substitution: Can swap implementations if needed
-- **I**nterface Segregation: Models expose only necessary methods
-- **D**ependency Inversion: High-level code doesn't depend on low-level details
-
-### Code Documentation
-- Comprehensive comments on all major functions
-- Doxygen-style documentation blocks
-- Clear variable names and logical structure
-
-### Frontend Best Practices
-- Semantic HTML5 markup
-- CSS variables for maintainability
-- Modular JavaScript functions
-- Error handling and user feedback
-
----
-
-##  Future Enhancements
-
-Potential features to add:
-1. **Database Integration** - Replace JSON files with SQLite/PostgreSQL
-2. **Authentication** - User login system instead of voter IDs
-3. **Real-time WebSocket** - Push updates instead of polling
-4. **Encryption** - Secure voter ID transmission
-5. **Admin Dashboard** - Web-based admin panel
-6. **Email Notifications** - Confirm votes via email
-7. **Docker Support** - Containerize application
-8. **Unit Tests** - Comprehensive test suite
-9. **Internationalization** - Multi-language support
-10. **Analytics** - Voting statistics and graphs
-
----
-
-##  License
-
-This project is provided as-is for educational and demonstration purposes.
-
----
-
-##  Support
-
-For issues or questions:
-1. Check the Troubleshooting section above
-2. Verify all files are in correct directories
-3. Ensure backend is running before opening frontend
-4. Check browser console for JavaScript errors (F12)
-
----
-
-##  Verification Checklist
-
-Before running the system, ensure:
-
-- [ ] Backend directory has: `main.cpp`, `crow_all.h`, `models/`, `controllers/`
-- [ ] Frontend directory has: `index.html`, `style.css`, `script.js`
-- [ ] C++ compiler installed and in PATH
-- [ ] Backend compiled without errors
-- [ ] Backend server running on port 8080
-- [ ] Frontend accessible in browser
-- [ ] Can see "Loading candidates..." message on page load
-- [ ] Voting interface displays without errors
-- [ ] Results update in real-time
-
----
-
-**Enjoy your secure voting system! **
-
-
-
- * @file voting_server.cpp
- * @brief Voting System - Pure C++ Backend (Single-threaded)
- * 
- * Simple HTTP server for voting system
- * Compile: g++ -std=c++17 -o voting_server.exe voting_server.cpp -lws2_32
-
-
-- command to run
-
-## -->>>>        cd "c:\Users\Naren S J\Downloads\voting1" ; .\run.bat
-
+*Built with a C++ backend for performance, Supabase for persistence, and a fully custom frontend design system — no UI frameworks used.*
