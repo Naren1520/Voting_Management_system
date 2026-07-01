@@ -1,6 +1,4 @@
-/* ============================================================
-   VoteStack - Shared Design System
-   ============================================================ */
+   /* VoteStack - Shared Design System */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
@@ -237,8 +235,28 @@ td {
 tr:last-child td { border-bottom: none; }
 tr:hover td { background: var(--bg-hover); }
 
+/* ---- Feature icon lucide sizing ---- */
+.feature-icon svg { width: 26px; height: 26px; stroke: var(--primary); }
+.feature-icon i   { display: flex; align-items: center; justify-content: center; }
+@media (max-width: 768px) {
+  .card { padding: 20px; }
+  .navbar { padding: 0 16px; }
+}
+
 /* ---- Responsive ---- */
 @media (max-width: 768px) {
   .card { padding: 20px; }
   .navbar { padding: 0 16px; }
+}
+
+/* ---- Lucide icon defaults ---- */
+[data-lucide], .lucide {
+  width: 20px; height: 20px;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  display: inline-block;
+  vertical-align: middle;
 }

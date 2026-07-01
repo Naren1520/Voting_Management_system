@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VoteStack — Secure Online Voting</title>
   <link rel="stylesheet" href="/shared/styles.css" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
     /* ---- Hero ---- */
     .hero {
@@ -124,8 +125,10 @@
     <h1 class="gradient-text">Host Secure Elections<br/>in Minutes</h1>
     <p>VoteStack lets you create, manage and share online elections with full data isolation, registered voter lists, and real-time results.</p>
     <div class="hero-actions">
-      <a href="/auth/signup.html" class="btn btn-primary">Host a Voting →</a>
-      <a href="#how"              class="btn btn-outline">See How It Works</a>
+      <a href="/auth/signup.html" class="btn btn-primary">Host a Voting
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <a href="#how" class="btn btn-outline">See How It Works</a>
     </div>
   </section>
 
@@ -137,32 +140,32 @@
     </div>
     <div class="features-grid">
       <div class="card feature-card">
-        <div class="feature-icon">🗳️</div>
+        <div class="feature-icon"><i data-lucide="vote"></i></div>
         <h3>Multiple Elections</h3>
         <p>Host as many elections as you need. Each is completely isolated — candidates, voters and votes are never mixed.</p>
       </div>
       <div class="card feature-card">
-        <div class="feature-icon">🔗</div>
+        <div class="feature-icon"><i data-lucide="link"></i></div>
         <h3>Shareable Vote Link</h3>
         <p>Get a unique voting link for each election. Share it with your voters — they just enter their voter ID and cast their vote.</p>
       </div>
       <div class="card feature-card">
-        <div class="feature-icon">🔒</div>
+        <div class="feature-icon"><i data-lucide="user-check"></i></div>
         <h3>Registered Voters Only</h3>
         <p>Only pre-registered voter IDs can vote. Duplicate votes are blocked. Your election stays clean and fraud-free.</p>
       </div>
       <div class="card feature-card">
-        <div class="feature-icon">📊</div>
+        <div class="feature-icon"><i data-lucide="bar-chart-2"></i></div>
         <h3>Live Results</h3>
         <p>Watch results update in real time as votes come in. Full vote breakdown per candidate.</p>
       </div>
       <div class="card feature-card">
-        <div class="feature-icon">🛡️</div>
+        <div class="feature-icon"><i data-lucide="shield"></i></div>
         <h3>Data Isolation</h3>
         <p>Your data is completely isolated from other users. No one else can see your elections, voters or results.</p>
       </div>
       <div class="card feature-card">
-        <div class="feature-icon">⚡</div>
+        <div class="feature-icon"><i data-lucide="zap"></i></div>
         <h3>C++ Powered Backend</h3>
         <p>Built on a high-performance C++ server with PostgreSQL storage. Fast, reliable, and built to scale.</p>
       </div>
@@ -212,7 +215,9 @@
     <div class="cta-box">
       <h2 class="gradient-text">Ready to run your election?</h2>
       <p>It's free. No credit card required. Start in under 2 minutes.</p>
-      <a href="/auth/signup.html" class="btn btn-primary">Host a Voting →</a>
+      <a href="/auth/signup.html" class="btn btn-primary">Host a Voting
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
     </div>
   </section>
 
@@ -220,9 +225,11 @@
     <p>© 2025 VoteStack — Secure Online Voting Platform</p>
   </footer>
 
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <script src="/config.js"></script>
   <script src="/shared/api.js"></script>
   <script>
+    lucide.createIcons();
     // If already logged in, show dashboard link
     document.addEventListener('DOMContentLoaded', () => {
       if (Auth.isLoggedIn()) {
@@ -230,7 +237,10 @@
           <span style="color:var(--text-2);font-size:14px;">
             Hi, ${Auth.user()?.name || 'there'}
           </span>
-          <a href="/dashboard/index.html" class="btn btn-primary btn-sm">Dashboard →</a>
+          <a href="/dashboard/index.html" class="btn btn-primary btn-sm">
+            Dashboard
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
         `;
       }
     });

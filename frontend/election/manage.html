@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Manage Election — VoteStack</title>
   <link rel="stylesheet" href="/shared/styles.css"/>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
     .page { max-width:1100px; margin:0 auto; padding:32px 24px; position:relative; z-index:1; }
     .back-link { display:inline-flex; align-items:center; gap:8px; color:var(--text-2); text-decoration:none; font-size:14px; margin-bottom:28px; transition:color .2s; }
@@ -85,13 +86,19 @@
       <img src="/assets/Logo.png" alt="VoteStack"/> VoteStack
     </a>
     <div class="navbar-actions">
-      <a href="/dashboard/index.html" class="btn btn-outline btn-sm">← Dashboard</a>
+      <a href="/dashboard/index.html" class="btn btn-outline btn-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Dashboard
+      </a>
       <button class="btn btn-outline btn-sm" onclick="handleLogout()">Log Out</button>
     </div>
   </nav>
 
   <main class="page">
-    <a href="/dashboard/index.html" class="back-link">← Back to My Elections</a>
+    <a href="/dashboard/index.html" class="back-link">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Back to My Elections
+    </a>
 
     <div class="election-header">
       <div>
@@ -104,18 +111,33 @@
     <!-- Share link -->
     <div class="share-banner">
       <div class="share-banner-left">
-        <h3>🔗 Voting Link</h3>
+        <h3>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:middle"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          Voting Link
+        </h3>
         <p>Share this link with your registered voters</p>
       </div>
       <div class="share-url" id="shareUrl">Loading…</div>
-      <button class="btn btn-primary btn-sm" onclick="copyLink()">📋 Copy</button>
+      <button class="btn btn-primary btn-sm" onclick="copyLink()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy
+      </button>
     </div>
 
     <!-- Tabs -->
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('candidates',this)">🗳️ Candidates</button>
-      <button class="tab"        onclick="switchTab('voters',this)">👥 Voters</button>
-      <button class="tab"        onclick="switchTab('results',this)">📊 Results</button>
+      <button class="tab active" onclick="switchTab('candidates',this)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:middle"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Candidates
+      </button>
+      <button class="tab" onclick="switchTab('voters',this)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:middle"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Voters
+      </button>
+      <button class="tab" onclick="switchTab('results',this)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:middle"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Results
+      </button>
     </div>
 
     <!-- Candidates Tab -->
@@ -124,7 +146,10 @@
       <div class="add-form">
         <input id="candName" class="input-field" type="text" placeholder="Candidate name"
           onkeydown="if(event.key==='Enter')addCandidate()" />
-        <button class="btn btn-primary" onclick="addCandidate()">+ Add</button>
+        <button class="btn btn-primary" onclick="addCandidate()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add
+        </button>
       </div>
       <div id="candidatesList"></div>
     </div>
@@ -150,7 +175,10 @@
           <input id="vPhone" class="input-field" type="tel" placeholder="+91..." />
         </div>
       </div>
-      <button class="btn btn-primary" style="margin-bottom:24px;" onclick="addVoter()">+ Add Voter</button>
+      <button class="btn btn-primary" style="margin-bottom:24px;" onclick="addVoter()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Voter
+      </button>
       <div id="votersList"></div>
     </div>
 
@@ -161,7 +189,10 @@
           <div style="font-size:14px;color:var(--text-2);">Total votes cast</div>
           <div style="font-size:36px;font-weight:800;color:var(--primary);" id="totalVotes">0</div>
         </div>
-        <button class="btn btn-outline btn-sm" onclick="loadResults()">↻ Refresh</button>
+        <button class="btn btn-outline btn-sm" onclick="loadResults()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Refresh
+        </button>
       </div>
       <div id="resultsList"></div>
     </div>
@@ -205,7 +236,7 @@
       const res = await API.getCandidates(electionId);
       const list = document.getElementById('candidatesList');
       if (!res.success || !res.candidates?.length) {
-        list.innerHTML = '<div class="empty-state"><span class="icon">🎭</span><p>No candidates yet. Add your first one above.</p></div>';
+      list.innerHTML = '<div class="empty-state"><span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg></span><p>No candidates yet. Add your first one above.</p></div>';
         return;
       }
       list.innerHTML = res.candidates.map(c => `
@@ -214,7 +245,10 @@
             <div class="candidate-name">${escHtml(c.name)}</div>
             <div class="candidate-votes">${c.votes} vote${c.votes!==1?'s':''}</div>
           </div>
-          <button class="btn btn-danger btn-sm" onclick="deleteCandidate('${escHtml(c.name)}')">Remove</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteCandidate('${escHtml(c.name)}')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              Remove
+            </button>
         </div>
       `).join('');
     }
@@ -241,7 +275,7 @@
       const res = await API.getVoters(electionId);
       const list = document.getElementById('votersList');
       if (!res.success || !res.voters?.length) {
-        list.innerHTML = '<div class="empty-state"><span class="icon">👤</span><p>No voters registered yet.</p></div>';
+      list.innerHTML = '<div class="empty-state"><span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><p>No voters registered yet.</p></div>';
         return;
       }
       list.innerHTML = res.voters.map(v => `
@@ -252,7 +286,9 @@
           </div>
           <div style="display:flex;align-items:center;gap:10px;">
             <span class="voter-id-badge">${escHtml(v.voter_id)}</span>
-            <button class="btn btn-danger btn-sm" onclick="deleteVoter('${escHtml(v.voter_id)}')">✕</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteVoter('${escHtml(v.voter_id)}')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
           </div>
         </div>
       `).join('');
@@ -287,7 +323,7 @@
       const list = document.getElementById('resultsList');
       document.getElementById('totalVotes').textContent = res.total_votes || 0;
       if (!res.success || !res.candidates?.length) {
-        list.innerHTML = '<div class="empty-state"><span class="icon">📊</span><p>No results yet.</p></div>';
+        list.innerHTML = '<div class="empty-state"><span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><p>No results yet.</p></div>';
         return;
       }
       const maxVotes = Math.max(...res.candidates.map(c => c.votes), 1);
