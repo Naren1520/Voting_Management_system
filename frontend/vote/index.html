@@ -129,12 +129,19 @@
 
         <!-- Step 3: Done -->
         <div id="stepDone" style="display:none;">
-          <div class="done-icon">✅</div>
-          <div class="done-text">
-            <h2 class="gradient-text">Vote Cast!</h2>
-            <p>Your vote for <strong id="votedFor" style="color:var(--primary);"></strong> has been recorded.</p>
+          <div style="text-align:center;padding:20px 0;">
+            <div style="font-size:80px;margin-bottom:24px;">🎉</div>
+            <h2 class="gradient-text" style="font-size:30px;margin-bottom:16px;">Thank You!</h2>
+            <p style="color:var(--text-2);font-size:16px;line-height:1.8;">
+              Your vote has been recorded successfully.<br/>
+              Results will be announced by the election host.
+            </p>
+            <div style="margin-top:32px;padding:16px;background:var(--primary-dim);border:1px solid rgba(0,255,136,.2);border-radius:var(--radius-sm);">
+              <p style="color:var(--primary);font-size:14px;font-weight:600;">
+                🔒 Your vote is secure and confidential
+              </p>
+            </div>
           </div>
-          <div class="result-mini" id="resultMini"></div>
         </div>
       </div>
 
@@ -249,32 +256,11 @@
 
       const res = await API.castVote(electionId, currentVoterId, selectedCand);
       if (res.success) {
-        document.getElementById('votedFor').textContent = selectedCand;
         showStep(3);
-        if (res.candidates) renderResults(res.candidates);
       } else {
         showMsg(res.message || 'Failed to cast vote', 'error');
         btn.disabled = false; btn.textContent = 'Cast Vote';
       }
-    }
-
-    function renderResults(cands) {
-      const div = document.getElementById('resultMini');
-      const total = cands.reduce((s,c) => s+c.votes, 0) || 1;
-      div.innerHTML = `
-        <h3>Live Results</h3>
-        ${cands.map(c => `
-          <div class="result-row">
-            <div class="result-row-label">
-              <span>${escHtml(c.name)}</span>
-              <span>${c.votes} votes (${Math.round(c.votes/total*100)}%)</span>
-            </div>
-            <div class="result-row-bar">
-              <div class="result-row-fill" style="width:${Math.round(c.votes/total*100)}%"></div>
-            </div>
-          </div>
-        `).join('')}
-      `;
     }
 
     function backToId() { showStep(1); selectedCand = null; }
