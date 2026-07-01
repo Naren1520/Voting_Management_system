@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manage Election — VoteStack</title>
+  <link rel="stylesheet" href="/shared/styles.css"/>
+  <style>
+    .page { max-width:1100px; margin:0 auto; padding:32px 24px; position:relative; z-index:1; }
+    .back-link { display:inline-flex; align-items:center; gap:8px; color:var(--text-2); text-decoration:none; font-size:14px; margin-bottom:28px; transition:color .2s; }
+    .back-link:hover { color:var(--primary); }
+    .election-header { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:32px; }
+    .election-header h1 { font-size:28px; }
+
+    /* Share link banner */
+    .share-banner {
+      background: linear-gradient(135deg, rgba(0,255,136,.08), rgba(0,217,255,.08));
+      border: 1px solid rgba(0,255,136,.25);
+      border-radius: var(--radius); padding:20px 24px;
+      display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;
+      margin-bottom:32px;
+    }
+    .share-banner-left h3 { font-size:15px; font-weight:700; margin-bottom:4px; }
+    .share-banner-left p  { font-size:13px; color:var(--text-2); }
+    .share-url {
+      font-family:monospace; font-size:13px; color:var(--primary);
+      background:rgba(0,255,136,.08); padding:10px 16px;
+      border-radius:8px; border:1px solid rgba(0,255,136,.2);
+      word-break:break-all; flex:1; min-width:200px; max-width:500px;
+    }
+
+    /* Tabs */
+    .tabs { display:flex; gap:4px; border-bottom:1px solid var(--border-bright); margin-bottom:32px; }
+    .tab {
+      padding:12px 20px; font-size:14px; font-weight:600;
+      cursor:pointer; border-bottom:2px solid transparent;
+      color:var(--text-2); transition:all .2s; background:none; border-left:none; border-right:none; border-top:none;
+    }
+    .tab.active { color:var(--primary); border-bottom-color:var(--primary); }
+    .tab:hover  { color:var(--text); }
+    .tab-panel  { display:none; }
+    .tab-panel.active { display:block; }
+
+    /* Candidates */
+    .add-form { display:flex; gap:12px; margin-bottom:24px; }
+    .add-form .input-field { flex:1; }
+    .candidate-item {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:16px; background:var(--bg-2); border:1px solid var(--border);
+      border-radius:var(--radius-sm); margin-bottom:8px;
+    }
+    .candidate-name { font-weight:600; font-size:15px; }
+    .candidate-votes { font-size:13px; color:var(--text-2); margin-top:2px; }
+
+    /* Voters */
+    .voter-item {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:14px 16px; background:var(--bg-2); border:1px solid var(--border);
+      border-radius:var(--radius-sm); margin-bottom:8px;
+    }
+    .voter-info strong { font-size:15px; display:block; }
+    .voter-info small  { font-size:12px; color:var(--text-2); }
+    .voter-id-badge { font-family:monospace; font-size:12px; color:var(--secondary); background:rgba(0,217,255,.1); padding:3px 10px; border-radius:6px; }
+    .add-voter-form { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px; }
+    @media(max-width:600px){ .add-voter-form { grid-template-columns:1fr; } }
+
+    /* Results */
+    .result-bar-wrap { margin-bottom:20px; }
+    .result-bar-label { display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px; font-weight:600; }
+    .result-bar-bg { background:var(--bg-2); border-radius:8px; height:40px; overflow:hidden; }
+    .result-bar-fill {
+      height:100%; display:flex; align-items:center; padding-left:16px;
+      font-weight:700; font-size:13px; color:#000;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      transition: width 1s cubic-bezier(.4,0,.2,1);
+      min-width:50px;
+    }
+
+    #tabCandidates, #tabVoters, #tabResults { font-family: inherit; }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a class="navbar-brand" href="/landing/index.html">
+      <img src="/assets/Logo.png" alt="VoteStack"/> VoteStack
+    </a>
+    <div class="navbar-actions">
+      <a href="/dashboard/index.html" class="btn btn-outline btn-sm">← Dashboard</a>
+      <button class="btn btn-outline btn-sm" onclick="handleLogout()">Log Out</button>
+    </div>
+  </nav>
+
+  <main class="page">
+    <a href="/dashboard/index.html" class="back-link">← Back to My Elections</a>
+
+    <div class="election-header">
+      <div>
+        <h1 class="gradient-text" id="electionTitle">Loading…</h1>
+        <p style="color:var(--text-2);font-size:14px;margin-top:6px;" id="electionMeta"></p>
+      </div>
+      <span class="badge badge-green" id="electionStatus">Active</span>
+    </div>
+
+    <!-- Share link -->
+    <div class="share-banner">
+      <div class="share-banner-left">
+        <h3>🔗 Voting Link</h3>
+        <p>Share this link with your registered voters</p>
+      </div>
+      <div class="share-url" id="shareUrl">Loading…</div>
+      <button class="btn btn-primary btn-sm" onclick="copyLink()">📋 Copy</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('candidates',this)">🗳️ Candidates</button>
+      <button class="tab"        onclick="switchTab('voters',this)">👥 Voters</button>
+      <button class="tab"        onclick="switchTab('results',this)">📊 Results</button>
+    </div>
+
+    <!-- Candidates Tab -->
+    <div class="tab-panel active" id="tabCandidates">
+      <div id="candMsg" class="msg" style="display:none;margin-bottom:16px;"></div>
+      <div class="add-form">
+        <input id="candName" class="input-field" type="text" placeholder="Candidate name"
+          onkeydown="if(event.key==='Enter')addCandidate()" />
+        <button class="btn btn-primary" onclick="addCandidate()">+ Add</button>
+      </div>
+      <div id="candidatesList"></div>
+    </div>
+
+    <!-- Voters Tab -->
+    <div class="tab-panel" id="tabVoters">
+      <div id="voterMsg" class="msg" style="display:none;margin-bottom:16px;"></div>
+      <div class="add-voter-form">
+        <div class="input-group">
+          <label>Voter ID</label>
+          <input id="vVoterId" class="input-field" type="text" placeholder="Unique voter ID" />
+        </div>
+        <div class="input-group">
+          <label>Full Name</label>
+          <input id="vName" class="input-field" type="text" placeholder="Voter name" />
+        </div>
+        <div class="input-group">
+          <label>Email</label>
+          <input id="vEmail" class="input-field" type="email" placeholder="voter@email.com" />
+        </div>
+        <div class="input-group">
+          <label>Phone</label>
+          <input id="vPhone" class="input-field" type="tel" placeholder="+91..." />
+        </div>
+      </div>
+      <button class="btn btn-primary" style="margin-bottom:24px;" onclick="addVoter()">+ Add Voter</button>
+      <div id="votersList"></div>
+    </div>
+
+    <!-- Results Tab -->
+    <div class="tab-panel" id="tabResults">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+        <div>
+          <div style="font-size:14px;color:var(--text-2);">Total votes cast</div>
+          <div style="font-size:36px;font-weight:800;color:var(--primary);" id="totalVotes">0</div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="loadResults()">↻ Refresh</button>
+      </div>
+      <div id="resultsList"></div>
+    </div>
+  </main>
+
+  <script src="/config.js"></script>
+  <script src="/shared/api.js"></script>
+  <script>
+    const params     = new URLSearchParams(location.search);
+    const electionId = params.get('id');
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!Auth.requireAuth()) return;
+      if (!electionId) { window.location.href = '/dashboard/index.html'; return; }
+
+      // Load election info
+      const res = await API.getElection(electionId);
+      if (!res.success) { window.location.href = '/dashboard/index.html'; return; }
+      const e = res.election;
+      document.getElementById('electionTitle').textContent = e.title;
+      document.getElementById('electionMeta').textContent  = 'Created ' + formatDate(e.created_at);
+      document.getElementById('electionStatus').textContent = e.is_active ? 'Active' : 'Closed';
+      document.getElementById('electionStatus').className   = 'badge ' + (e.is_active ? 'badge-green' : 'badge-red');
+      const link = `${location.origin}/vote/index.html?election=${electionId}`;
+      document.getElementById('shareUrl').textContent = link;
+
+      loadCandidates();
+      loadVoters();
+    });
+
+    function switchTab(name, btn) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+      if (name === 'results') loadResults();
+    }
+
+    /* ---- CANDIDATES ---- */
+    async function loadCandidates() {
+      const res = await API.getCandidates(electionId);
+      const list = document.getElementById('candidatesList');
+      if (!res.success || !res.candidates?.length) {
+        list.innerHTML = '<div class="empty-state"><span class="icon">🎭</span><p>No candidates yet. Add your first one above.</p></div>';
+        return;
+      }
+      list.innerHTML = res.candidates.map(c => `
+        <div class="candidate-item">
+          <div>
+            <div class="candidate-name">${escHtml(c.name)}</div>
+            <div class="candidate-votes">${c.votes} vote${c.votes!==1?'s':''}</div>
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="deleteCandidate('${escHtml(c.name)}')">Remove</button>
+        </div>
+      `).join('');
+    }
+
+    async function addCandidate() {
+      const name = document.getElementById('candName').value.trim();
+      if (!name) { showMsg('candMsg','Enter a candidate name','error'); return; }
+      const res = await API.addCandidate(electionId, name);
+      if (res.success) {
+        document.getElementById('candName').value = '';
+        showMsg('candMsg', 'Candidate added!', 'success');
+        loadCandidates();
+      } else showMsg('candMsg', res.message, 'error');
+    }
+
+    async function deleteCandidate(name) {
+      if (!confirm(`Remove candidate "${name}"?`)) return;
+      await API.deleteCandidate(electionId, name);
+      loadCandidates();
+    }
+
+    /* ---- VOTERS ---- */
+    async function loadVoters() {
+      const res = await API.getVoters(electionId);
+      const list = document.getElementById('votersList');
+      if (!res.success || !res.voters?.length) {
+        list.innerHTML = '<div class="empty-state"><span class="icon">👤</span><p>No voters registered yet.</p></div>';
+        return;
+      }
+      list.innerHTML = res.voters.map(v => `
+        <div class="voter-item">
+          <div class="voter-info">
+            <strong>${escHtml(v.name)}</strong>
+            <small>${escHtml(v.email||'')} ${v.phone?'· '+escHtml(v.phone):''}</small>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="voter-id-badge">${escHtml(v.voter_id)}</span>
+            <button class="btn btn-danger btn-sm" onclick="deleteVoter('${escHtml(v.voter_id)}')">✕</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function addVoter() {
+      const voter_id = document.getElementById('vVoterId').value.trim();
+      const name     = document.getElementById('vName').value.trim();
+      const email    = document.getElementById('vEmail').value.trim();
+      const phone    = document.getElementById('vPhone').value.trim();
+      if (!voter_id || !name) { showMsg('voterMsg','Voter ID and name are required','error'); return; }
+      const res = await API.addVoter(electionId, { voter_id, name, email, phone });
+      if (res.success) {
+        document.getElementById('vVoterId').value = '';
+        document.getElementById('vName').value = '';
+        document.getElementById('vEmail').value = '';
+        document.getElementById('vPhone').value = '';
+        showMsg('voterMsg','Voter added!','success');
+        loadVoters();
+      } else showMsg('voterMsg', res.message, 'error');
+    }
+
+    async function deleteVoter(voterId) {
+      if (!confirm(`Remove voter "${voterId}"?`)) return;
+      await API.deleteVoter(electionId, voterId);
+      loadVoters();
+    }
+
+    /* ---- RESULTS ---- */
+    async function loadResults() {
+      const res = await API.getResults(electionId);
+      const list = document.getElementById('resultsList');
+      document.getElementById('totalVotes').textContent = res.total_votes || 0;
+      if (!res.success || !res.candidates?.length) {
+        list.innerHTML = '<div class="empty-state"><span class="icon">📊</span><p>No results yet.</p></div>';
+        return;
+      }
+      const maxVotes = Math.max(...res.candidates.map(c => c.votes), 1);
+      list.innerHTML = res.candidates.map(c => {
+        const pct = Math.round((c.votes / maxVotes) * 100);
+        return `
+          <div class="result-bar-wrap">
+            <div class="result-bar-label">
+              <span>${escHtml(c.name)}</span>
+              <span>${c.votes} votes</span>
+            </div>
+            <div class="result-bar-bg">
+              <div class="result-bar-fill" style="width:${pct}%">${pct}%</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* ---- Helpers ---- */
+    function copyLink() {
+      const link = document.getElementById('shareUrl').textContent;
+      navigator.clipboard.writeText(link).then(() => showToast('Link copied!'));
+    }
+
+    function showMsg(id, text, type) {
+      const el = document.getElementById(id);
+      el.textContent = text; el.className = 'msg msg-'+type; el.style.display='block';
+      setTimeout(() => el.style.display='none', 4000);
+    }
+
+    function showToast(msg) {
+      let t = document.getElementById('toast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = 'toast';
+        t.style.cssText = 'position:fixed;bottom:32px;right:32px;background:var(--bg-card);border:1px solid var(--primary);color:var(--primary);padding:14px 24px;border-radius:12px;font-weight:600;z-index:300;box-shadow:0 0 20px var(--primary-glow);font-size:14px;';
+        document.body.appendChild(t);
+      }
+      t.textContent = msg; t.style.display='block';
+      setTimeout(() => t.style.display='none', 3000);
+    }
+
+    async function handleLogout() {
+      await API.logout(); Auth.clear();
+      window.location.href = '/landing/index.html';
+    }
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function formatDate(d) {
+      return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — VoteStack</title>
+  <link rel="stylesheet" href="/shared/styles.css"/>
+  <style>
+    .page { max-width: 1100px; margin: 0 auto; padding: 40px 24px; position:relative; z-index:1; }
+    .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:40px; flex-wrap:wrap; gap:16px; }
+    .page-header h1 { font-size:32px; }
+    .elections-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:24px; }
+    .election-card { cursor:pointer; }
+    .election-card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; }
+    .election-title { font-size:18px; font-weight:700; margin-bottom:6px; }
+    .election-meta  { font-size:13px; color:var(--text-2); }
+    .election-stats { display:flex; gap:16px; margin-top:16px; padding-top:16px; border-top:1px solid var(--border); }
+    .stat { text-align:center; flex:1; }
+    .stat .val { font-size:24px; font-weight:800; color:var(--primary); }
+    .stat .lbl { font-size:11px; color:var(--text-2); text-transform:uppercase; letter-spacing:.5px; margin-top:2px; }
+    .election-actions { display:flex; gap:8px; margin-top:16px; }
+    .election-actions .btn { flex:1; }
+
+    /* New election modal */
+    .modal-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.8);
+      display:none; align-items:center; justify-content:center;
+      z-index:200; padding:24px;
+    }
+    .modal-overlay.open { display:flex; }
+    .modal { background:var(--bg-card); border:1px solid var(--border-bright); border-radius:var(--radius); padding:40px; width:100%; max-width:480px; }
+    .modal h2 { font-size:24px; margin-bottom:24px; }
+    .modal-actions { display:flex; gap:12px; margin-top:24px; }
+
+    #loadingState { text-align:center; padding:80px 24px; color:var(--text-2); }
+    #emptyState   { display:none; }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a class="navbar-brand" href="/landing/index.html">
+      <img src="/assets/Logo.png" alt="VoteStack"/> VoteStack
+    </a>
+    <div class="navbar-actions">
+      <span id="userGreet" style="color:var(--text-2);font-size:14px;"></span>
+      <button class="btn btn-outline btn-sm" onclick="handleLogout()">Log Out</button>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div class="page-header">
+      <div>
+        <h1 class="gradient-text">My Elections</h1>
+        <p style="color:var(--text-2);margin-top:6px;">Manage all your voting sessions</p>
+      </div>
+      <button class="btn btn-primary" onclick="openModal()">+ New Election</button>
+    </div>
+
+    <div id="loadingState">
+      <span class="spinner" style="width:32px;height:32px;"></span>
+      <p style="margin-top:16px;">Loading your elections…</p>
+    </div>
+
+    <div id="emptyState" class="card" style="text-align:center;padding:60px 24px;display:none;">
+      <div class="empty-state">
+        <span class="icon">🗳️</span>
+        <h3 style="font-size:22px;margin-bottom:10px;">No elections yet</h3>
+        <p style="margin-bottom:28px;">Create your first election to get started</p>
+        <button class="btn btn-primary" onclick="openModal()">+ Create Election</button>
+      </div>
+    </div>
+
+    <div class="elections-grid" id="electionsGrid"></div>
+  </main>
+
+  <!-- New Election Modal -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+    <div class="modal">
+      <h2 class="gradient-text">Create New Election</h2>
+      <div id="modalMsg" class="msg" style="display:none;margin-bottom:20px;"></div>
+      <div class="input-group">
+        <label for="electionTitle">Election Title</label>
+        <input id="electionTitle" class="input-field" type="text"
+          placeholder="e.g. Student Council 2025"
+          onkeydown="if(event.key==='Enter')createElection()" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" style="flex:1" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" style="flex:2" id="createBtn" onclick="createElection()">
+          Create Election
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete confirm modal -->
+  <div class="modal-overlay" id="deleteOverlay">
+    <div class="modal" style="max-width:400px;">
+      <h2 style="font-size:22px;margin-bottom:12px;">Delete Election?</h2>
+      <p style="color:var(--text-2);margin-bottom:24px;">
+        This will permanently delete "<span id="deleteTitle"></span>" and all its data.
+      </p>
+      <div class="modal-actions">
+        <button class="btn btn-outline" style="flex:1" onclick="document.getElementById('deleteOverlay').classList.remove('open')">Cancel</button>
+        <button class="btn btn-danger" style="flex:1" id="confirmDeleteBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/config.js"></script>
+  <script src="/shared/api.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Auth.requireAuth()) return;
+      const user = Auth.user();
+      document.getElementById('userGreet').textContent = 'Hi, ' + (user?.name || '');
+      loadElections();
+    });
+
+    let elections = [];
+
+    async function loadElections() {
+      const res = await API.getElections();
+      document.getElementById('loadingState').style.display = 'none';
+      if (!res.success) { showError('Failed to load elections'); return; }
+      elections = res.elections || [];
+      renderElections();
+    }
+
+    function renderElections() {
+      const grid = document.getElementById('electionsGrid');
+      if (elections.length === 0) {
+        document.getElementById('emptyState').style.display = 'block';
+        grid.innerHTML = ''; return;
+      }
+      document.getElementById('emptyState').style.display = 'none';
+      grid.innerHTML = elections.map(e => `
+        <div class="card election-card" onclick="goManage('${e.id}')">
+          <div class="election-card-top">
+            <div>
+              <div class="election-title">${escHtml(e.title)}</div>
+              <div class="election-meta">${formatDate(e.created_at)}</div>
+            </div>
+            <span class="badge ${e.is_active ? 'badge-green' : 'badge-red'}">
+              ${e.is_active ? 'Active' : 'Closed'}
+            </span>
+          </div>
+          <div class="election-actions" onclick="event.stopPropagation()">
+            <button class="btn btn-outline btn-sm" onclick="goManage('${e.id}')">Manage</button>
+            <button class="btn btn-outline btn-sm" onclick="copyLink('${e.id}')">📋 Copy Link</button>
+            <button class="btn btn-danger btn-sm" onclick="confirmDelete('${e.id}','${escHtml(e.title)}')">🗑</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function goManage(id) { window.location.href = `/election/manage.html?id=${id}`; }
+
+    function copyLink(id) {
+      const link = `${window.location.origin}/vote/index.html?election=${id}`;
+      navigator.clipboard.writeText(link).then(() => {
+        showToast('Voting link copied!');
+      });
+    }
+
+    function openModal()  { document.getElementById('modalOverlay').classList.add('open'); document.getElementById('electionTitle').focus(); }
+    function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); document.getElementById('electionTitle').value=''; }
+    function closeModalOutside(e) { if(e.target===document.getElementById('modalOverlay')) closeModal(); }
+
+    async function createElection() {
+      const title = document.getElementById('electionTitle').value.trim();
+      const btn   = document.getElementById('createBtn');
+      const msg   = document.getElementById('modalMsg');
+      if (!title) { showModalMsg('Enter a title', 'error'); return; }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Creating…';
+
+      const res = await API.createElection(title);
+      if (res.success) {
+        closeModal();
+        showToast('Election created!');
+        loadElections();
+      } else {
+        showModalMsg(res.message || 'Failed', 'error');
+      }
+      btn.disabled = false; btn.textContent = 'Create Election';
+    }
+
+    function showModalMsg(text, type) {
+      const el = document.getElementById('modalMsg');
+      el.textContent = text; el.className = 'msg msg-'+type; el.style.display='block';
+    }
+
+    let pendingDeleteId = null;
+    function confirmDelete(id, title) {
+      pendingDeleteId = id;
+      document.getElementById('deleteTitle').textContent = title;
+      document.getElementById('deleteOverlay').classList.add('open');
+      document.getElementById('confirmDeleteBtn').onclick = doDelete;
+    }
+    async function doDelete() {
+      if (!pendingDeleteId) return;
+      await API.deleteElection(pendingDeleteId);
+      document.getElementById('deleteOverlay').classList.remove('open');
+      showToast('Election deleted');
+      loadElections();
+    }
+
+    async function handleLogout() {
+      await API.logout(); Auth.clear();
+      window.location.href = '/landing/index.html';
+    }
+
+    // Toast
+    function showToast(msg) {
+      let t = document.getElementById('toast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = 'toast';
+        t.style.cssText = 'position:fixed;bottom:32px;right:32px;background:var(--bg-card);border:1px solid var(--primary);color:var(--primary);padding:14px 24px;border-radius:12px;font-weight:600;z-index:300;box-shadow:0 0 20px var(--primary-glow);font-size:14px;';
+        document.body.appendChild(t);
+      }
+      t.textContent = msg; t.style.display='block';
+      setTimeout(() => { t.style.display='none'; }, 3000);
+    }
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function formatDate(d) {
+      return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    }
+  </script>
+</body>
+</html>

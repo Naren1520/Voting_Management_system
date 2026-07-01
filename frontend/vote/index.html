@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cast Your Vote — VoteStack</title>
+  <link rel="stylesheet" href="/shared/styles.css"/>
+  <style>
+    .vote-page {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 24px;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(0,255,136,.07) 0%, transparent 55%),
+        radial-gradient(ellipse at 80% 30%, rgba(0,217,255,.07) 0%, transparent 55%);
+      position: relative; z-index: 1;
+    }
+    .vote-box { width: 100%; max-width: 520px; }
+    .vote-header { text-align: center; margin-bottom: 32px; }
+    .vote-header img { width: 56px; height: 56px; border-radius: 14px; margin-bottom: 16px; }
+    .vote-header h1 { font-size: 28px; margin-bottom: 8px; }
+    .vote-header p  { color: var(--text-2); font-size: 14px; }
+    .vote-card { padding: 36px; }
+
+    /* Steps */
+    .step-indicator { display: flex; gap: 0; margin-bottom: 32px; }
+    .step-dot {
+      flex: 1; height: 4px; background: var(--border-bright); border-radius: 2px;
+      transition: background .4s;
+    }
+    .step-dot.done   { background: var(--primary); }
+    .step-dot.active { background: var(--secondary); }
+
+    /* Voter ID step */
+    #stepId { display: block; }
+    #stepVote, #stepDone { display: none; }
+
+    /* Candidate list */
+    .candidate-option {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px; border: 1.5px solid var(--border-bright);
+      border-radius: var(--radius-sm); margin-bottom: 10px;
+      cursor: pointer; transition: all .25s;
+    }
+    .candidate-option:hover { border-color: var(--primary); background: var(--primary-dim); }
+    .candidate-option.selected {
+      border-color: var(--primary); background: var(--primary-dim);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+    .candidate-option input[type=radio] { display: none; }
+    .radio-circle {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 2px solid var(--border-bright); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s;
+    }
+    .candidate-option.selected .radio-circle {
+      background: var(--primary); border-color: var(--primary); color: #000;
+    }
+    .candidate-name-lbl { font-size: 16px; font-weight: 600; flex: 1; }
+
+    /* Done step */
+    .done-icon { font-size: 72px; text-align: center; margin-bottom: 20px; }
+    .done-text { text-align: center; }
+    .done-text h2 { font-size: 26px; margin-bottom: 12px; }
+    .done-text p  { color: var(--text-2); font-size: 15px; }
+
+    /* Results after vote */
+    .result-mini { margin-top: 32px; }
+    .result-mini h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+    .result-row { margin-bottom: 14px; }
+    .result-row-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+    .result-row-bar { height: 6px; background: var(--border-bright); border-radius: 3px; overflow: hidden; }
+    .result-row-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 3px; transition: width 1s; }
+
+    #loadingMsg { text-align:center; padding:32px; color:var(--text-2); }
+    #msgBox { display:none; margin-bottom:16px; }
+  </style>
+</head>
+<body>
+  <div class="vote-page">
+    <div class="vote-box">
+      <div class="vote-header">
+        <img src="/assets/Logo.png" alt="VoteStack"/>
+        <h1 class="gradient-text" id="electionTitleDisplay">Loading…</h1>
+        <p>Enter your voter ID to cast your vote</p>
+      </div>
+
+      <div class="card vote-card">
+        <!-- Step indicator -->
+        <div class="step-indicator">
+          <div class="step-dot active" id="dot0"></div>
+          <div style="width:8px;"></div>
+          <div class="step-dot" id="dot1"></div>
+          <div style="width:8px;"></div>
+          <div class="step-dot" id="dot2"></div>
+        </div>
+
+        <div id="msgBox" class="msg"></div>
+        <div id="loadingMsg"><span class="spinner" style="width:28px;height:28px;"></span></div>
+
+        <!-- Step 1: Voter ID -->
+        <div id="stepId" style="display:none;">
+          <div class="input-group" style="margin-bottom:20px;">
+            <label for="voterIdInput">Your Voter ID</label>
+            <input id="voterIdInput" class="input-field" type="text"
+              placeholder="Enter your assigned voter ID"
+              onkeydown="if(event.key==='Enter')checkVoter()" />
+          </div>
+          <button class="btn btn-primary btn-full" id="checkBtn" onclick="checkVoter()">
+            Verify & Continue →
+          </button>
+        </div>
+
+        <!-- Step 2: Select candidate -->
+        <div id="stepVote" style="display:none;">
+          <p style="color:var(--text-2);font-size:14px;margin-bottom:20px;">
+            Voting as: <strong style="color:var(--primary);" id="voterIdLabel"></strong>
+          </p>
+          <div id="candidateOptions"></div>
+          <div style="display:flex;gap:12px;margin-top:24px;">
+            <button class="btn btn-outline" onclick="backToId()">← Back</button>
+            <button class="btn btn-primary" style="flex:1;" id="castBtn" onclick="castVote()" disabled>
+              Cast Vote
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 3: Done -->
+        <div id="stepDone" style="display:none;">
+          <div class="done-icon">✅</div>
+          <div class="done-text">
+            <h2 class="gradient-text">Vote Cast!</h2>
+            <p>Your vote for <strong id="votedFor" style="color:var(--primary);"></strong> has been recorded.</p>
+          </div>
+          <div class="result-mini" id="resultMini"></div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:24px;">
+        <a href="/landing/index.html" style="color:var(--text-3);font-size:13px;text-decoration:none;">
+          Powered by VoteStack
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script src="/config.js"></script>
+  <script src="/shared/api.js"></script>
+  <script>
+    const params     = new URLSearchParams(location.search);
+    const electionId = params.get('election');
+    let candidates   = [];
+    let selectedCand = null;
+    let currentVoterId = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!electionId) { showError('Invalid voting link'); return; }
+
+      const res = await API.publicCandidates(electionId);
+      document.getElementById('loadingMsg').style.display = 'none';
+
+      if (!res.success) {
+        showError(res.message || 'Election not found');
+        return;
+      }
+
+      candidates = res.candidates || [];
+      // Try to get election title from candidates response (we fetch election info separately)
+      await loadTitle();
+      document.getElementById('stepId').style.display = 'block';
+    });
+
+    async function loadTitle() {
+      try {
+        const res = await fetch(`${window.API_BASE}/api/vote/${electionId}/info`);
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('electionTitleDisplay').textContent = data.title;
+          document.title = data.title + ' — VoteStack';
+          if (!data.is_active) {
+            showError('This election is closed.');
+            document.getElementById('stepId').style.display = 'none';
+          }
+        }
+      } catch(e) {
+        document.getElementById('electionTitleDisplay').textContent = 'Cast Your Vote';
+      }
+    }
+
+    /* ---- Step 1: Verify voter ---- */
+    async function checkVoter() {
+      const voterId = document.getElementById('voterIdInput').value.trim();
+      const btn     = document.getElementById('checkBtn');
+      if (!voterId) { showMsg('Enter your voter ID', 'error'); return; }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Verifying…';
+
+      const res = await API.checkVoter(electionId, voterId);
+      btn.disabled = false; btn.textContent = 'Verify & Continue →';
+
+      if (res.already_voted) {
+        showMsg('You have already voted in this election.', 'error');
+        return;
+      }
+      if (!res.success) {
+        showMsg(res.message || 'Voter not found', 'error');
+        return;
+      }
+
+      currentVoterId = voterId;
+      document.getElementById('voterIdLabel').textContent = voterId;
+      showStep(2);
+      renderCandidates();
+    }
+
+    /* ---- Step 2: Select & cast ---- */
+    function renderCandidates() {
+      const div = document.getElementById('candidateOptions');
+      if (!candidates.length) {
+        div.innerHTML = '<p style="color:var(--text-2);text-align:center;">No candidates added yet.</p>';
+        return;
+      }
+      div.innerHTML = candidates.map((c, i) => `
+        <label class="candidate-option" id="opt_${i}" onclick="selectCand(${i})">
+          <div class="radio-circle" id="rc_${i}"></div>
+          <span class="candidate-name-lbl">${escHtml(c.name)}</span>
+        </label>
+      `).join('');
+    }
+
+    function selectCand(idx) {
+      document.querySelectorAll('.candidate-option').forEach(el => el.classList.remove('selected'));
+      document.querySelectorAll('.radio-circle').forEach(el => el.textContent = '');
+      document.getElementById('opt_'+idx)?.classList.add('selected');
+      const rc = document.getElementById('rc_'+idx);
+      if (rc) rc.textContent = '✓';
+      selectedCand = candidates[idx].name;
+      document.getElementById('castBtn').disabled = false;
+    }
+
+    async function castVote() {
+      if (!selectedCand) { showMsg('Select a candidate', 'error'); return; }
+      const btn = document.getElementById('castBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Casting vote…';
+
+      const res = await API.castVote(electionId, currentVoterId, selectedCand);
+      if (res.success) {
+        document.getElementById('votedFor').textContent = selectedCand;
+        showStep(3);
+        if (res.candidates) renderResults(res.candidates);
+      } else {
+        showMsg(res.message || 'Failed to cast vote', 'error');
+        btn.disabled = false; btn.textContent = 'Cast Vote';
+      }
+    }
+
+    function renderResults(cands) {
+      const div = document.getElementById('resultMini');
+      const total = cands.reduce((s,c) => s+c.votes, 0) || 1;
+      div.innerHTML = `
+        <h3>Live Results</h3>
+        ${cands.map(c => `
+          <div class="result-row">
+            <div class="result-row-label">
+              <span>${escHtml(c.name)}</span>
+              <span>${c.votes} votes (${Math.round(c.votes/total*100)}%)</span>
+            </div>
+            <div class="result-row-bar">
+              <div class="result-row-fill" style="width:${Math.round(c.votes/total*100)}%"></div>
+            </div>
+          </div>
+        `).join('')}
+      `;
+    }
+
+    function backToId() { showStep(1); selectedCand = null; }
+
+    /* ---- Helpers ---- */
+    function showStep(n) {
+      document.getElementById('stepId').style.display   = n===1?'block':'none';
+      document.getElementById('stepVote').style.display = n===2?'block':'none';
+      document.getElementById('stepDone').style.display = n===3?'block':'none';
+      document.getElementById('msgBox').style.display   = 'none';
+      [0,1,2].forEach(i => {
+        const d = document.getElementById('dot'+i);
+        d.className = 'step-dot' + (i < n-1 ? ' done' : i===n-1 ? ' active' : '');
+      });
+    }
+
+    function showMsg(text, type) {
+      const el = document.getElementById('msgBox');
+      el.textContent = text; el.className = 'msg msg-'+type; el.style.display='block';
+    }
+
+    function showError(text) {
+      document.getElementById('loadingMsg').style.display = 'none';
+      document.getElementById('electionTitleDisplay').textContent = 'Error';
+      showMsg(text, 'error');
+    }
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+  </script>
+</body>
+</html>

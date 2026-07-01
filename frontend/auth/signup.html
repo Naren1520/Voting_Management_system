@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up — VoteStack</title>
+  <link rel="stylesheet" href="/shared/styles.css" />
+  <style>
+    .auth-page {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 40px 24px;
+      background:
+        radial-gradient(ellipse at 30% 40%, rgba(0,255,136,.07) 0%, transparent 55%),
+        radial-gradient(ellipse at 70% 70%, rgba(0,217,255,.07) 0%, transparent 55%);
+      position: relative; z-index: 1;
+    }
+    .auth-box { width: 100%; max-width: 440px; }
+    .auth-header { text-align: center; margin-bottom: 40px; }
+    .auth-header img { width: 56px; height: 56px; border-radius: 14px; margin-bottom: 20px; }
+    .auth-header h1 { font-size: 30px; margin-bottom: 8px; }
+    .auth-header p  { color: var(--text-2); font-size: 15px; }
+    .auth-card { padding: 40px; }
+    .auth-form { display: flex; flex-direction: column; gap: 20px; }
+    .auth-footer { text-align: center; margin-top: 24px; color: var(--text-2); font-size: 14px; }
+    .auth-footer a { color: var(--primary); text-decoration: none; font-weight: 600; }
+    .auth-footer a:hover { text-decoration: underline; }
+    #msg { display: none; }
+    .password-wrap { position: relative; }
+    .password-wrap .input-field { padding-right: 48px; }
+    .eye-btn {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; color: var(--text-2);
+      font-size: 18px; padding: 4px;
+    }
+    .eye-btn:hover { color: var(--text); }
+    .strength-bar { height: 3px; border-radius: 2px; margin-top: 6px; transition: all .3s; background: var(--border-bright); }
+    .strength-bar.weak   { background: var(--danger);  width: 33%; }
+    .strength-bar.medium { background: var(--warning); width: 66%; }
+    .strength-bar.strong { background: var(--primary); width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-box">
+      <div class="auth-header">
+        <img src="/assets/Logo.png" alt="VoteStack" />
+        <h1 class="gradient-text">Create Account</h1>
+        <p>Start hosting secure elections for free</p>
+      </div>
+      <div class="card auth-card">
+        <div id="msg" class="msg"></div>
+        <form id="signupForm" class="auth-form" onsubmit="handleSignup(event)" novalidate>
+          <div class="input-group">
+            <label for="name">Full Name</label>
+            <input id="name" class="input-field" type="text"
+              placeholder="Your name" required autocomplete="name" />
+          </div>
+          <div class="input-group">
+            <label for="email">Email Address</label>
+            <input id="email" class="input-field" type="email"
+              placeholder="you@example.com" required autocomplete="email" />
+          </div>
+          <div class="input-group">
+            <label for="password">Password</label>
+            <div class="password-wrap">
+              <input id="password" class="input-field" type="password"
+                placeholder="Min 6 characters" required autocomplete="new-password"
+                oninput="checkStrength(this.value)" />
+              <button type="button" class="eye-btn" onclick="togglePwd()">👁</button>
+            </div>
+            <div class="strength-bar" id="strengthBar"></div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-full" id="submitBtn">
+            Create Account
+          </button>
+        </form>
+        <div class="divider" style="margin:24px 0">or</div>
+        <div class="auth-footer">
+          Already have an account? <a href="/auth/login.html">Log In</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/config.js"></script>
+  <script src="/shared/api.js"></script>
+  <script>
+    // Redirect if already logged in
+    document.addEventListener('DOMContentLoaded', () => Auth.requireGuest());
+
+    function showMsg(text, type) {
+      const el = document.getElementById('msg');
+      el.textContent = text;
+      el.className = 'msg msg-' + type;
+      el.style.display = 'block';
+    }
+
+    function togglePwd() {
+      const f = document.getElementById('password');
+      f.type = f.type === 'password' ? 'text' : 'password';
+    }
+
+    function checkStrength(v) {
+      const bar = document.getElementById('strengthBar');
+      if (!v) { bar.className = 'strength-bar'; return; }
+      if (v.length < 6)  bar.className = 'strength-bar weak';
+      else if (v.length < 10) bar.className = 'strength-bar medium';
+      else bar.className = 'strength-bar strong';
+    }
+
+    async function handleSignup(e) {
+      e.preventDefault();
+      const name     = document.getElementById('name').value.trim();
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const btn      = document.getElementById('submitBtn');
+
+      if (!name || !email || !password) {
+        showMsg('Please fill in all fields', 'error'); return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Creating account…';
+
+      const res = await API.signup(name, email, password);
+
+      if (res.success) {
+        Auth.save(res.token, res.user);
+        showMsg('Account created! Redirecting…', 'success');
+        setTimeout(() => window.location.href = '/dashboard/index.html', 1000);
+      } else {
+        showMsg(res.message || 'Signup failed', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+      }
+    }
+  </script>
+</body>
+</html>

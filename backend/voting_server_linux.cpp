@@ -957,10 +957,27 @@ private:
                     rb.value("voter_id",""), rb.value("candidate_name",""));
                 response = respond(r["success"].get<bool>() ? 200:400, r.dump());
 
-            // /api/vote/:election_id/results
+    // GET /api/vote/:election_id/results
             } else if (segs.size()==4 && segs[1]=="vote" && segs[3]=="results") {
                 auto r = voteCtrl.getResults(segs[2]);
                 response = respond(r["success"].get<bool>() ? 200:404, r.dump());
+
+            // GET /api/vote/:election_id/info  (public - election title)
+            } else if (segs.size()==4 && segs[1]=="vote" && segs[3]=="info") {
+                auto r = supabaseRequest("GET",
+                    "elections?select=title,is_active&id=eq."+segs[2]+"&limit=1");
+                try {
+                    auto arr = json::parse(r.body);
+                    if (arr.is_array() && !arr.empty()) {
+                        json res; res["success"]=true; res["title"]=arr[0]["title"];
+                        res["is_active"]=arr[0]["is_active"];
+                        response = respond(200, res.dump());
+                    } else {
+                        response = respond(404, err("Election not found").dump());
+                    }
+                } catch(...) {
+                    response = respond(404, err("Election not found").dump());
+                }
 
             } else {
                 response = respond(404, err("Not found").dump());

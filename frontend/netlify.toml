@@ -1,7 +1,14 @@
 [build]
   publish = "."
 
+# Root redirect → landing page
+[[redirects]]
+  from = "/"
+  to   = "/landing/index.html"
+  status = 200
+
+# SPA-style fallback for all other routes
 [[redirects]]
   from = "/*"
-  to = "/index.html"
-  status = 200
+  to   = "/landing/index.html"
+  status = 404

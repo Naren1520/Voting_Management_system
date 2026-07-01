@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoteStack — Secure Online Voting</title>
+  <link rel="stylesheet" href="/shared/styles.css" />
+  <style>
+    /* ---- Hero ---- */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 40px 24px;
+      position: relative; z-index: 1;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(0,255,136,.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(0,217,255,.08) 0%, transparent 60%);
+    }
+    .hero-logo {
+      width: 80px; height: 80px; border-radius: 20px;
+      border: 2px solid rgba(0,255,136,.3);
+      margin-bottom: 32px;
+      box-shadow: 0 0 40px var(--primary-glow);
+      animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-12px); }
+    }
+    .hero h1 { font-size: clamp(40px, 7vw, 80px); font-weight: 900; margin-bottom: 20px; }
+    .hero p  { font-size: clamp(16px, 2.5vw, 22px); color: var(--text-2); max-width: 560px; margin-bottom: 48px; }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+    .hero-actions .btn { min-width: 180px; padding: 16px 32px; font-size: 16px; }
+
+    /* ---- Features ---- */
+    .features {
+      padding: 100px 24px;
+      max-width: 1100px; margin: 0 auto;
+      position: relative; z-index: 1;
+    }
+    .features-header { text-align: center; margin-bottom: 64px; }
+    .features-header h2 { font-size: 40px; margin-bottom: 16px; }
+    .features-header p  { color: var(--text-2); font-size: 18px; }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    .feature-card { padding: 32px; }
+    .feature-icon {
+      width: 56px; height: 56px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; margin-bottom: 20px;
+      background: var(--primary-dim);
+      border: 1px solid rgba(0,255,136,.2);
+    }
+    .feature-card h3 { font-size: 20px; margin-bottom: 10px; }
+    .feature-card p  { color: var(--text-2); font-size: 15px; line-height: 1.7; }
+
+    /* ---- How it works ---- */
+    .how { padding: 80px 24px 100px; position: relative; z-index: 1; }
+    .how-inner { max-width: 800px; margin: 0 auto; text-align: center; }
+    .how h2 { font-size: 40px; margin-bottom: 16px; }
+    .how p.sub { color: var(--text-2); font-size: 18px; margin-bottom: 56px; }
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step {
+      display: flex; gap: 24px; align-items: flex-start;
+      text-align: left; padding: 28px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .step:last-child { border-bottom: none; }
+    .step-num {
+      width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #000;
+    }
+    .step-body h3 { font-size: 18px; margin-bottom: 6px; }
+    .step-body p  { color: var(--text-2); font-size: 15px; }
+
+    /* ---- CTA ---- */
+    .cta {
+      padding: 80px 24px 100px;
+      text-align: center; position: relative; z-index: 1;
+    }
+    .cta-box {
+      max-width: 600px; margin: 0 auto;
+      padding: 56px 40px; border-radius: 24px;
+      background: linear-gradient(135deg, rgba(0,255,136,.08), rgba(0,217,255,.08));
+      border: 1px solid rgba(0,255,136,.2);
+    }
+    .cta-box h2 { font-size: 36px; margin-bottom: 16px; }
+    .cta-box p  { color: var(--text-2); margin-bottom: 36px; font-size: 17px; }
+    .cta-box .btn { padding: 16px 48px; font-size: 17px; }
+
+    /* ---- Footer ---- */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 24px; text-align: center;
+      color: var(--text-3); font-size: 14px;
+      position: relative; z-index: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a class="navbar-brand" href="/landing/index.html">
+      <img src="/assets/Logo.png" alt="VoteStack" />
+      VoteStack
+    </a>
+    <div class="navbar-actions" id="navActions">
+      <a href="/auth/login.html"  class="btn btn-outline btn-sm">Log In</a>
+      <a href="/auth/signup.html" class="btn btn-primary btn-sm">Get Started</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <img class="hero-logo" src="/assets/Logo.png" alt="VoteStack" />
+    <h1 class="gradient-text">Host Secure Elections<br/>in Minutes</h1>
+    <p>VoteStack lets you create, manage and share online elections with full data isolation, registered voter lists, and real-time results.</p>
+    <div class="hero-actions">
+      <a href="/auth/signup.html" class="btn btn-primary">Host a Voting →</a>
+      <a href="#how"              class="btn btn-outline">See How It Works</a>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features">
+    <div class="features-header">
+      <h2 class="gradient-text">Everything you need</h2>
+      <p>Professional election management without the complexity</p>
+    </div>
+    <div class="features-grid">
+      <div class="card feature-card">
+        <div class="feature-icon">🗳️</div>
+        <h3>Multiple Elections</h3>
+        <p>Host as many elections as you need. Each is completely isolated — candidates, voters and votes are never mixed.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="feature-icon">🔗</div>
+        <h3>Shareable Vote Link</h3>
+        <p>Get a unique voting link for each election. Share it with your voters — they just enter their voter ID and cast their vote.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3>Registered Voters Only</h3>
+        <p>Only pre-registered voter IDs can vote. Duplicate votes are blocked. Your election stays clean and fraud-free.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Live Results</h3>
+        <p>Watch results update in real time as votes come in. Full vote breakdown per candidate.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="feature-icon">🛡️</div>
+        <h3>Data Isolation</h3>
+        <p>Your data is completely isolated from other users. No one else can see your elections, voters or results.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>C++ Powered Backend</h3>
+        <p>Built on a high-performance C++ server with PostgreSQL storage. Fast, reliable, and built to scale.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="how" id="how">
+    <div class="how-inner">
+      <h2 class="gradient-text">How it works</h2>
+      <p class="sub">From sign up to results in four simple steps</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h3>Create your account</h3>
+            <p>Sign up with your name, email and password. Your account and data are fully private.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h3>Create an election</h3>
+            <p>Give your election a title, add candidates, and upload your registered voters list.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h3>Share the voting link</h3>
+            <p>Copy the unique link from your dashboard and share it with voters via email, WhatsApp or any channel.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h3>Watch results live</h3>
+            <p>Monitor vote counts in real time from your admin dashboard. Results update instantly.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="cta-box">
+      <h2 class="gradient-text">Ready to run your election?</h2>
+      <p>It's free. No credit card required. Start in under 2 minutes.</p>
+      <a href="/auth/signup.html" class="btn btn-primary">Host a Voting →</a>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 VoteStack — Secure Online Voting Platform</p>
+  </footer>
+
+  <script src="/config.js"></script>
+  <script src="/shared/api.js"></script>
+  <script>
+    // If already logged in, show dashboard link
+    document.addEventListener('DOMContentLoaded', () => {
+      if (Auth.isLoggedIn()) {
+        document.getElementById('navActions').innerHTML = `
+          <span style="color:var(--text-2);font-size:14px;">
+            Hi, ${Auth.user()?.name || 'there'}
+          </span>
+          <a href="/dashboard/index.html" class="btn btn-primary btn-sm">Dashboard →</a>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>
