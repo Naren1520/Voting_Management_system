@@ -4,6 +4,7 @@
 
 <br/>
 
+[![Documentation](https://img.shields.io/badge/Docs-DeepWiki-blue?style=for-the-badge&logo=gitbook&logoColor=white)](https://deepwiki.com/Naren1520/Voting_Management_system)
 ![C++](https://img.shields.io/badge/C++-17-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
@@ -144,7 +145,7 @@ Each election is fully isolated — candidates, voters, and votes are never mixe
                            │  HTTPS  (Supabase REST)
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                    Supabase (PostgreSQL)                         │
+│                    Supabase (PostgreSQL)                        │
 │                                                                 │
 │   users          elections        candidates                    │
 │   voters         votes            sessions                      │
@@ -321,8 +322,8 @@ Register a new user.
 **Request body:**
 ```json
 {
-  "name": "John Doe",
-  "email": "john@example.com",
+  "name": "Example",
+  "email": "name@example.com",
   "password": "secret123"
 }
 ```
@@ -344,7 +345,7 @@ Authenticate an existing user.
 **Request body:**
 ```json
 {
-  "email": "john@example.com",
+  "email": "name@example.com",
   "password": "secret123"
 }
 ```
@@ -354,7 +355,7 @@ Authenticate an existing user.
 {
   "success": true,
   "token": "<jwt>",
-  "user": { "id": "...", "name": "John Doe", "email": "john@example.com" }
+  "user": { "id": "...", "name": "Name ", "email": "name@example.com" }
 }
 ```
 
@@ -390,14 +391,14 @@ List all candidates for an election.
 Add a candidate.
 
 ```json
-{ "name": "Alice Johnson" }
+{ "name": " Naren S J" }
 ```
 
 #### DELETE `/api/elections/:id/candidates`  *(auth required)*
 Remove a candidate.
 
 ```json
-{ "name": "Alice Johnson" }
+{ "name": " Naren S J " }
 ```
 
 ---
@@ -413,8 +414,8 @@ Register a voter.
 ```json
 {
   "voter_id": "V001",
-  "name": "Jane Smith",
-  "email": "jane@example.com",
+  "name": "Name",
+  "email": "name@example.com",
   "phone": "+91..."
 }
 ```
@@ -454,7 +455,7 @@ Cast a vote.
 ```json
 {
   "voter_id": "V001",
-  "candidate_name": "Alice Johnson"
+  "candidate_name": "Name"
 }
 ```
 
@@ -528,6 +529,8 @@ API_BASE = https://voting-management-system-1-zh39.onrender.com
 
 **Naren S J**
 📧 [narensonu1520@gmail.com](mailto:narensonu1520@gmail.com)
+
+📖 [Project Documentation](https://deepwiki.com/Naren1520/Voting_Management_system)
 
 ---
 
