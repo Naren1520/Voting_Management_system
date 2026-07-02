@@ -3,50 +3,82 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Log In — VoteStack</title>
-  <link rel="stylesheet" href="/shared/styles.css" />
-  <style>
-    .auth-page {
-      min-height: 100vh;
-      display: flex; align-items: center; justify-content: center;
-      padding: 40px 24px;
-      background:
-        radial-gradient(ellipse at 70% 30%, rgba(0,255,136,.07) 0%, transparent 55%),
-        radial-gradient(ellipse at 30% 70%, rgba(0,217,255,.07) 0%, transparent 55%);
-      position: relative; z-index: 1;
-    }
-    .auth-box { width: 100%; max-width: 440px; }
-    .auth-header { text-align: center; margin-bottom: 40px; }
-    .auth-header img { width: 56px; height: 56px; border-radius: 14px; margin-bottom: 20px; }
-    .auth-header h1 { font-size: 30px; margin-bottom: 8px; }
-    .auth-header p  { color: var(--text-2); font-size: 15px; }
-    .auth-card { padding: 40px; }
-    .auth-form { display: flex; flex-direction: column; gap: 20px; }
-    .auth-footer { text-align: center; margin-top: 24px; color: var(--text-2); font-size: 14px; }
-    .auth-footer a { color: var(--primary); text-decoration: none; font-weight: 600; }
-    #msg { display: none; }
-    .password-wrap { position: relative; }
-    .password-wrap .input-field { padding-right: 48px; }
-    .eye-btn {
-      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-      background: none; border: none; cursor: pointer;
-      color: var(--text-2); font-size: 18px; padding: 4px;
-    }
-  </style>
+  <title>Sign In — VoteStack</title>
+  <meta name="description" content="Sign in to your VoteStack account." />
+  <link rel="icon" href="/assets/Logo.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="auth.css" />
 </head>
 <body>
-  <div class="auth-page">
-    <div class="auth-box">
-      <div class="auth-header">
+
+<div class="auth-layout">
+
+  <!-- ===== LEFT — brand panel ===== -->
+  <div class="auth-panel-left">
+    <img src="/assets/img2.jpg" alt="" class="auth-bg-img" aria-hidden="true" />
+
+    <div class="auth-left-top">
+      <a class="auth-brand" href="/landing/index.html">
         <img src="/assets/Logo.png" alt="VoteStack" />
-        <h1 class="gradient-text">Welcome Back</h1>
-        <p>Log in to manage your elections</p>
+        VoteStack
+      </a>
+    </div>
+
+    <!-- Mobile-only headline shown in the dark strip -->
+    <p class="auth-mobile-headline">Sign in to VoteStack</p>
+    <p class="auth-mobile-sub">Manage your elections dashboard</p>
+
+    <div class="auth-left-body">
+      <p class="auth-kicker">Secure online voting</p>
+      <h2>Elections<br>you can<br>trust.</h2>
+      <p class="auth-left-sub">Secure, transparent digital voting for organizations that value trust and integrity.</p>
+      <div class="auth-trust-row">
+        <span class="auth-trust-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          AES-256
+        </span>
+        <span class="auth-trust-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          JWT Auth
+        </span>
+        <span class="auth-trust-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          GDPR
+        </span>
+        <span class="auth-trust-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          99.9% uptime
+        </span>
       </div>
-      <div class="card auth-card">
-        <div id="msg" class="msg"></div>
+    </div>
+
+    <div class="auth-quote">
+      <p class="auth-quote-text">"VoteStack was born from a simple idea: make online voting secure, reliable, and easy for everyone."</p>
+      <div class="auth-quote-author">
+        <img src="/assets/founder1.png" alt="" class="auth-quote-avatar" />
+        <div>
+          <div class="auth-quote-name">Naren S J</div>
+          <div class="auth-quote-role">Developer, VoteStack</div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /.auth-panel-left -->
+
+  <!-- ===== RIGHT — form panel ===== -->
+  <div class="auth-panel-right">
+    <div class="auth-form-wrap">
+
+      <div class="auth-form-header">
+        <h1>Sign in to VoteStack</h1>
+      </div>
+
+      <div class="auth-glass-card">
+        <div id="authMsg" class="auth-msg" role="alert"></div>
+
         <form id="loginForm" class="auth-form" onsubmit="handleLogin(event)" novalidate>
           <div class="input-group">
-            <label for="email">Email Address</label>
+            <label for="email">Email address</label>
             <input id="email" class="input-field" type="email"
               placeholder="you@example.com" required autocomplete="email" />
           </div>
@@ -55,71 +87,33 @@
             <div class="password-wrap">
               <input id="password" class="input-field" type="password"
                 placeholder="Your password" required autocomplete="current-password" />
-              <button type="button" class="eye-btn" onclick="togglePwd()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <button type="button" class="eye-btn" aria-label="Show password">
+                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
             </div>
           </div>
-          <button type="submit" class="btn btn-primary btn-full" id="submitBtn">
-            Log In
+          <button type="submit" class="auth-submit-btn" id="submitBtn">
+            Sign in
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </button>
         </form>
-        <div class="divider" style="margin:24px 0">or</div>
-        <div class="auth-footer">
-          Don't have an account? <a href="/auth/signup.html">Sign Up Free</a>
-        </div>
+
+        <div class="auth-divider">or</div>
+        <p class="auth-switch">Don't have an account? <a href="/auth/signup.html">Create one free</a></p>
       </div>
-      <div style="text-align:center;margin-top:20px;">
-        <a href="/landing/index.html" style="color:var(--text-3);font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-          Back to home
-        </a>
-      </div>
+
+      <a href="/landing/index.html" class="auth-back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back to home
+      </a>
+
     </div>
-  </div>
+  </div><!-- /.auth-panel-right -->
 
-  <script src="/config.js"></script>
-  <script src="/shared/api.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => Auth.requireGuest());
+</div><!-- /.auth-layout -->
 
-    function showMsg(text, type) {
-      const el = document.getElementById('msg');
-      el.textContent = text;
-      el.className = 'msg msg-' + type;
-      el.style.display = 'block';
-    }
-
-    function togglePwd() {
-      const f = document.getElementById('password');
-      f.type = f.type === 'password' ? 'text' : 'password';
-    }
-
-    async function handleLogin(e) {
-      e.preventDefault();
-      const email    = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const btn      = document.getElementById('submitBtn');
-
-      if (!email || !password) {
-        showMsg('Please enter your email and password', 'error'); return;
-      }
-
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> Logging in…';
-
-      const res = await API.login(email, password);
-
-      if (res.success) {
-        Auth.save(res.token, res.user);
-        showMsg('Login successful! Redirecting…', 'success');
-        setTimeout(() => window.location.href = '/dashboard/index.html', 800);
-      } else {
-        showMsg(res.message || 'Login failed', 'error');
-        btn.disabled = false;
-        btn.textContent = 'Log In';
-      }
-    }
-  </script>
+<script src="/config.js"></script>
+<script src="/shared/api.js"></script>
+<script src="auth.js"></script>
 </body>
 </html>
