@@ -214,6 +214,7 @@ button  { font-family: inherit; cursor: pointer; border: none; background: none;
 ---------------------------------------------------------- */
 .auth-form-header {
   margin-bottom: 16px;
+  text-align: center;
 }
 .auth-form-kicker {
   font-size: 11px; font-weight: 700;
@@ -233,9 +234,9 @@ button  { font-family: inherit; cursor: pointer; border: none; background: none;
   color: var(--ink);
 }
 
-/* ----------------------------------------------------------
-   LIQUID GLASS CARD
----------------------------------------------------------- */
+/* Mobile headline — hidden on desktop */
+.auth-mobile-headline,
+.auth-mobile-sub { display: none; }
 .auth-glass-card {
   padding: 28px 32px;
   border-radius: var(--radius-xl);
@@ -438,7 +439,8 @@ button  { font-family: inherit; cursor: pointer; border: none; background: none;
   .auth-panel-left {
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: center;
     height: 220px;
     flex-shrink: 0;
     padding: 0 24px 28px;
@@ -450,9 +452,10 @@ button  { font-family: inherit; cursor: pointer; border: none; background: none;
 
   /* Mobile-only brand strip at top of dark header */
   .auth-left-top {
-    position: absolute;
-    top: 20px; left: 24px;
+    position: relative;
+    top: auto; left: auto;
     z-index: 3;
+    margin-bottom: 16px;
   }
 
   /* Stronger bottom fade so card blends in */
@@ -510,6 +513,15 @@ button  { font-family: inherit; cursor: pointer; border: none; background: none;
 
   /* Hide desktop h1 on mobile — headline is in the dark strip */
   .auth-form-header { display: none; }
+
+  .auth-mobile-headline {
+    display: block;
+    text-align: center;
+  }
+  .auth-mobile-sub {
+    display: block;
+    text-align: center;
+  }
 
   /* Glass card: solid white on mobile, no backdrop needed */
   .auth-glass-card {
