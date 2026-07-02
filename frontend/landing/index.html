@@ -3,247 +3,459 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VoteStack — Secure Online Voting</title>
-  <link rel="stylesheet" href="/shared/styles.css" />
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-  <style>
-    /* ---- Hero ---- */
-    .hero {
-      min-height: 100vh;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      text-align: center; padding: 40px 24px;
-      position: relative; z-index: 1;
-      background:
-        radial-gradient(ellipse at 20% 50%, rgba(0,255,136,.08) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 20%, rgba(0,217,255,.08) 0%, transparent 60%);
-    }
-    .hero-logo {
-      width: 80px; height: 80px; border-radius: 50%;
-      border: 2px solid rgba(0,255,136,.3);
-      margin-bottom: 32px;
-      box-shadow: 0 0 40px var(--primary-glow);
-      animation: float 4s ease-in-out infinite;
-    }
-    @keyframes float {
-      0%,100% { transform: translateY(0); }
-      50%      { transform: translateY(-12px); }
-    }
-    .hero h1 { font-size: clamp(40px, 7vw, 80px); font-weight: 900; margin-bottom: 20px; }
-    .hero p  { font-size: clamp(16px, 2.5vw, 22px); color: var(--text-2); max-width: 560px; margin-bottom: 48px; }
-    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
-    .hero-actions .btn { min-width: 180px; padding: 16px 32px; font-size: 16px; }
-
-    /* ---- Features ---- */
-    .features {
-      padding: 100px 24px;
-      max-width: 1100px; margin: 0 auto;
-      position: relative; z-index: 1;
-    }
-    .features-header { text-align: center; margin-bottom: 64px; }
-    .features-header h2 { font-size: 40px; margin-bottom: 16px; }
-    .features-header p  { color: var(--text-2); font-size: 18px; }
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 24px;
-    }
-    .feature-card { padding: 32px; }
-    .feature-icon {
-      width: 56px; height: 56px; border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 26px; margin-bottom: 20px;
-      background: var(--primary-dim);
-      border: 1px solid rgba(0,255,136,.2);
-    }
-    .feature-card h3 { font-size: 20px; margin-bottom: 10px; }
-    .feature-card p  { color: var(--text-2); font-size: 15px; line-height: 1.7; }
-
-    /* ---- How it works ---- */
-    .how { padding: 80px 24px 100px; position: relative; z-index: 1; }
-    .how-inner { max-width: 800px; margin: 0 auto; text-align: center; }
-    .how h2 { font-size: 40px; margin-bottom: 16px; }
-    .how p.sub { color: var(--text-2); font-size: 18px; margin-bottom: 56px; }
-    .steps { display: flex; flex-direction: column; gap: 0; }
-    .step {
-      display: flex; gap: 24px; align-items: flex-start;
-      text-align: left; padding: 28px 0;
-      border-bottom: 1px solid var(--border);
-    }
-    .step:last-child { border-bottom: none; }
-    .step-num {
-      width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; font-weight: 800;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: #000;
-    }
-    .step-body h3 { font-size: 18px; margin-bottom: 6px; }
-    .step-body p  { color: var(--text-2); font-size: 15px; }
-
-    /* ---- CTA ---- */
-    .cta {
-      padding: 80px 24px 100px;
-      text-align: center; position: relative; z-index: 1;
-    }
-    .cta-box {
-      max-width: 600px; margin: 0 auto;
-      padding: 56px 40px; border-radius: 24px;
-      background: linear-gradient(135deg, rgba(0,255,136,.08), rgba(0,217,255,.08));
-      border: 1px solid rgba(0,255,136,.2);
-    }
-    .cta-box h2 { font-size: 36px; margin-bottom: 16px; }
-    .cta-box p  { color: var(--text-2); margin-bottom: 36px; font-size: 17px; }
-    .cta-box .btn { padding: 16px 48px; font-size: 17px; }
-
-    /* ---- Footer ---- */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 32px 24px; text-align: center;
-      color: var(--text-3); font-size: 14px;
-      position: relative; z-index: 1;
-    }
-  </style>
+  <title>VoteStack — Secure Online Voting Platform</title>
+  <meta name="description" content="Enterprise-grade secure voting platform. Create, manage, and run elections with complete data isolation and real-time results." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="landing.css" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
 </head>
 <body>
 
-  <!-- Navbar -->
-  <nav class="navbar">
-    <a class="navbar-brand" href="/landing/index.html">
-      <img src="/assets/Logo.png" alt="VoteStack" />
-      VoteStack
-    </a>
-    <div class="navbar-actions" id="navActions">
-      <a href="/auth/login.html"  class="btn btn-outline btn-sm">Log In</a>
-      <a href="/auth/signup.html" class="btn btn-primary btn-sm">Get Started</a>
-    </div>
-  </nav>
-
-  <!-- Hero -->
-  <section class="hero">
-    <img class="hero-logo" src="/assets/Logo.png" alt="VoteStack" />
-    <h1 class="gradient-text">Host Secure Elections<br/>in Minutes</h1>
-    <p>VoteStack lets you create, manage and share online elections with full data isolation, registered voter lists, and real-time results.</p>
-    <div class="hero-actions">
-      <a href="/auth/signup.html" class="btn btn-primary">Host a Voting
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+  <!-- NAVBAR -->
+  <header class="header" id="header">
+    <div class="header-inner">
+      <a class="brand" href="/landing/index.html">
+        <img src="/assets/Logo.png" alt="VoteStack" />
+        <span>VoteStack</span>
       </a>
-      <a href="#how" class="btn btn-outline">See How It Works</a>
+      <nav class="nav" id="nav">
+        <a href="#features"     class="nav-item">Features</a>
+        <a href="#security"     class="nav-item">Security</a>
+        <a href="#how-it-works" class="nav-item">How it works</a>
+        <a href="#faq"          class="nav-item">FAQ</a>
+      </nav>
+      <div class="header-cta" id="headerCta">
+        <a href="/auth/login.html"  class="btn-ghost">Sign in</a>
+        <a href="/auth/signup.html" class="btn-filled">Get started free</a>
+      </div>
+      <button class="burger" id="burger" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="mobile-drawer" id="mobileDrawer">
+      <a href="#features"     class="drawer-item">Features</a>
+      <a href="#security"     class="drawer-item">Security</a>
+      <a href="#how-it-works" class="drawer-item">How it works</a>
+      <a href="#faq"          class="drawer-item">FAQ</a>
+      <hr class="drawer-rule" />
+      <a href="/auth/login.html"  class="drawer-item">Sign in</a>
+      <a href="/auth/signup.html" class="btn-filled drawer-btn">Get started free</a>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-eyebrow" data-aos>
+        <i data-lucide="shield-check"></i>
+        <span>Trusted by organisations worldwide</span>
+      </div>
+      <h1 class="hero-title" data-aos data-aos-delay="80">
+        Run secure elections.<br>Get trusted results.
+      </h1>
+      <p class="hero-sub" data-aos data-aos-delay="160">
+        VoteStack gives you everything you need to create, manage and share
+        online elections — with bank-grade security, full data isolation and
+        live results.
+      </p>
+      <div class="hero-actions" data-aos data-aos-delay="240">
+        <a href="/auth/signup.html" class="btn-filled btn-lg">
+          Start for free
+          <i data-lucide="arrow-right"></i>
+        </a>
+        <a href="#how-it-works" class="btn-outline btn-lg">See how it works</a>
+      </div>
+      <div class="hero-trust" data-aos data-aos-delay="320">
+        <span><i data-lucide="lock"></i> End-to-end encrypted</span>
+        <span class="divider-dot"></span>
+        <span><i data-lucide="database"></i> 100% data isolation</span>
+        <span class="divider-dot"></span>
+        <span><i data-lucide="check-circle"></i> No credit card needed</span>
+      </div>
     </div>
   </section>
 
-  <!-- Features -->
-  <section class="features">
-    <div class="features-header">
-      <h2 class="gradient-text">Everything you need</h2>
-      <p>Professional election management without the complexity</p>
+  <!-- HERO PREVIEW -->
+  <div class="hero-preview">
+    <div class="container">
+      <div class="preview-wrapper">
+        <div class="preview-mockup">
+          <div class="mockup-window">
+            <div class="window-bar">
+              <span></span><span></span><span></span>
+            </div>
+            <div class="window-content">
+              <img src="/assets/img1.jpg" alt="VoteStack dashboard preview" class="mockup-screenshot" />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="features-grid">
-      <div class="card feature-card">
-        <div class="feature-icon"><i data-lucide="vote"></i></div>
-        <h3>Multiple Elections</h3>
-        <p>Host as many elections as you need. Each is completely isolated — candidates, voters and votes are never mixed.</p>
+  </div>
+
+  <!-- STATS BAND -->
+  <div class="stats-band">
+    <div class="container stats-inner">
+      <div class="stat-item" data-aos>
+        <span class="stat-num">99.9<small>%</small></span>
+        <span class="stat-lbl">Uptime SLA</span>
       </div>
-      <div class="card feature-card">
-        <div class="feature-icon"><i data-lucide="link"></i></div>
-        <h3>Shareable Vote Link</h3>
-        <p>Get a unique voting link for each election. Share it with your voters — they just enter their voter ID and cast their vote.</p>
+      <div class="stat-sep"></div>
+      <div class="stat-item" data-aos data-aos-delay="60">
+        <span class="stat-num">&lt;50<small>ms</small></span>
+        <span class="stat-lbl">Avg. response</span>
       </div>
-      <div class="card feature-card">
-        <div class="feature-icon"><i data-lucide="user-check"></i></div>
-        <h3>Registered Voters Only</h3>
-        <p>Only pre-registered voter IDs can vote. Duplicate votes are blocked. Your election stays clean and fraud-free.</p>
+      <div class="stat-sep"></div>
+      <div class="stat-item" data-aos data-aos-delay="120">
+        <span class="stat-num">10k<small>+</small></span>
+        <span class="stat-lbl">Concurrent voters</span>
       </div>
-      <div class="card feature-card">
-        <div class="feature-icon"><i data-lucide="bar-chart-2"></i></div>
-        <h3>Live Results</h3>
-        <p>Watch results update in real time as votes come in. Full vote breakdown per candidate.</p>
+      <div class="stat-sep"></div>
+      <div class="stat-item" data-aos data-aos-delay="180">
+        <span class="stat-num">256<small>-bit</small></span>
+        <span class="stat-lbl">AES encryption</span>
       </div>
-      <div class="card feature-card">
-        <div class="feature-icon"><i data-lucide="shield"></i></div>
-        <h3>Data Isolation</h3>
-        <p>Your data is completely isolated from other users. No one else can see your elections, voters or results.</p>
+    </div>
+  </div>
+
+  <!-- DEMO VIDEO -->
+  <section class="section video-section">
+    <div class="container">
+      <div class="video-content" data-aos>
+        <div class="section-label">See it in action</div>
+        <h2 class="section-title">From setup to results<br>in under two minutes.</h2>
+        <p class="section-sub">
+          Watch how easy it is to create an election, add voters and share
+          a voting link — then see live results roll in.
+        </p>
       </div>
-      <div class="card feature-card">
-        <div class="feature-icon"><i data-lucide="zap"></i></div>
-        <h3>C++ Powered Backend</h3>
-        <p>Built on a high-performance C++ server with PostgreSQL storage. Fast, reliable, and built to scale.</p>
+      <div class="video-wrapper">
+        <div class="video-frame">
+          <video
+            src="/assets/vdo1.mp4"
+            autoplay
+            muted
+            loop
+            playsinline
+            poster="/assets/img1.jpg"
+          ></video>
+          <div class="video-play-overlay" id="videoOverlay">
+            <button class="play-btn" id="playBtn" aria-label="Play/pause video">
+              <i data-lucide="play"></i>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- How it works -->
-  <section class="how" id="how">
-    <div class="how-inner">
-      <h2 class="gradient-text">How it works</h2>
-      <p class="sub">From sign up to results in four simple steps</p>
+  <!-- FEATURES -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="section-label" data-aos>Platform capabilities</div>
+      <h2 class="section-title" data-aos data-aos-delay="60">
+        Everything you need.<br>Nothing you don't.
+      </h2>
+      <p class="section-sub" data-aos data-aos-delay="120">
+        Purpose-built for organisations that need reliable, transparent elections
+        without the engineering overhead.
+      </p>
+      <div class="feat-grid">
+        <div class="feat-card feat-card--large" data-aos>
+          <div class="feat-icon"><i data-lucide="database"></i></div>
+          <h3>Complete data isolation</h3>
+          <p>Every organisation runs in its own isolated namespace. Your elections, voters and results are never shared with anyone else — guaranteed.</p>
+          <ul class="feat-list">
+            <li><i data-lucide="check"></i> Private data namespace per org</li>
+            <li><i data-lucide="check"></i> Zero cross-tenant access</li>
+            <li><i data-lucide="check"></i> Full tamper-evident audit log</li>
+          </ul>
+        </div>
+        <div class="feat-card" data-aos data-aos-delay="60">
+          <div class="feat-icon"><i data-lucide="users"></i></div>
+          <h3>Registered-voter control</h3>
+          <p>Upload your voter list with unique IDs. Only verified voters can participate — no gate-crashing, no duplicates.</p>
+        </div>
+        <div class="feat-card" data-aos data-aos-delay="120">
+          <div class="feat-icon"><i data-lucide="link-2"></i></div>
+          <h3>One-click share links</h3>
+          <p>Each election gets a unique URL. Send it over email, Slack or WhatsApp — voters just open and vote.</p>
+        </div>
+        <div class="feat-card" data-aos data-aos-delay="60">
+          <div class="feat-icon"><i data-lucide="bar-chart-3"></i></div>
+          <h3>Live results dashboard</h3>
+          <p>Watch votes roll in with instant bar charts and breakdowns. Export a full report the moment polls close.</p>
+        </div>
+        <div class="feat-card" data-aos data-aos-delay="120">
+          <div class="feat-icon"><i data-lucide="shield-alert"></i></div>
+          <h3>Fraud prevention engine</h3>
+          <p>Duplicate-vote detection, IP anomaly checks and rate limiting run on every submission, silently and instantly.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPOTLIGHT FEATURES -->
+  <section class="section spotlight-section">
+    <div class="container">
+      <div class="spotlight" data-aos>
+        <div class="spotlight-content">
+          <div class="section-label">Real-time insights</div>
+          <h3 class="spotlight-title">Watch results update live</h3>
+          <p class="spotlight-text">
+            Your dashboard refreshes automatically as votes come in. No need to reload —
+            bar charts, percentages and vote counts update in real time so you always
+            know where things stand.
+          </p>
+          <ul class="spotlight-list">
+            <li><i data-lucide="check"></i> Auto-refresh every 2 seconds</li>
+            <li><i data-lucide="check"></i> Detailed breakdown per candidate</li>
+            <li><i data-lucide="check"></i> Export results to CSV/PDF instantly</li>
+          </ul>
+        </div>
+        <div class="spotlight-media">
+          <img src="/assets/img3.png" alt="Live results dashboard" class="spotlight-img" />
+        </div>
+      </div>
+      <div class="spotlight spotlight--reverse" data-aos>
+        <div class="spotlight-content">
+          <div class="section-label">Voter management</div>
+          <h3 class="spotlight-title">Control who votes</h3>
+          <p class="spotlight-text">
+            Upload your voter list with unique IDs — student numbers, employee codes,
+            membership IDs. Only people on that list can cast a vote. Duplicates
+            are blocked automatically.
+          </p>
+          <ul class="spotlight-list">
+            <li><i data-lucide="check"></i> CSV upload for bulk voters</li>
+            <li><i data-lucide="check"></i> Automatic duplicate detection</li>
+            <li><i data-lucide="check"></i> One vote per voter ID, guaranteed</li>
+          </ul>
+        </div>
+        <div class="spotlight-media">
+          <img src="/assets/img4.png" alt="Voter management interface" class="spotlight-img" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECURITY -->
+  <section class="section section--gray" id="security">
+    <div class="container">
+      <div class="section-label" data-aos>Security by design</div>
+      <h2 class="section-title" data-aos data-aos-delay="60">
+        Built to the same standard<br>as financial infrastructure.
+      </h2>
+      <p class="section-sub" data-aos data-aos-delay="120">
+        Security isn't a feature we added later. It's the foundation everything
+        else is built on.
+      </p>
+      <div class="sec-grid">
+        <div class="sec-card" data-aos>
+          <div class="sec-icon"><i data-lucide="lock"></i></div>
+          <div>
+            <h4>End-to-end encryption</h4>
+            <p>TLS in transit. AES-256 at rest. Every byte of your data is encrypted at every stage of its lifecycle.</p>
+          </div>
+        </div>
+        <div class="sec-card" data-aos data-aos-delay="60">
+          <div class="sec-icon"><i data-lucide="eye-off"></i></div>
+          <div>
+            <h4>Privacy first</h4>
+            <p>We do not sell, analyse or share your data. Full GDPR and CCPA compliance, documented and auditable.</p>
+          </div>
+        </div>
+        <div class="sec-card" data-aos data-aos-delay="120">
+          <div class="sec-icon"><i data-lucide="key"></i></div>
+          <div>
+            <h4>Secure authentication</h4>
+            <p>bcrypt password hashing, secure session tokens, CSRF protection and optional two-factor authentication.</p>
+          </div>
+        </div>
+        <div class="sec-card" data-aos data-aos-delay="180">
+          <div class="sec-icon"><i data-lucide="file-text"></i></div>
+          <div>
+            <h4>Tamper-evident audit trail</h4>
+            <p>Every action — vote, login, config change — is logged with a timestamp and cannot be altered retroactively.</p>
+          </div>
+        </div>
+        <div class="sec-card" data-aos data-aos-delay="60">
+          <div class="sec-icon"><i data-lucide="server"></i></div>
+          <div>
+            <h4>Hardened infrastructure</h4>
+            <p>DDoS mitigation, automated backups, health monitoring and zero-downtime deployments as standard.</p>
+          </div>
+        </div>
+        <div class="sec-card" data-aos data-aos-delay="120">
+          <div class="sec-icon"><i data-lucide="shield-check"></i></div>
+          <div>
+            <h4>Continuous security review</h4>
+            <p>Regular penetration tests, dependency audits and responsible disclosure programme keep the platform ahead of threats.</p>
+          </div>
+        </div>
+      </div>
+      <div class="compliance-row" data-aos>
+        <div class="compliance-badge"><i data-lucide="shield"></i> GDPR</div>
+        <div class="compliance-badge"><i data-lucide="shield"></i> CCPA</div>
+        <div class="compliance-badge"><i data-lucide="shield"></i> SOC 2</div>
+        <div class="compliance-badge"><i data-lucide="shield"></i> ISO 27001</div>
+        <div class="compliance-badge"><i data-lucide="shield"></i> AES-256</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section" id="how-it-works">
+    <div class="container">
+      <div class="section-label" data-aos>Getting started</div>
+      <h2 class="section-title" data-aos data-aos-delay="60">
+        From sign-up to results<br>in four steps.
+      </h2>
+      <p class="section-sub" data-aos data-aos-delay="120">
+        No technical knowledge required. If you can send an email, you can run
+        an election on VoteStack.
+      </p>
       <div class="steps">
-        <div class="step">
-          <div class="step-num">1</div>
+        <div class="step" data-aos>
+          <div class="step-left"><div class="step-num">01</div></div>
           <div class="step-body">
             <h3>Create your account</h3>
-            <p>Sign up with your name, email and password. Your account and data are fully private.</p>
+            <p>Sign up with your name and email. Your workspace is provisioned instantly — fully isolated from all other organisations.</p>
           </div>
+          <div class="step-icon"><i data-lucide="user-plus"></i></div>
         </div>
-        <div class="step">
-          <div class="step-num">2</div>
+        <div class="step" data-aos data-aos-delay="60">
+          <div class="step-left"><div class="step-num">02</div></div>
           <div class="step-body">
-            <h3>Create an election</h3>
-            <p>Give your election a title, add candidates, and upload your registered voters list.</p>
+            <h3>Configure your election</h3>
+            <p>Set a title, add candidates, define the duration and upload your registered voter list — all from one clean dashboard.</p>
           </div>
+          <div class="step-icon"><i data-lucide="settings-2"></i></div>
         </div>
-        <div class="step">
-          <div class="step-num">3</div>
+        <div class="step" data-aos data-aos-delay="120">
+          <div class="step-left"><div class="step-num">03</div></div>
           <div class="step-body">
             <h3>Share the voting link</h3>
-            <p>Copy the unique link from your dashboard and share it with voters via email, WhatsApp or any channel.</p>
+            <p>Copy the unique URL and distribute it however you like. Registered voters click the link, enter their ID and vote — that's it.</p>
           </div>
+          <div class="step-icon"><i data-lucide="send"></i></div>
         </div>
-        <div class="step">
-          <div class="step-num">4</div>
+        <div class="step" data-aos data-aos-delay="180">
+          <div class="step-left"><div class="step-num">04</div></div>
           <div class="step-body">
-            <h3>Watch results live</h3>
-            <p>Monitor vote counts in real time from your admin dashboard. Results update instantly.</p>
+            <h3>Monitor live results</h3>
+            <p>Your dashboard updates in real time as votes come in. When the election ends, download the full detailed report instantly.</p>
           </div>
+          <div class="step-icon"><i data-lucide="bar-chart-3"></i></div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section section--gray" id="faq">
+    <div class="container faq-container">
+      <div class="faq-left">
+        <div class="section-label" data-aos>FAQ</div>
+        <h2 class="section-title faq-title" data-aos data-aos-delay="60">Common questions</h2>
+        <p class="section-sub faq-sub" data-aos data-aos-delay="120">
+          Can't find what you're looking for? Email us at
+          <a href="mailto:support@votestack.com">support@votestack.com</a>
+        </p>
+      </div>
+      <div class="faq-list" data-aos data-aos-delay="60">
+        <details class="faq-item">
+          <summary class="faq-q"><span>How secure is VoteStack?</span><i data-lucide="plus"></i></summary>
+          <p class="faq-a">VoteStack uses AES-256 encryption, bcrypt password hashing, CSRF protection and complete data isolation. Every action is logged in a tamper-evident audit trail. The backend is written in C++ for predictable, low-latency performance.</p>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q"><span>Can voters vote more than once?</span><i data-lucide="plus"></i></summary>
+          <p class="faq-a">No. Each voter ID is tied to exactly one vote per election. The system rejects any second submission immediately, with a full record kept in the audit log.</p>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q"><span>How do I add voters to an election?</span><i data-lucide="plus"></i></summary>
+          <p class="faq-a">Upload a list of unique voter IDs (student IDs, employee numbers, etc.) when creating your election. Only IDs on that list can cast a vote — everyone else is blocked.</p>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q"><span>Can I run multiple elections at the same time?</span><i data-lucide="plus"></i></summary>
+          <p class="faq-a">Yes. There is no limit on concurrent elections. Each one has its own candidates, voter list, link and results dashboard — completely independent of the others.</p>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q"><span>Is my data ever shared?</span><i data-lucide="plus"></i></summary>
+          <p class="faq-a">Never. Every organisation operates in its own isolated namespace. We do not sell data, show ads or share information with third parties. Full GDPR and CCPA compliance.</p>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q"><span>What happens when I close an election?</span><i data-lucide="plus"></i></summary>
+          <p class="faq-a">Voting is immediately disabled. Results are locked and a full breakdown report is available to download. The data is retained per your retention settings or applicable law.</p>
+        </details>
       </div>
     </div>
   </section>
 
   <!-- CTA -->
-  <section class="cta">
-    <div class="cta-box">
-      <h2 class="gradient-text">Ready to run your election?</h2>
-      <p>It's free. No credit card required. Start in under 2 minutes.</p>
-      <a href="/auth/signup.html" class="btn btn-primary">Host a Voting
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-      </a>
+  <section class="section cta-section">
+    <div class="container">
+      <div class="cta-inner" data-aos>
+        <h2>Ready to run your first election?</h2>
+        <p>Free to start. No credit card. Up and running in under five minutes.</p>
+        <div class="cta-actions">
+          <a href="/auth/signup.html" class="btn-filled btn-lg btn-white">
+            Get started free <i data-lucide="arrow-right"></i>
+          </a>
+          <a href="/auth/login.html" class="btn-outline btn-lg btn-outline-white">Sign in</a>
+        </div>
+      </div>
     </div>
   </section>
 
-  <footer>
-    <p>© 2025 VoteStack — Secure Online Voting Platform</p>
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a class="brand brand--white" href="/landing/index.html">
+            <img src="/assets/Logo.png" alt="VoteStack" />
+            <span>VoteStack</span>
+          </a>
+          <p>Enterprise-grade online voting, built for organisations that care about integrity.</p>
+        </div>
+        <div class="footer-links">
+          <div class="footer-col">
+            <h5>Product</h5>
+            <a href="#features">Features</a>
+            <a href="#security">Security</a>
+            <a href="#how-it-works">How it works</a>
+            <a href="#faq">FAQ</a>
+          </div>
+          <div class="footer-col">
+            <h5>Account</h5>
+            <a href="/auth/signup.html">Sign up</a>
+            <a href="/auth/login.html">Sign in</a>
+            <a href="/dashboard/index.html">Dashboard</a>
+          </div>
+          <div class="footer-col">
+            <h5>Legal</h5>
+            <a href="/privacy/index.html">Privacy Policy</a>
+            <a href="/terms/index.html">Terms of Service</a>
+            <a href="/privacy/index.html#gdpr">GDPR</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 VoteStack. All rights reserved.</p>
+        <div class="footer-badges">
+          <span><i data-lucide="shield-check"></i> SOC 2</span>
+          <span><i data-lucide="lock"></i> GDPR</span>
+          <span><i data-lucide="globe"></i> ISO 27001</span>
+        </div>
+      </div>
+    </div>
   </footer>
 
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <script src="/config.js"></script>
   <script src="/shared/api.js"></script>
-  <script>
-    lucide.createIcons();
-    // If already logged in, show dashboard link
-    document.addEventListener('DOMContentLoaded', () => {
-      if (Auth.isLoggedIn()) {
-        document.getElementById('navActions').innerHTML = `
-          <span style="color:var(--text-2);font-size:14px;">
-            Hi, ${Auth.user()?.name || 'there'}
-          </span>
-          <a href="/dashboard/index.html" class="btn btn-primary btn-sm">
-            Dashboard
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </a>
-        `;
-      }
-    });
-  </script>
+  <script src="landing.js"></script>
 </body>
 </html>

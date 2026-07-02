@@ -4,3 +4,6 @@ backend/voting_server.exe
 # OS files
 .DS_Store
 Thumbs.db
+
+run.txt
+.vscode
