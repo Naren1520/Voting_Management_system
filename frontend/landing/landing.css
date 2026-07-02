@@ -40,8 +40,8 @@
    RESET
 ---------------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
-body { font-family: var(--font); color: var(--ink); background: var(--surface); overflow-x: hidden; line-height: 1.6; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; overscroll-behavior: none; }
+body { font-family: var(--font); color: var(--ink); background: var(--surface); overflow-x: hidden; line-height: 1.6; overscroll-behavior: none; }
 img  { display: block; max-width: 100%; }
 a    { text-decoration: none; color: inherit; }
 ul   { list-style: none; }
@@ -140,6 +140,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .header:not(.scrolled) .brand {
   color: #fff;
 }
+.header:not(.scrolled) .brand img {
+  border-color: rgba(255,255,255,.35);
+}
 .header:not(.scrolled) .btn-filled {
   background: #fff;
   color: #000;
@@ -162,7 +165,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   font-size: 19px; font-weight: 800; color: var(--ink);
   flex-shrink: 0;
 }
-.brand img { width: 34px; height: 34px; border-radius: 50%; }
+.brand img { width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,.15); }
 .brand--white { color: #fff; }
 
 .nav {
