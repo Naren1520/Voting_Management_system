@@ -113,15 +113,42 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 ---------------------------------------------------------- */
 .header {
   position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom: 1px solid transparent;
+  transition: background .35s, border-color .35s, box-shadow .35s, backdrop-filter .35s;
+}
+.header.scrolled {
   background: rgba(255,255,255,.92);
   backdrop-filter: blur(18px) saturate(180%);
   -webkit-backdrop-filter: blur(18px) saturate(180%);
-  border-bottom: 1px solid transparent;
-  transition: border-color .3s, box-shadow .3s;
-}
-.header.scrolled {
   border-bottom-color: var(--border);
   box-shadow: var(--shadow-xs);
+}
+
+/* Nav links white on dark hero, switch to dark on scroll */
+.header:not(.scrolled) .nav-item,
+.header:not(.scrolled) .btn-ghost {
+  color: rgba(255,255,255,.75);
+}
+.header:not(.scrolled) .nav-item:hover,
+.header:not(.scrolled) .btn-ghost:hover {
+  background: rgba(255,255,255,.1);
+  color: #fff;
+}
+.header:not(.scrolled) .brand {
+  color: #fff;
+}
+.header:not(.scrolled) .btn-filled {
+  background: #fff;
+  color: #000;
+}
+.header:not(.scrolled) .btn-filled:hover {
+  background: rgba(255,255,255,.88);
+}
+.header:not(.scrolled) .burger span {
+  background: #fff;
 }
 
 .header-inner {
@@ -985,3 +1012,271 @@ img {
 
 
 
+
+/* ----------------------------------------------------------
+   HERO — CINEMA (premium dark, video bg, floating cards)
+---------------------------------------------------------- */
+
+.hero--cinema {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 0;
+  max-height: 100vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background: #000;
+}
+
+/* ── Background video ── */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.hero-bg-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: .38;
+  animation: none;
+}
+/* Single dark scrim — no gradients, just a clean tint */
+.hero-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.52);
+}
+
+/* ── Inner layout ── */
+.hero-cinema-inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 48px;
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 48px;
+  height: 100%;
+}
+
+/* ── Left: text ── */
+.hero-cinema-text {
+  max-width: 500px;
+}
+
+.hero-kicker {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.45);
+  margin-bottom: 22px;
+}
+
+.hero-cinema-title {
+  font-size: clamp(3.6rem, 6vw, 5.8rem);
+  font-weight: 800;
+  line-height: 1.0;
+  letter-spacing: -0.045em;
+  color: #fff;
+  margin-bottom: 28px;
+}
+
+.hero-cinema-sub {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: rgba(255,255,255,.55);
+  margin-bottom: 44px;
+  font-weight: 400;
+}
+
+/* ── Buttons ── */
+.hero-cinema-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+/* Primary — solid white */
+.btn-cinema-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 28px;
+  background: #fff;
+  color: #000;
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: .01em;
+  border-radius: 8px;
+  border: 1.5px solid #fff;
+  transition: background .2s, color .2s, transform .2s;
+  white-space: nowrap;
+}
+.btn-cinema-primary:hover {
+  background: rgba(255,255,255,.88);
+  transform: translateY(-2px);
+}
+
+/* Ghost — liquid glass */
+.btn-cinema-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 28px;
+  background: rgba(255,255,255,.08);
+  color: rgba(255,255,255,.85);
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: .01em;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.18);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  transition: background .2s, border-color .2s, transform .2s;
+  white-space: nowrap;
+}
+.btn-cinema-ghost:hover {
+  background: rgba(255,255,255,.14);
+  border-color: rgba(255,255,255,.35);
+  transform: translateY(-2px);
+}
+
+/* ── Right: floating cards ── */
+.hero-cinema-cards {
+  position: relative;
+  height: 520px;
+  pointer-events: none;
+}
+
+/* Card base — clean dark glass, no glows */
+.cinema-card {
+  position: absolute;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow:
+    0 2px 0 rgba(255,255,255,.1) inset,
+    0 20px 60px rgba(0,0,0,.6);
+  background: rgba(20,20,20,.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Subtle glass sheen — top edge highlight only */
+.cinema-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: rgba(255,255,255,.22);
+  z-index: 2;
+}
+
+.cinema-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: inherit;
+  animation: none;
+}
+
+/* Card positions */
+.cinema-card--a {
+  width: 230px; height: 180px;
+  top: 0; left: 30px;
+  transform: rotate(-2.5deg);
+  animation: driftA 7s ease-in-out infinite;
+}
+.cinema-card--b {
+  width: 260px; height: 200px;
+  top: 20px; right: 0;
+  transform: rotate(2deg);
+  animation: driftB 8s ease-in-out infinite 1.2s;
+}
+.cinema-card--c {
+  width: 220px; height: 175px;
+  top: 210px; left: 0;
+  transform: rotate(-1deg);
+  animation: driftC 9s ease-in-out infinite 0.6s;
+}
+.cinema-card--d {
+  width: 250px; height: 190px;
+  bottom: 0; right: 10px;
+  transform: rotate(1.8deg);
+  animation: driftA 7.5s ease-in-out infinite 1.8s;
+}
+
+@keyframes driftA {
+  0%, 100% { transform: rotate(-2.5deg) translateY(0); }
+  50%       { transform: rotate(-2.5deg) translateY(-16px); }
+}
+@keyframes driftB {
+  0%, 100% { transform: rotate(2deg) translateY(0); }
+  50%       { transform: rotate(2deg) translateY(-12px); }
+}
+@keyframes driftC {
+  0%, 100% { transform: rotate(-1deg) translateY(0); }
+  50%       { transform: rotate(-1deg) translateY(-20px); }
+}
+
+/* ── Scroll cue ── */
+.hero-scroll-cue {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+.hero-scroll-cue span {
+  display: block;
+  width: 1px;
+  height: 52px;
+  background: rgba(255,255,255,.25);
+  margin: 0 auto;
+  animation: scrollLine 1.8s ease-in-out infinite;
+  transform-origin: top;
+}
+@keyframes scrollLine {
+  0%   { transform: scaleY(0); opacity: 0; transform-origin: top; }
+  40%  { transform: scaleY(1); opacity: 1; }
+  100% { transform: scaleY(1); opacity: 0; transform-origin: bottom; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .hero-cinema-inner { padding: 0 32px; gap: 32px; }
+  .hero-cinema-cards { height: 420px; }
+  .cinema-card--a { width: 195px; height: 152px; }
+  .cinema-card--b { width: 218px; height: 168px; }
+  .cinema-card--c { width: 185px; height: 145px; }
+  .cinema-card--d { width: 210px; height: 158px; }
+}
+
+@media (max-width: 800px) {
+  .hero-cinema-inner {
+    grid-template-columns: 1fr;
+    padding: 0 24px;
+    gap: 32px;
+    justify-items: center;
+    text-align: center;
+  }
+  .hero-cinema-text { max-width: 100%; }
+  .hero-cinema-actions { justify-content: center; }
+  .hero-cinema-cards { width: 100%; height: 220px; }
+  .cinema-card--a { width: 120px; height: 95px;  top: 0;    left: 2%; }
+  .cinema-card--b { width: 138px; height: 108px; top: 0;    right: 2%; }
+  .cinema-card--c { width: 115px; height: 90px;  bottom: 0; left: 20%; }
+  .cinema-card--d { width: 130px; height: 100px; bottom: 0; right: 8%; }
+}
+
+/* Remove scroll cue styles */
+.hero-scroll-cue { display: none; }

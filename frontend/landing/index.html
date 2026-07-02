@@ -46,54 +46,58 @@
   </header>
 
   <!-- HERO -->
-  <section class="hero">
-    <div class="container">
-      <div class="hero-eyebrow" data-aos>
-        <i data-lucide="shield-check"></i>
-        <span>Trusted by organisations worldwide</span>
-      </div>
-      <h1 class="hero-title" data-aos data-aos-delay="80">
-        Run secure elections.<br>Get trusted results.
-      </h1>
-      <p class="hero-sub" data-aos data-aos-delay="160">
-        VoteStack gives you everything you need to create, manage and share
-        online elections — with bank-grade security, full data isolation and
-        live results.
-      </p>
-      <div class="hero-actions" data-aos data-aos-delay="240">
-        <a href="/auth/signup.html" class="btn-filled btn-lg">
-          Start for free
-          <i data-lucide="arrow-right"></i>
-        </a>
-        <a href="#how-it-works" class="btn-outline btn-lg">See how it works</a>
-      </div>
-      <div class="hero-trust" data-aos data-aos-delay="320">
-        <span><i data-lucide="lock"></i> End-to-end encrypted</span>
-        <span class="divider-dot"></span>
-        <span><i data-lucide="database"></i> 100% data isolation</span>
-        <span class="divider-dot"></span>
-        <span><i data-lucide="check-circle"></i> No credit card needed</span>
-      </div>
+  <section class="hero hero--cinema" id="hero">
+    <!-- Background: looping video, fallback to image -->
+    <div class="hero-bg">
+      <video
+        class="hero-bg-video"
+        src="/assets/vdo1.mp4"
+        autoplay muted loop playsinline
+        poster="/assets/img3.png"
+      ></video>
+      <div class="hero-bg-overlay"></div>
     </div>
-  </section>
 
-  <!-- HERO PREVIEW -->
-  <div class="hero-preview">
-    <div class="container">
-      <div class="preview-wrapper">
-        <div class="preview-mockup">
-          <div class="mockup-window">
-            <div class="window-bar">
-              <span></span><span></span><span></span>
-            </div>
-            <div class="window-content">
-              <img src="/assets/img1.jpg" alt="VoteStack dashboard preview" class="mockup-screenshot" />
-            </div>
-          </div>
+    <!-- Content -->
+    <div class="hero-cinema-inner">
+      <div class="hero-cinema-text">
+        <p class="hero-kicker">Secure online voting</p>
+        <h1 class="hero-cinema-title">
+          Elections<br>you can<br>trust.
+        </h1>
+        <p class="hero-cinema-sub">
+          Create, run and close elections in minutes.<br>
+          Bank-grade security. Live results. Zero compromise.
+        </p>
+        <div class="hero-cinema-actions">
+          <a href="/auth/signup.html" class="btn-cinema-primary">
+            Get started free
+          </a>
+          <a href="#how-it-works" class="btn-cinema-ghost">
+            See how it works
+          </a>
+        </div>
+      </div>
+
+      <!-- Floating image cards — right side -->
+      <div class="hero-cinema-cards" aria-hidden="true">
+        <div class="cinema-card cinema-card--a">
+          <img src="/assets/img3.png" alt="" />
+        </div>
+        <div class="cinema-card cinema-card--b">
+          <img src="/assets/img1.jpg" alt="" />
+        </div>
+        <div class="cinema-card cinema-card--c">
+          <img src="/assets/img3.png" alt="" />
+        </div>
+        <div class="cinema-card cinema-card--d">
+          <img src="/assets/img4.png" alt="" />
         </div>
       </div>
     </div>
-  </div>
+
+    <!-- Scroll cue removed -->
+  </section>
 
   <!-- STATS BAND -->
   <div class="stats-band">
