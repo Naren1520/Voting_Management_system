@@ -7,8 +7,8 @@
   to   = "/landing/index.html"
   status = 200
 
-# SPA-style fallback for all other routes
+# Fallback redirect for all other routes
 [[redirects]]
   from = "/*"
   to   = "/landing/index.html"
-  status = 404
+  status = 301
