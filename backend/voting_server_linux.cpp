@@ -384,6 +384,17 @@ public:
         return res;
     }
 
+    // GET /api/auth/ping  — lightweight session validity check
+    json ping(const std::string& token) {
+        json res;
+        std::string userId = validateToken(token);
+        if (userId.empty()) {
+            res["success"] = false; res["message"] = "Session expired"; return res;
+        }
+        res["success"] = true;
+        return res;
+    }
+
     // GET /api/auth/sessions  — all active sessions for logged-in user
     json getSessions(const std::string& token) {
         json res;
@@ -1083,6 +1094,10 @@ private:
             } else if (path == "/api/auth/logout" && method == "POST") {
                 auto r = authCtrl.logout(token);
                 response = respond(200, r.dump());
+
+            } else if (path == "/api/auth/ping" && method == "GET") {
+                auto r = authCtrl.ping(token);
+                response = respond(r["success"].get<bool>() ? 200:401, r.dump());
 
             } else if (path == "/api/auth/change-password" && method == "POST") {
                 auto rb = json::parse(body);
