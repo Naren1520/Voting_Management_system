@@ -137,3 +137,156 @@
   cursor: pointer; transition: background .15s;
 }
 .btn-cancel-mn:hover { background: var(--surface-2); }
+
+/* ============================================================
+   RESPONSIVE — manage-multi.css
+   Breakpoints: 900px (tablet), 640px (large phone), 480px (small phone)
+============================================================ */
+
+/* ── 900px ── */
+@media (max-width: 900px) {
+
+  /* Stats: 2 columns */
+  .mn-stats { grid-template-columns: repeat(2, 1fr); }
+
+  /* Tabs: allow scroll */
+  .mn-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
+    gap: 0;
+    padding-bottom: 2px;
+  }
+  .mn-tabs::-webkit-scrollbar { display: none; }
+  .mn-tab {
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+
+  /* Share banner: stack */
+  .share-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .share-url-pill {
+    max-width: 100%;
+    width: 100%;
+    font-size: 11.5px;
+  }
+}
+
+/* ── 640px ── */
+@media (max-width: 640px) {
+
+  /* Page padding */
+  .mn-page { padding: 16px 14px 48px; }
+  .mn-header-inner { padding: 0 14px; }
+
+  /* Header: hide "Sign out" text, keep icon only */
+  .btn-logout span { display: none; }
+
+  /* Hero: stack vertically, smaller title */
+  .election-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px 18px;
+    gap: 14px;
+  }
+  .election-hero-left h1 { font-size: 1.25rem; }
+  .election-hero-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* Stats: 2×2 */
+  .mn-stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .mn-stat-card { padding: 14px 16px; }
+  .mn-stat-num  { font-size: 1.4rem; }
+
+  /* Tabs: icon only below 480 is handled separately */
+  .mn-tab { padding: 10px 12px; font-size: 12.5px; }
+  .mn-tab-count { display: none; }  /* hide counts on mobile tabs */
+
+  /* Panel header: stack */
+  .panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .panel-header .btn-blue,
+  .panel-header .btn-ghost-sm {
+    width: 100%;
+    justify-content: center;
+    margin-top: 4px;
+  }
+
+  /* Voter add grid: 2 columns */
+  .add-voter-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Position card: tighter padding */
+  .pos-card-header { padding: 14px 16px; }
+  .pos-card-body   { padding: 0 16px 16px; padding-top: 14px; }
+  .pos-title       { font-size: .875rem; }
+
+  /* Add candidate form row: stack */
+  .add-form-row { flex-direction: column; gap: 8px; }
+  .add-form-row .btn-primary { width: 100%; justify-content: center; }
+
+  /* Voter cards: tighter */
+  .voter-card { padding: 12px 14px; gap: 10px; }
+  .voter-avatar { width: 32px; height: 32px; font-size: .875rem; }
+
+  /* Voter search row: stack */
+  .voter-search-row { flex-direction: column; align-items: stretch; }
+  .voter-search-wrap { min-width: 0; }
+  .voter-filter-pills { justify-content: flex-start; }
+
+  /* Share banner */
+  .share-banner { padding: 14px 16px; }
+  .share-banner-text h3 { font-size: .875rem; }
+  .share-banner-text p  { display: none; }
+  .btn-copy-pill { width: 100%; justify-content: center; }
+
+  /* Results card */
+  .results-total-card { padding: 20px 18px; }
+  .results-total-left h2 { font-size: 2.2rem; }
+
+  /* Pos result cards */
+  .pos-result-header { padding: 12px 16px; }
+  .pos-result-body   { padding: 16px; }
+}
+
+/* ── 480px ── */
+@media (max-width: 480px) {
+
+  /* Stats: 1 column */
+  .mn-stats { grid-template-columns: 1fr; }
+
+  /* Voter add grid: 1 column */
+  .add-voter-grid { grid-template-columns: 1fr; }
+
+  /* Tabs: icon + minimal text */
+  .mn-tab {
+    padding: 10px;
+    font-size: 0; /* hide text */
+    gap: 0;
+  }
+  .mn-tab svg {
+    width: 18px; height: 18px;
+    margin: 0 auto;
+  }
+
+  /* Voter filter pills: full width */
+  .voter-filter-pills {
+    width: 100%;
+  }
+  .filter-pill { flex: 1; justify-content: center; }
+
+  /* Brand: reduce size on very small screens */
+  .mn-brand { font-size: 0; }
+  .mn-brand img { width: 28px; height: 28px; }
+}

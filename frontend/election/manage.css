@@ -728,16 +728,44 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 ---------------------------------------------------------- */
 @media (max-width: 900px) {
   .mn-stats { grid-template-columns: repeat(2, 1fr); }
+  .mn-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; flex-wrap: nowrap; }
+  .mn-tabs::-webkit-scrollbar { display: none; }
+  .mn-tab { white-space: nowrap; flex-shrink: 0; }
+  .share-banner { flex-direction: column; align-items: flex-start; }
+  .share-url-pill { max-width: 100%; width: 100%; font-size: 11.5px; }
 }
 @media (max-width: 640px) {
-  .mn-page { padding: 20px 16px 48px; }
-  .mn-header-inner { padding: 0 16px; }
-  .mn-stats { grid-template-columns: 1fr 1fr; }
-  .election-hero { padding: 24px 20px; }
-  .election-hero-left h1 { font-size: 1.4rem; }
-  .share-banner { padding: 16px 18px; }
-  .mn-tab { padding: 10px 14px; font-size: 13px; }
+  .mn-page { padding: 16px 14px 48px; }
+  .mn-header-inner { padding: 0 14px; }
+  .mn-stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .mn-stat-card { padding: 14px 16px; }
+  .mn-stat-num  { font-size: 1.4rem; }
+  .election-hero { flex-direction: column; align-items: flex-start; padding: 20px 18px; gap: 14px; }
+  .election-hero-left h1 { font-size: 1.25rem; }
+  .election-hero-right { width: 100%; justify-content: space-between; }
+  .mn-tab { padding: 10px 12px; font-size: 12.5px; }
+  .mn-tab-count { display: none; }
+  .panel-header { flex-direction: column; align-items: flex-start; }
+  .add-voter-grid { grid-template-columns: 1fr 1fr; }
+  .add-form-row { flex-direction: column; gap: 8px; }
+  .add-form-row .btn-primary { width: 100%; justify-content: center; }
+  .voter-card { padding: 12px 14px; gap: 10px; }
+  .voter-search-row { flex-direction: column; align-items: stretch; }
+  .voter-search-wrap { min-width: 0; }
+  .share-banner { padding: 14px 16px; }
+  .share-banner-text p { display: none; }
+  .btn-copy-pill { width: 100%; justify-content: center; }
+  .results-grid { grid-template-columns: 1fr; }
+  .results-total-card { padding: 20px 18px; }
+  .results-total-left h2 { font-size: 2.2rem; }
 }
 @media (max-width: 480px) {
   .mn-stats { grid-template-columns: 1fr; }
+  .add-voter-grid { grid-template-columns: 1fr; }
+  .mn-tab { padding: 10px; font-size: 0; gap: 0; }
+  .mn-tab svg { width: 18px; height: 18px; margin: 0 auto; }
+  .voter-filter-pills { width: 100%; }
+  .filter-pill { flex: 1; justify-content: center; }
+  .mn-brand { font-size: 0; }
+  .mn-brand img { width: 28px; height: 28px; }
 }
