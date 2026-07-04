@@ -8,6 +8,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const greetEl = document.getElementById('userGreet');
   if (greetEl) greetEl.textContent = 'Hi, ' + name;
 
+  // Set profile avatar initials
+  const avatarEl = document.getElementById('headerAvatar');
+  if (avatarEl && user?.name) {
+    const initials = user.name
+      .split(' ')
+      .map(w => w[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+    avatarEl.textContent = initials;
+  }
+
   loadElections();
 });
 

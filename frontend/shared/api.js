@@ -33,6 +33,8 @@ const API = (() => {
     login:   (email, password) =>
       req('POST', '/api/auth/login', { email, password }, false),
     logout:  () => req('POST', '/api/auth/logout'),
+    changePassword: (currentPassword, newPassword) =>
+      req('POST', '/api/auth/change-password', { current_password: currentPassword, new_password: newPassword }),
 
     // Elections
     getElections:    ()            => req('GET',    '/api/elections'),

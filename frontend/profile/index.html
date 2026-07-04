@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Profile — VoteStack</title>
+  <meta name="description" content="View and manage your VoteStack account profile." />
+  <link rel="icon" href="/assets/Logo.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="profile.css" />
+</head>
+<body>
+  <header class="prof-header">
+    <div class="prof-header-inner">
+      <a class="prof-brand" href="/landing/index.html">
+        <img src="/assets/Logo.png" alt="VoteStack" />
+        VoteStack
+      </a>
+      <div class="prof-header-right">
+        <a class="btn-back" href="/dashboard/index.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"/>
+            <polyline points="12 19 5 12 12 5"/>
+          </svg>
+          Back to Dashboard
+        </a>
+      </div>
+    </div>
+  </header>
+  <main class="prof-page">
+
+    <!-- Page title -->
+    <div class="prof-title-row">
+      <div class="prof-title-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+      <div>
+        <h1>My Profile</h1>
+        <p>View your account details and manage your password.</p>
+      </div>
+    </div>
+
+    <!-- Content grid -->
+    <div class="prof-grid">
+
+      <!-- ── Account Info Card ── -->
+      <section class="prof-card">
+        <div class="prof-card-header">
+          <div class="prof-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="prof-card-title">Account Info</h2>
+            <p class="prof-card-sub">Your name and email address</p>
+          </div>
+        </div>
+
+        <div class="prof-avatar-row">
+          <div class="prof-avatar" id="profAvatar">—</div>
+          <div class="prof-avatar-info">
+            <div class="prof-name" id="profName">Loading…</div>
+            <div class="prof-role">Administrator</div>
+          </div>
+        </div>
+
+        <div class="prof-field">
+          <div class="prof-field-label">Full Name</div>
+          <div class="prof-field-value" id="profNameVal">—</div>
+        </div>
+
+        <div class="prof-field">
+          <div class="prof-field-label">Email Address</div>
+          <div class="prof-field-value" id="profEmailVal">—</div>
+        </div>
+
+        <div class="prof-field">
+          <div class="prof-field-label">Account Type</div>
+          <div class="prof-field-value">
+            <span class="prof-badge">Admin</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Change Password Card ── -->
+      <section class="prof-card">
+        <div class="prof-card-header">
+          <div class="prof-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="prof-card-title">Change Password</h2>
+            <p class="prof-card-sub">Update your account password</p>
+          </div>
+        </div>
+
+        <div id="pwdMsg" class="prof-msg" role="alert" aria-live="polite"></div>
+
+        <div class="prof-form">
+          <div class="prof-input-group">
+            <label for="currentPassword" class="prof-label">Current Password</label>
+            <div class="prof-input-wrap">
+              <input
+                id="currentPassword"
+                type="password"
+                class="prof-input"
+                placeholder="Enter your current password"
+                autocomplete="current-password"
+              />
+              <button class="prof-eye" type="button" onclick="togglePwd('currentPassword', this)" aria-label="Toggle password visibility">
+                <svg class="eye-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="eye-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="prof-input-group">
+            <label for="newPassword" class="prof-label">New Password</label>
+            <div class="prof-input-wrap">
+              <input
+                id="newPassword"
+                type="password"
+                class="prof-input"
+                placeholder="At least 6 characters"
+                autocomplete="new-password"
+              />
+              <button class="prof-eye" type="button" onclick="togglePwd('newPassword', this)" aria-label="Toggle password visibility">
+                <svg class="eye-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="eye-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+            <!-- Password strength indicator -->
+            <div class="pwd-strength" id="pwdStrength" style="display:none">
+              <div class="pwd-strength-bar">
+                <div class="pwd-strength-fill" id="pwdStrengthFill"></div>
+              </div>
+              <span class="pwd-strength-label" id="pwdStrengthLabel"></span>
+            </div>
+          </div>
+
+          <div class="prof-input-group">
+            <label for="confirmPassword" class="prof-label">Confirm New Password</label>
+            <div class="prof-input-wrap">
+              <input
+                id="confirmPassword"
+                type="password"
+                class="prof-input"
+                placeholder="Re-enter new password"
+                autocomplete="new-password"
+              />
+              <button class="prof-eye" type="button" onclick="togglePwd('confirmPassword', this)" aria-label="Toggle password visibility">
+                <svg class="eye-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="eye-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <button class="btn-update-pwd" id="updatePwdBtn" onclick="submitPasswordChange()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Update Password
+          </button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <div class="prof-toast" id="profToast" role="status" aria-live="polite">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+      <polyline points="22 4 12 14.01 9 11.01"/>
+    </svg>
+    <span class="toast-msg"></span>
+  </div>
+
+  <script src="/config.js"></script>
+  <script src="/shared/api.js"></script>
+  <script src="profile.js"></script>
+</body>
+</html>

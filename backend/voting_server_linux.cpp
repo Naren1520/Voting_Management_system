@@ -7,6 +7,7 @@
  *   POST /api/auth/signup
  *   POST /api/auth/login
  *   POST /api/auth/logout
+ *   POST /api/auth/change-password
  *   GET  /api/elections
  *   POST /api/elections
  *   GET  /api/elections/:id
@@ -154,9 +155,6 @@ HttpResult supabaseRequest(const std::string& method,
     return hr;
 }
 
-// ============================================================================
-// URL ENCODE HELPER
-// ============================================================================
 
 std::string urlEncode(const std::string& s) {
     std::string r;
@@ -305,6 +303,80 @@ public:
         json res;
         res["success"] = true;
         res["message"] = "Logged out successfully";
+        return res;
+    }
+
+    // POST /api/auth/change-password  { current_password, new_password }
+    json changePassword(const std::string& token,
+                        const std::string& currentPassword,
+                        const std::string& newPassword) {
+        json res;
+
+        // Validate token and get user id
+        std::string userId = validateToken(token);
+        if (userId.empty()) {
+            res["success"] = false;
+            res["message"] = "Unauthorized";
+            return res;
+        }
+
+        if (currentPassword.empty() || newPassword.empty()) {
+            res["success"] = false;
+            res["message"] = "Current and new password are required";
+            return res;
+        }
+        if (newPassword.size() < 6) {
+            res["success"] = false;
+            res["message"] = "New password must be at least 6 characters";
+            return res;
+        }
+
+        // Fetch stored password hash for this user
+        auto r = supabaseRequest("GET",
+            "users?select=password_hash&id=eq." + userId + "&limit=1");
+        std::string storedHash;
+        try {
+            auto arr = json::parse(r.body);
+            if (!arr.is_array() || arr.empty()) {
+                res["success"] = false;
+                res["message"] = "User not found";
+                return res;
+            }
+            storedHash = arr[0]["password_hash"].get<std::string>();
+        } catch (...) {
+            res["success"] = false;
+            res["message"] = "Server error";
+            return res;
+        }
+
+        // Verify current password
+        std::string inputHash = hashPassword(currentPassword);
+        if (storedHash != inputHash) {
+            res["success"] = false;
+            res["message"] = "Wrong password. Please try again.";
+            return res;
+        }
+
+        // Hash new password and update
+        std::string newHash = hashPassword(newPassword);
+        if (newHash.empty()) {
+            res["success"] = false;
+            res["message"] = "Server error while hashing password";
+            return res;
+        }
+
+        json upd;
+        upd["password_hash"] = newHash;
+        auto upRes = supabaseRequest("PATCH",
+            "users?id=eq." + userId, upd.dump());
+
+        if (upRes.statusCode == 200 || upRes.statusCode == 204) {
+            res["success"] = true;
+            res["message"] = "Password updated successfully";
+        } else {
+            res["success"] = false;
+            res["message"] = "Failed to update password";
+        }
         return res;
     }
 
@@ -867,6 +939,13 @@ private:
             } else if (path == "/api/auth/logout" && method == "POST") {
                 auto r = authCtrl.logout(token);
                 response = respond(200, r.dump());
+
+            } else if (path == "/api/auth/change-password" && method == "POST") {
+                auto rb = json::parse(body);
+                auto r = authCtrl.changePassword(token,
+                    rb.value("current_password",""),
+                    rb.value("new_password",""));
+                response = respond(r["success"].get<bool>() ? 200:401, r.dump());
 
             // ── ELECTIONS ────────────────────────────────────────────────
             } else if (path == "/api/elections" && method == "GET") {

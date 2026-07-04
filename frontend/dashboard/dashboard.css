@@ -107,6 +107,42 @@ ul     { list-style: none; }
 .btn-new svg { width: 15px; height: 15px; flex-shrink: 0; }
 .btn-new:hover { background: #2e2e2e; transform: translateY(-1px); box-shadow: var(--shadow-md); }
 
+/* Profile avatar button */
+.btn-profile {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--blue);
+  box-shadow: 0 2px 8px rgba(0,103,184,.3);
+  transition: transform .2s var(--ease), box-shadow .2s;
+  flex-shrink: 0;
+  position: relative;
+  cursor: pointer;
+}
+.btn-profile:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 14px rgba(0,103,184,.4);
+}
+.btn-profile:hover::after {
+  content: 'My Profile';
+  position: absolute; bottom: -30px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: #fff;
+  font-size: 11px; font-weight: 600;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  pointer-events: none;
+  z-index: 10;
+}
+.btn-profile-avatar {
+  font-size: 13px; font-weight: 800;
+  color: #fff; letter-spacing: -.01em;
+  line-height: 1;
+  user-select: none;
+}
+
 /* Logout button */
 .btn-logout {
   display: inline-flex; align-items: center; gap: 6px;
