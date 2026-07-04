@@ -4,380 +4,264 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Manage Election — VoteStack</title>
-  <link rel="stylesheet" href="/shared/styles.css"/>
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-  <style>
-    .page { max-width:1100px; margin:0 auto; padding:32px 24px; position:relative; z-index:1; }
-    .back-link { display:inline-flex; align-items:center; gap:8px; color:var(--text-2); text-decoration:none; font-size:14px; margin-bottom:28px; transition:color .2s; }
-    .back-link:hover { color:var(--primary); }
-    .election-header { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:32px; }
-    .election-header h1 { font-size:28px; }
-
-    /* Share link banner */
-    .share-banner {
-      background: linear-gradient(135deg, rgba(0,255,136,.08), rgba(0,217,255,.08));
-      border: 1px solid rgba(0,255,136,.25);
-      border-radius: var(--radius); padding:20px 24px;
-      display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;
-      margin-bottom:32px;
-    }
-    .share-banner-left h3 { font-size:15px; font-weight:700; margin-bottom:4px; }
-    .share-banner-left p  { font-size:13px; color:var(--text-2); }
-    .share-url {
-      font-family:monospace; font-size:13px; color:var(--primary);
-      background:rgba(0,255,136,.08); padding:10px 16px;
-      border-radius:8px; border:1px solid rgba(0,255,136,.2);
-      word-break:break-all; flex:1; min-width:200px; max-width:500px;
-    }
-
-    /* Tabs */
-    .tabs { display:flex; gap:4px; border-bottom:1px solid var(--border-bright); margin-bottom:32px; }
-    .tab {
-      padding:12px 20px; font-size:14px; font-weight:600;
-      cursor:pointer; border-bottom:2px solid transparent;
-      color:var(--text-2); transition:all .2s; background:none; border-left:none; border-right:none; border-top:none;
-    }
-    .tab.active { color:var(--primary); border-bottom-color:var(--primary); }
-    .tab:hover  { color:var(--text); }
-    .tab-panel  { display:none; }
-    .tab-panel.active { display:block; }
-
-    /* Candidates */
-    .add-form { display:flex; gap:12px; margin-bottom:24px; }
-    .add-form .input-field { flex:1; }
-    .candidate-item {
-      display:flex; justify-content:space-between; align-items:center;
-      padding:16px; background:var(--bg-2); border:1px solid var(--border);
-      border-radius:var(--radius-sm); margin-bottom:8px;
-    }
-    .candidate-name { font-weight:600; font-size:15px; }
-    .candidate-votes { font-size:13px; color:var(--text-2); margin-top:2px; }
-
-    /* Voters */
-    .voter-item {
-      display:flex; justify-content:space-between; align-items:center;
-      padding:14px 16px; background:var(--bg-2); border:1px solid var(--border);
-      border-radius:var(--radius-sm); margin-bottom:8px;
-    }
-    .voter-info strong { font-size:15px; display:block; }
-    .voter-info small  { font-size:12px; color:var(--text-2); }
-    .voter-id-badge { font-family:monospace; font-size:12px; color:var(--secondary); background:rgba(0,217,255,.1); padding:3px 10px; border-radius:6px; }
-    .add-voter-form { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px; }
-    @media(max-width:600px){ .add-voter-form { grid-template-columns:1fr; } }
-
-    /* Results */
-    .result-bar-wrap { margin-bottom:20px; }
-    .result-bar-label { display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px; font-weight:600; }
-    .result-bar-bg { background:var(--bg-2); border-radius:8px; height:40px; overflow:hidden; }
-    .result-bar-fill {
-      height:100%; display:flex; align-items:center; padding-left:16px;
-      font-weight:700; font-size:13px; color:#000;
-      background: linear-gradient(90deg, var(--primary), var(--secondary));
-      transition: width 1s cubic-bezier(.4,0,.2,1);
-      min-width:50px;
-    }
-
-    #tabCandidates, #tabVoters, #tabResults { font-family: inherit; }
-  </style>
+  <meta name="description" content="Manage candidates, voters and view live results for your election."/>
+  <link rel="icon" href="/assets/Logo.png" type="image/png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="manage.css"/>
+  <!-- Chart.js for results visualisation -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 </head>
 <body>
-  <nav class="navbar">
-    <a class="navbar-brand" href="/landing/index.html">
-      <img src="/assets/Logo.png" alt="VoteStack"/> VoteStack
-    </a>
-    <div class="navbar-actions">
-      <a href="/dashboard/index.html" class="btn btn-outline btn-sm">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-        Dashboard
+
+  <!-- =====================================================
+       HEADER
+  ====================================================== -->
+  <header class="mn-header">
+    <div class="mn-header-inner">
+      <a class="mn-brand" href="/landing/index.html">
+        <img src="/assets/Logo.png" alt="VoteStack"/>
+        VoteStack
       </a>
-      <button class="btn btn-outline btn-sm" onclick="handleLogout()">Log Out</button>
-    </div>
-  </nav>
-
-  <main class="page">
-    <a href="/dashboard/index.html" class="back-link">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-      Back to My Elections
-    </a>
-
-    <div class="election-header">
-      <div>
-        <h1 class="gradient-text" id="electionTitle">Loading…</h1>
-        <p style="color:var(--text-2);font-size:14px;margin-top:6px;" id="electionMeta"></p>
-      </div>
-      <span class="badge badge-green" id="electionStatus">Active</span>
-    </div>
-
-    <!-- Share link -->
-    <div class="share-banner">
-      <div class="share-banner-left">
-        <h3>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:middle"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-          Voting Link
-        </h3>
-        <p>Share this link with your registered voters</p>
-      </div>
-      <div class="share-url" id="shareUrl">Loading…</div>
-      <button class="btn btn-primary btn-sm" onclick="copyLink()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-        Copy
-      </button>
-    </div>
-
-    <!-- Tabs -->
-    <div class="tabs">
-      <button class="tab active" onclick="switchTab('candidates',this)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:middle"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        Candidates
-      </button>
-      <button class="tab" onclick="switchTab('voters',this)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:middle"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        Voters
-      </button>
-      <button class="tab" onclick="switchTab('results',this)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:middle"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-        Results
-      </button>
-    </div>
-
-    <!-- Candidates Tab -->
-    <div class="tab-panel active" id="tabCandidates">
-      <div id="candMsg" class="msg" style="display:none;margin-bottom:16px;"></div>
-      <div class="add-form">
-        <input id="candName" class="input-field" type="text" placeholder="Candidate name"
-          onkeydown="if(event.key==='Enter')addCandidate()" />
-        <button class="btn btn-primary" onclick="addCandidate()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Add
+      <div class="mn-header-right">
+        <a href="/dashboard/index.html" class="btn-back">
+          <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Dashboard
+        </a>
+        <button class="btn-logout" onclick="handleLogout()">
+          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign out
         </button>
       </div>
-      <div id="candidatesList"></div>
     </div>
+  </header>
 
-    <!-- Voters Tab -->
-    <div class="tab-panel" id="tabVoters">
-      <div id="voterMsg" class="msg" style="display:none;margin-bottom:16px;"></div>
-      <div class="add-voter-form">
-        <div class="input-group">
-          <label>Voter ID</label>
-          <input id="vVoterId" class="input-field" type="text" placeholder="Unique voter ID" />
-        </div>
-        <div class="input-group">
-          <label>Full Name</label>
-          <input id="vName" class="input-field" type="text" placeholder="Voter name" />
-        </div>
-        <div class="input-group">
-          <label>Email</label>
-          <input id="vEmail" class="input-field" type="email" placeholder="voter@email.com" />
-        </div>
-        <div class="input-group">
-          <label>Phone</label>
-          <input id="vPhone" class="input-field" type="tel" placeholder="+91..." />
-        </div>
+  <!-- =====================================================
+       PAGE
+  ====================================================== -->
+  <main class="mn-page">
+
+    <!-- ── Election Hero Banner ── -->
+    <div class="election-hero">
+      <div class="election-hero-left">
+        <h1 id="electionTitle">Loading…</h1>
+        <p id="electionMeta"></p>
       </div>
-      <button class="btn btn-primary" style="margin-bottom:24px;" onclick="addVoter()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Add Voter
-      </button>
-      <div id="votersList"></div>
-    </div>
-
-    <!-- Results Tab -->
-    <div class="tab-panel" id="tabResults">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
-        <div>
-          <div style="font-size:14px;color:var(--text-2);">Total votes cast</div>
-          <div style="font-size:36px;font-weight:800;color:var(--primary);" id="totalVotes">0</div>
-        </div>
-        <button class="btn btn-outline btn-sm" onclick="loadResults()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      <div class="election-hero-right">
+        <span class="status-badge active" id="electionStatus">Active</span>
+        <button class="btn-ghost-sm" onclick="loadAll()">
+          <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
           Refresh
         </button>
       </div>
-      <div id="resultsList"></div>
     </div>
+
+    <!-- ── Share Banner ── -->
+    <div class="share-banner">
+      <div class="share-banner-icon">
+        <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      </div>
+      <div class="share-banner-text">
+        <h3>Voting Link</h3>
+        <p>Share this with your registered voters — they click, enter their ID and vote.</p>
+      </div>
+      <div class="share-url-pill" id="shareUrl" onclick="copyLink()" title="Click to copy">Loading…</div>
+      <button class="btn-copy-pill" onclick="copyLink()">
+        <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy link
+      </button>
+    </div>
+
+    <!-- ── Stats Strip ── -->
+    <div class="mn-stats">
+      <div class="mn-stat-card">
+        <div class="mn-stat-icon">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div>
+          <div class="mn-stat-num" id="statCandidates">—</div>
+          <div class="mn-stat-lbl">Candidates</div>
+        </div>
+      </div>
+      <div class="mn-stat-card">
+        <div class="mn-stat-icon">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div>
+          <div class="mn-stat-num" id="statVoters">—</div>
+          <div class="mn-stat-lbl">Registered voters</div>
+        </div>
+      </div>
+      <div class="mn-stat-card">
+        <div class="mn-stat-icon green">
+          <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div>
+          <div class="mn-stat-num" id="statVotes">—</div>
+          <div class="mn-stat-lbl">Votes cast</div>
+        </div>
+      </div>
+      <div class="mn-stat-card">
+        <div class="mn-stat-icon orange">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <div>
+          <div class="mn-stat-num" id="statTurnout">—</div>
+          <div class="mn-stat-lbl">Turnout</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Tabs ── -->
+    <div class="mn-tabs">
+      <button class="mn-tab active" id="tab-candidates" onclick="switchTab('candidates',this)">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Candidates
+        <span class="mn-tab-count" id="tcCand">0</span>
+      </button>
+      <button class="mn-tab" id="tab-voters" onclick="switchTab('voters',this)">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Voters
+        <span class="mn-tab-count" id="tcVoter">0</span>
+      </button>
+      <button class="mn-tab" id="tab-results" onclick="switchTab('results',this)">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Results &amp; Analytics
+      </button>
+    </div>
+
+    <!-- =====================================================
+         PANEL: CANDIDATES
+    ====================================================== -->
+    <div class="mn-panel active" id="panelCandidates">
+      <div class="panel-header">
+        <div>
+          <h2>Manage Candidates</h2>
+          <p>Add or remove candidates competing in this election.</p>
+        </div>
+      </div>
+      <div id="candMsg" class="mn-msg"></div>
+      <div class="add-form-row">
+        <input id="candName" class="mn-input" type="text" placeholder="e.g. Jane Smith"
+          onkeydown="if(event.key==='Enter')addCandidate()"/>
+        <button class="btn-primary" onclick="addCandidate()">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add candidate
+        </button>
+      </div>
+      <div class="section-lbl">All candidates</div>
+      <div class="candidates-list" id="candidatesList"></div>
+    </div>
+
+    <!-- =====================================================
+         PANEL: VOTERS
+    ====================================================== -->
+    <div class="mn-panel" id="panelVoters">
+      <div class="panel-header">
+        <div>
+          <h2>Manage Voters</h2>
+          <p>Register the people allowed to vote in this election.</p>
+        </div>
+      </div>
+      <div id="voterMsg" class="mn-msg"></div>
+      <div class="add-voter-grid">
+        <div class="form-field">
+          <label>Voter ID <span style="color:#dc2626">*</span></label>
+          <input id="vVoterId" class="mn-input" type="text" placeholder="Unique ID (e.g. STU001)"/>
+        </div>
+        <div class="form-field">
+          <label>Full Name <span style="color:#dc2626">*</span></label>
+          <input id="vName" class="mn-input" type="text" placeholder="Full name"/>
+        </div>
+        <div class="form-field">
+          <label>Email</label>
+          <input id="vEmail" class="mn-input" type="email" placeholder="voter@email.com"/>
+        </div>
+        <div class="form-field">
+          <label>Phone</label>
+          <input id="vPhone" class="mn-input" type="tel" placeholder="+91 …"/>
+        </div>
+      </div>
+      <button class="btn-blue" style="margin-bottom:28px;" onclick="addVoter()">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add voter
+      </button>
+      <div class="voter-search-row">
+        <div class="voter-search-wrap">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="voter-search" id="voterSearch" type="text" placeholder="Search voters…" oninput="filterVoters()"/>
+        </div>
+      </div>
+      <div class="section-lbl">Registered voters</div>
+      <div class="voters-list" id="votersList"></div>
+    </div>
+
+    <!-- =====================================================
+         PANEL: RESULTS & ANALYTICS
+    ====================================================== -->
+    <div class="mn-panel" id="panelResults">
+      <!-- Total votes card + refresh -->
+      <div class="results-total-card">
+        <div class="results-total-left">
+          <h2 id="totalVotes">0</h2>
+          <p>Total votes cast</p>
+        </div>
+        <div class="results-total-right">
+          <button class="btn-ghost-sm" onclick="loadResults()">
+            <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Refresh results
+          </button>
+        </div>
+      </div>
+
+      <div class="results-grid">
+        <!-- Left: bar chart breakdown -->
+        <div>
+          <div class="panel-header">
+            <div>
+              <h2>Vote breakdown</h2>
+              <p>Relative share of votes per candidate.</p>
+            </div>
+          </div>
+          <div class="results-bars" id="resultsList"></div>
+        </div>
+
+        <!-- Right: Chart.js doughnut + bar -->
+        <div>
+          <div class="chart-card" style="margin-bottom:16px;">
+            <h3>
+              <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#0067b8;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:inline;vertical-align:-2px;margin-right:6px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Distribution
+            </h3>
+            <div class="chart-container">
+              <canvas id="doughnutChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h3>
+              <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#0067b8;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:inline;vertical-align:-2px;margin-right:6px"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              Vote count per candidate
+            </h3>
+            <div class="chart-container">
+              <canvas id="barChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </main>
+
+  <!-- =====================================================
+       TOAST
+  ====================================================== -->
+  <div class="mn-toast" id="mnToast" role="status" aria-live="polite">
+    <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    <span id="mnToastMsg"></span>
+  </div>
 
   <script src="/config.js"></script>
   <script src="/shared/api.js"></script>
-  <script>
-    const params     = new URLSearchParams(location.search);
-    const electionId = params.get('id');
-
-    document.addEventListener('DOMContentLoaded', async () => {
-      if (!Auth.requireAuth()) return;
-      if (!electionId) { window.location.href = '/dashboard/index.html'; return; }
-
-      // Load election info
-      const res = await API.getElection(electionId);
-      if (!res.success) { window.location.href = '/dashboard/index.html'; return; }
-      const e = res.election;
-      document.getElementById('electionTitle').textContent = e.title;
-      document.getElementById('electionMeta').textContent  = 'Created ' + formatDate(e.created_at);
-      document.getElementById('electionStatus').textContent = e.is_active ? 'Active' : 'Closed';
-      document.getElementById('electionStatus').className   = 'badge ' + (e.is_active ? 'badge-green' : 'badge-red');
-      const link = `${location.origin}/vote/index.html?election=${electionId}`;
-      document.getElementById('shareUrl').textContent = link;
-
-      loadCandidates();
-      loadVoters();
-    });
-
-    function switchTab(name, btn) {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('tab' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
-      if (name === 'results') loadResults();
-    }
-
-    /* ---- CANDIDATES ---- */
-    async function loadCandidates() {
-      const res = await API.getCandidates(electionId);
-      const list = document.getElementById('candidatesList');
-      if (!res.success || !res.candidates?.length) {
-      list.innerHTML = '<div class="empty-state"><span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg></span><p>No candidates yet. Add your first one above.</p></div>';
-        return;
-      }
-      list.innerHTML = res.candidates.map(c => `
-        <div class="candidate-item">
-          <div>
-            <div class="candidate-name">${escHtml(c.name)}</div>
-            <div class="candidate-votes">${c.votes} vote${c.votes!==1?'s':''}</div>
-          </div>
-          <button class="btn btn-danger btn-sm" onclick="deleteCandidate('${escHtml(c.name)}')">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-              Remove
-            </button>
-        </div>
-      `).join('');
-    }
-
-    async function addCandidate() {
-      const name = document.getElementById('candName').value.trim();
-      if (!name) { showMsg('candMsg','Enter a candidate name','error'); return; }
-      const res = await API.addCandidate(electionId, name);
-      if (res.success) {
-        document.getElementById('candName').value = '';
-        showMsg('candMsg', 'Candidate added!', 'success');
-        loadCandidates();
-      } else showMsg('candMsg', res.message, 'error');
-    }
-
-    async function deleteCandidate(name) {
-      if (!confirm(`Remove candidate "${name}"?`)) return;
-      await API.deleteCandidate(electionId, name);
-      loadCandidates();
-    }
-
-    /* ---- VOTERS ---- */
-    async function loadVoters() {
-      const res = await API.getVoters(electionId);
-      const list = document.getElementById('votersList');
-      if (!res.success || !res.voters?.length) {
-      list.innerHTML = '<div class="empty-state"><span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><p>No voters registered yet.</p></div>';
-        return;
-      }
-      list.innerHTML = res.voters.map(v => `
-        <div class="voter-item">
-          <div class="voter-info">
-            <strong>${escHtml(v.name)}</strong>
-            <small>${escHtml(v.email||'')} ${v.phone?'· '+escHtml(v.phone):''}</small>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <span class="voter-id-badge">${escHtml(v.voter_id)}</span>
-            <button class="btn btn-danger btn-sm" onclick="deleteVoter('${escHtml(v.voter_id)}')">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    async function addVoter() {
-      const voter_id = document.getElementById('vVoterId').value.trim();
-      const name     = document.getElementById('vName').value.trim();
-      const email    = document.getElementById('vEmail').value.trim();
-      const phone    = document.getElementById('vPhone').value.trim();
-      if (!voter_id || !name) { showMsg('voterMsg','Voter ID and name are required','error'); return; }
-      const res = await API.addVoter(electionId, { voter_id, name, email, phone });
-      if (res.success) {
-        document.getElementById('vVoterId').value = '';
-        document.getElementById('vName').value = '';
-        document.getElementById('vEmail').value = '';
-        document.getElementById('vPhone').value = '';
-        showMsg('voterMsg','Voter added!','success');
-        loadVoters();
-      } else showMsg('voterMsg', res.message, 'error');
-    }
-
-    async function deleteVoter(voterId) {
-      if (!confirm(`Remove voter "${voterId}"?`)) return;
-      await API.deleteVoter(electionId, voterId);
-      loadVoters();
-    }
-
-    /* ---- RESULTS ---- */
-    async function loadResults() {
-      const res = await API.getResults(electionId);
-      const list = document.getElementById('resultsList');
-      document.getElementById('totalVotes').textContent = res.total_votes || 0;
-      if (!res.success || !res.candidates?.length) {
-        list.innerHTML = '<div class="empty-state"><span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><p>No results yet.</p></div>';
-        return;
-      }
-      const maxVotes = Math.max(...res.candidates.map(c => c.votes), 1);
-      list.innerHTML = res.candidates.map(c => {
-        const pct = Math.round((c.votes / maxVotes) * 100);
-        return `
-          <div class="result-bar-wrap">
-            <div class="result-bar-label">
-              <span>${escHtml(c.name)}</span>
-              <span>${c.votes} votes</span>
-            </div>
-            <div class="result-bar-bg">
-              <div class="result-bar-fill" style="width:${pct}%">${pct}%</div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    /* ---- Helpers ---- */
-    function copyLink() {
-      const link = document.getElementById('shareUrl').textContent;
-      navigator.clipboard.writeText(link).then(() => showToast('Link copied!'));
-    }
-
-    function showMsg(id, text, type) {
-      const el = document.getElementById(id);
-      el.textContent = text; el.className = 'msg msg-'+type; el.style.display='block';
-      setTimeout(() => el.style.display='none', 4000);
-    }
-
-    function showToast(msg) {
-      let t = document.getElementById('toast');
-      if (!t) {
-        t = document.createElement('div');
-        t.id = 'toast';
-        t.style.cssText = 'position:fixed;bottom:32px;right:32px;background:var(--bg-card);border:1px solid var(--primary);color:var(--primary);padding:14px 24px;border-radius:12px;font-weight:600;z-index:300;box-shadow:0 0 20px var(--primary-glow);font-size:14px;';
-        document.body.appendChild(t);
-      }
-      t.textContent = msg; t.style.display='block';
-      setTimeout(() => t.style.display='none', 3000);
-    }
-
-    async function handleLogout() {
-      await API.logout(); Auth.clear();
-      window.location.href = '/landing/index.html';
-    }
-
-    function escHtml(s) {
-      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-    function formatDate(d) {
-      return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-    }
-  </script>
+  <script src="manage.js"></script>
 </body>
 </html>
