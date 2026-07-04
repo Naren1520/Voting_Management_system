@@ -31,7 +31,7 @@
 
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overscroll-behavior-y: none; }
 
 body {
   font-family: 'Inter', system-ui, sans-serif;
@@ -40,6 +40,7 @@ body {
   min-height: 100vh;
   line-height: 1.6;
   overflow-x: hidden;
+  overscroll-behavior-y: none;
 }
 
 /* Grid background */

@@ -40,7 +40,7 @@
    RESET
 ---------------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; overscroll-behavior-y: none; }
 body {
   font-family: var(--font);
   color: var(--ink);
@@ -58,6 +58,7 @@ body {
   min-height: 100vh;
   line-height: 1.6;
   overflow-x: hidden;
+  overscroll-behavior-y: none;
   animation: pageReveal .4s var(--ease);
 }
 @keyframes pageReveal { from { opacity: 0; } to { opacity: 1; } }
