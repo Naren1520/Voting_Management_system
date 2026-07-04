@@ -1,8 +1,6 @@
-# VoteStack — Secure Online Voting Platform
+# VoteStack - Secure Online Voting Platform
 
-> A full-stack online voting system built with a high-performance **C++ backend** and a modern **Vanilla JS frontend**. Supports multi-election management, registered voter lists, real-time results, and full data isolation per user.
-
-<br/>
+A full-stack online voting system built with a high-performance C++ backend and a modern Vanilla JS frontend. Supports multi-election management, registered voter lists, real-time results, and full data isolation per user.
 
 [![Documentation](https://img.shields.io/badge/Docs-DeepWiki-blue?style=for-the-badge&logo=gitbook&logoColor=white)](https://deepwiki.com/Naren1520/Voting_Management_system)
 ![C++](https://img.shields.io/badge/C++-17-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)
@@ -12,8 +10,6 @@
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=black)
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
-
-<br/>
 
 ---
 
@@ -25,8 +21,8 @@
 4. [System Architecture](#system-architecture)
 5. [Project Structure](#project-structure)
 6. [Getting Started](#getting-started)
-7. [Backend — Build & Run](#backend--build--run)
-8. [Frontend — Setup & Run](#frontend--setup--run)
+7. [Backend - Build & Run](#backend---build--run)
+8. [Frontend - Setup & Run](#frontend---setup--run)
 9. [API Reference](#api-reference)
 10. [Deployment](#deployment)
 11. [Security](#security)
@@ -44,68 +40,75 @@ VoteStack is a production-ready voting platform that allows any authenticated us
 - Prevent duplicate voting at the server level
 - View live results with vote breakdowns
 
-Each election is fully isolated — candidates, voters, and votes are never mixed across elections or users.
+Each election is fully isolated - candidates, voters, and votes are never mixed across elections or users.
 
 ---
 
 ## Tech Stack
 
 ### Backend
-| Technology | Purpose |
-|---|---|
-| C++ 17 | Core server language |
-| Raw TCP / HTTP (custom) | HTTP request handling without frameworks |
-| nlohmann/json | JSON serialization & deserialization |
-| Supabase REST API | Cloud database (via `curl`) |
-| OpenSSL | Password hashing & token generation |
-| POSIX Threads / pthreads | Multi-threaded request handling |
+
+| Technology          | Purpose                                    |
+|---------------------|--------------------------------------------|
+| C++ 17              | Core server language                       |
+| Raw TCP / HTTP      | Custom HTTP request handling, no framework |
+| nlohmann/json       | JSON serialization and deserialization     |
+| Supabase REST API   | Cloud database access via curl             |
+| OpenSSL             | Password hashing and token generation      |
+| POSIX pthreads      | Multi-threaded request handling            |
 
 ### Frontend
-| Technology | Purpose |
-|---|---|
-| HTML5 | Page structure |
-| CSS3 (custom design system) | Styling, animations, layout |
-| Vanilla JavaScript (ES6+) | Client logic, API calls, auth |
-| Lucide Icons | UI icon set |
-| Google Fonts (Inter) | Typography |
-| Fetch API | HTTP communication with backend |
-| localStorage | Client-side session management |
+
+| Technology               | Purpose                                  |
+|--------------------------|------------------------------------------|
+| HTML5                    | Page structure                           |
+| CSS3 (custom design sys) | Styling, animations, layout              |
+| Vanilla JavaScript ES6+  | Client logic, API calls, auth            |
+| Lucide Icons             | UI icon set                              |
+| Google Fonts (Inter)     | Typography                               |
+| Fetch API                | HTTP communication with backend          |
+| localStorage             | Client-side session management           |
 
 ### Infrastructure
-| Technology | Purpose |
-|---|---|
-| Docker | Backend containerisation |
-| Render | Backend cloud deployment |
-| Netlify | Frontend static hosting |
-| GitHub | Source control |
+
+| Technology | Purpose                    |
+|------------|----------------------------|
+| Docker     | Backend containerisation   |
+| Render     | Backend cloud deployment   |
+| Netlify    | Frontend static hosting    |
+| GitHub     | Source control             |
 
 ---
 
 ## Features
 
 ### Voter Experience
+
 - Single-page voting flow with step indicator
 - Voter ID verification before ballot is shown
 - Duplicate vote prevention (server-enforced)
 - Vote confirmation screen with lock badge
 
 ### Election Management
+
 - Create unlimited elections per account
-- Add / remove candidates dynamically
-- Register voters (voter ID, name, email, phone)
-- Toggle election active / closed status
+- Add and remove candidates dynamically
+- Register voters with voter ID, name, email, and phone
+- Toggle election active or closed status
 - Shareable per-election voting link
 - Delete elections with full data cleanup
 
-### Results & Analytics
+### Results and Analytics
+
 - Live vote count per candidate
 - Visual progress bars scaled to max votes
 - Total vote counter
 - Refresh on demand
 
-### Auth & Security
+### Auth and Security
+
 - JWT-based authentication
-- Bcrypt password hashing (via OpenSSL)
+- Bcrypt password hashing via OpenSSL
 - Per-user data isolation
 - Guest route protection (redirect if not logged in)
 - Auth route protection (redirect if already logged in)
@@ -115,41 +118,41 @@ Each election is fully isolated — candidates, voters, and votes are never mixe
 ## System Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        BROWSER (Client)                         │
-│                                                                 │
-│   landing/    auth/    dashboard/    election/    vote/         │
-│   index.html  login    index.html    manage.html  index.html    │
-│              signup                                             │
-│                    │                                            │
-│         shared/api.js  +  shared/styles.css                     │
-│              config.js (API_BASE URL)                           │
-└──────────────────────────┬──────────────────────────────────────┘
-                           │  HTTPS  (REST/JSON)
-                           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│               C++ HTTP Server  (port 8080)                      │
-│                                                                 │
-│   POST /api/auth/signup        POST /api/auth/login             │
-│   GET  /api/elections          POST /api/elections              │
-│   GET  /api/elections/:id      DELETE /api/elections/:id        │
-│   GET  /api/elections/:id/candidates                            │
-│   POST /api/elections/:id/candidates                            │
-│   GET  /api/elections/:id/voters                                │
-│   POST /api/elections/:id/voters                                │
-│   GET  /api/vote/:id/candidates   (public)                      │
-│   POST /api/vote/:id/check        (public)                      │
-│   POST /api/vote/:id/cast         (public)                      │
-│   GET  /api/vote/:id/results      (public)                      │
-└──────────────────────────┬──────────────────────────────────────┘
-                           │  HTTPS  (Supabase REST)
-                           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    Supabase (PostgreSQL)                        │
-│                                                                 │
-│   users          elections        candidates                    │
-│   voters         votes            sessions                      │
-└─────────────────────────────────────────────────────────────────┘
++-----------------------------------------------------------------+
+|                        BROWSER (Client)                         |
+|                                                                 |
+|   landing/    auth/      dashboard/   election/    vote/        |
+|   index.html  login      index.html   manage.html  index.html   |
+|               signup                                            |
+|                    |                                            |
+|         shared/api.js  +  shared/styles.css                     |
+|              config.js (API_BASE URL)                           |
++----------------------------+------------------------------------+
+                             |  HTTPS  (REST/JSON)
+                             v
++-----------------------------------------------------------------+
+|               C++ HTTP Server  (port 8080)                      |
+|                                                                 |
+|   POST /api/auth/signup        POST /api/auth/login             |
+|   GET  /api/elections          POST /api/elections              |
+|   GET  /api/elections/:id      DELETE /api/elections/:id        |
+|   GET  /api/elections/:id/candidates                            |
+|   POST /api/elections/:id/candidates                            |
+|   GET  /api/elections/:id/voters                                |
+|   POST /api/elections/:id/voters                                |
+|   GET  /api/vote/:id/candidates   (public)                      |
+|   POST /api/vote/:id/check        (public)                      |
+|   POST /api/vote/:id/cast         (public)                      |
+|   GET  /api/vote/:id/results      (public)                      |
++----------------------------+------------------------------------+
+                             |  HTTPS  (Supabase REST)
+                             v
++-----------------------------------------------------------------+
+|                    Supabase (PostgreSQL)                         |
+|                                                                 |
+|   users          elections        candidates                    |
+|   voters         votes            sessions                      |
++-----------------------------------------------------------------+
 ```
 
 ---
@@ -157,50 +160,87 @@ Each election is fully isolated — candidates, voters, and votes are never mixe
 ## Project Structure
 
 ```
-VotingSystem/
+VotingSystem using cpp/
 |
 +-- backend/
-|   |
-|   +-- data/                          # Runtime data (auto-generated, git-ignored)
-|   |   +-- candidates.json
-|   |   +-- voters.json
-|   |   \-- registered_voters.json
-|   |
-|   +-- json.hpp                       # nlohmann/json single-header library
-|   +-- voting_server.cpp              # Windows build — main HTTP server source
-|   \-- voting_server_linux.cpp        # Linux build — used by Docker
+|   +-- json.hpp                        # nlohmann/json single-header library
+|   +-- voting_server.cpp               # Windows build - main HTTP server source
+|   \-- voting_server_linux.cpp         # Linux build - used by Docker
 |
 +-- frontend/
-|   |
 |   +-- assets/
-|   |   \-- Logo.png                   # Application logo
+|   |   +-- Logo.png
+|   |   +-- founder.jpg
+|   |   +-- founder1.png
+|   |   +-- img1.jpg ... img7.jpg
+|   |   +-- vdo1.mp4
+|   |   \-- vdo2.mp4
 |   |
 |   +-- auth/
-|   |   +-- login.html                 # Login page
-|   |   \-- signup.html                # Registration page
+|   |   +-- login.html                  # Login page
+|   |   +-- signup.html                 # Registration page
+|   |   +-- auth.css
+|   |   \-- auth.js
 |   |
 |   +-- dashboard/
-|   |   \-- index.html                 # Authenticated user dashboard (election list)
+|   |   +-- index.html                  # Authenticated user dashboard (election list)
+|   |   +-- dashboard.css
+|   |   \-- dashboard.js
 |   |
 |   +-- election/
-|   |   \-- manage.html                # Election management (candidates, voters, results)
+|   |   +-- manage.html                 # Single-election management page
+|   |   +-- manage.css
+|   |   +-- manage.js
+|   |   +-- manage-multi.html           # Multi-election management page
+|   |   +-- manage-multi.css
+|   |   \-- manage-multi.js
 |   |
 |   +-- landing/
-|   |   \-- index.html                 # Public landing / marketing page
+|   |   +-- index.html                  # Public landing / marketing page
+|   |   +-- landing.css
+|   |   \-- landing.js
+|   |
+|   +-- privacy/
+|   |   +-- index.html                  # Privacy policy page
+|   |   \-- privacy.js
+|   |
+|   +-- profile/
+|   |   +-- index.html                  # User profile page
+|   |   +-- profile.css
+|   |   +-- profile.js
+|   |   \-- sessions/
+|   |       +-- index.html              # Active sessions page
+|   |       +-- sessions.css
+|   |       \-- sessions.js
 |   |
 |   +-- shared/
-|   |   +-- api.js                     # Centralised API client + Auth helpers
-|   |   \-- styles.css                 # Shared design system (tokens, components)
+|   |   +-- api.js                      # Centralised API client and auth helpers
+|   |   +-- styles.css                  # Shared design system (tokens, components)
+|   |   +-- schedule.css
+|   |   +-- schedule.js
+|   |   \-- legal.css
+|   |
+|   +-- terms/
+|   |   +-- index.html                  # Terms of service page
+|   |   \-- terms.js
 |   |
 |   +-- vote/
-|   |   \-- index.html                 # Public voter-facing ballot page
+|   |   \-- index.html                  # Public voter-facing ballot page
 |   |
-|   +-- config.js                      # Runtime config (API_BASE URL)
-|   \-- netlify.toml                   # Netlify deployment config
+|   +-- vote-multi/
+|   |   +-- index.html                  # Public multi-election ballot page
+|   |   +-- vote-multi.css
+|   |   \-- vote-multi.js
+|   |
+|   +-- config.js                       # Runtime config (API_BASE URL)
+|   +-- loader.html                     # Initial loading screen
+|   \-- netlify.toml                    # Netlify deployment config
 |
-+-- Dockerfile                         # Multi-stage Docker build (gcc -> debian-slim)
-+-- render.yaml                        # Render.com deployment config
-+-- run.bat                            # Local dev launcher (Windows)
++-- Dockerfile                          # Multi-stage Docker build (gcc -> debian-slim)
++-- render.yaml                         # Render.com deployment config
++-- run.bat                             # Local dev launcher (Windows)
++-- .dockerignore
++-- .gitignore
 \-- README.md
 ```
 
@@ -210,18 +250,18 @@ VotingSystem/
 
 ### Prerequisites
 
-| Requirement | Version | Notes |
-|---|---|---|
-| GCC / G++ | 12+ | For Linux/Windows build |
-| Docker | 20+ | For containerised build |
-| Python | 3.x | To serve frontend locally |
-| Git | any | Clone the repo |
+| Requirement | Version | Notes                       |
+|-------------|---------|------------------------------|
+| GCC / G++   | 12+     | For Linux or Windows build   |
+| Docker      | 20+     | For containerised build      |
+| Python      | 3.x     | To serve frontend locally    |
+| Git         | any     | Clone the repo               |
 
 ---
 
-## Backend — Build & Run
+## Backend - Build & Run
 
-### Option A — Local Build (Windows)
+### Option A - Local Build (Windows)
 
 ```bash
 cd backend
@@ -229,7 +269,7 @@ g++ -std=c++17 -O2 -o voting_server.exe voting_server.cpp -lws2_32 -pthread
 voting_server.exe
 ```
 
-### Option B — Local Build (Linux / macOS)
+### Option B - Local Build (Linux / macOS)
 
 ```bash
 cd backend
@@ -237,7 +277,7 @@ g++ -std=c++17 -O2 -o voting_server voting_server_linux.cpp -pthread
 ./voting_server
 ```
 
-### Option C — Docker Build
+### Option C - Docker Build
 
 ```bash
 # Build the image
@@ -247,40 +287,40 @@ docker build -t votestack-backend .
 docker run -p 8080:8080 votestack-backend
 ```
 
-Server starts on **http://localhost:8080**
+Server starts on `http://localhost:8080`
 
-### Quick Start (Windows — One Command)
+### Quick Start (Windows - One Command)
 
 ```bat
 .\run.bat
 ```
 
-This starts the backend on port `8080` and the frontend on port `3000`, then opens the browser automatically.
+Starts the backend on port `8080` and the frontend on port `3000`, then opens the browser automatically.
 
 ---
 
-## Frontend — Setup & Run
+## Frontend - Setup & Run
 
-### Option A — Python HTTP Server (Recommended for local dev)
+### Option A - Python HTTP Server (recommended for local dev)
 
 ```bash
 cd frontend
 python -m http.server 3000
 ```
 
-Open **http://localhost:3000/landing/index.html**
+Open `http://localhost:3000/landing/index.html`
 
-### Option B — Node.js HTTP Server
+### Option B - Node.js HTTP Server
 
 ```bash
 cd frontend
 npx http-server -p 3000
 ```
 
-### Option C — VS Code Live Server
+### Option C - VS Code Live Server
 
-- Install the **Live Server** extension
-- Right-click `frontend/landing/index.html` → **Open with Live Server**
+- Install the Live Server extension
+- Right-click `frontend/landing/index.html` and select Open with Live Server
 
 ### Configuring the API URL
 
@@ -317,9 +357,10 @@ Authorization: Bearer <jwt_token>
 ### Auth
 
 #### POST `/api/auth/signup`
+
 Register a new user.
 
-**Request body:**
+Request body:
 ```json
 {
   "name": "Example",
@@ -328,7 +369,7 @@ Register a new user.
 }
 ```
 
-**Response:**
+Response:
 ```json
 {
   "success": true,
@@ -340,9 +381,10 @@ Register a new user.
 ---
 
 #### POST `/api/auth/login`
+
 Authenticate an existing user.
 
-**Request body:**
+Request body:
 ```json
 {
   "email": "name@example.com",
@@ -350,12 +392,12 @@ Authenticate an existing user.
 }
 ```
 
-**Response:**
+Response:
 ```json
 {
   "success": true,
   "token": "<jwt>",
-  "user": { "id": "...", "name": "Name ", "email": "name@example.com" }
+  "user": { "id": "...", "name": "Name", "email": "name@example.com" }
 }
 ```
 
@@ -363,52 +405,51 @@ Authenticate an existing user.
 
 ### Elections
 
-#### GET `/api/elections`  *(auth required)*
+#### GET `/api/elections`  _(auth required)_
 Returns all elections owned by the authenticated user.
 
-#### POST `/api/elections`  *(auth required)*
+#### POST `/api/elections`  _(auth required)_
 Create a new election.
 
-**Request body:**
 ```json
 { "title": "Student Council 2025" }
 ```
 
-#### GET `/api/elections/:id`  *(auth required)*
+#### GET `/api/elections/:id`  _(auth required)_
 Get a single election by ID.
 
-#### DELETE `/api/elections/:id`  *(auth required)*
+#### DELETE `/api/elections/:id`  _(auth required)_
 Permanently delete an election and all its data.
 
 ---
 
 ### Candidates
 
-#### GET `/api/elections/:id/candidates`  *(auth required)*
+#### GET `/api/elections/:id/candidates`  _(auth required)_
 List all candidates for an election.
 
-#### POST `/api/elections/:id/candidates`  *(auth required)*
+#### POST `/api/elections/:id/candidates`  _(auth required)_
 Add a candidate.
 
 ```json
-{ "name": " Naren S J" }
+{ "name": "Naren S J" }
 ```
 
-#### DELETE `/api/elections/:id/candidates`  *(auth required)*
+#### DELETE `/api/elections/:id/candidates`  _(auth required)_
 Remove a candidate.
 
 ```json
-{ "name": " Naren S J " }
+{ "name": "Naren S J" }
 ```
 
 ---
 
 ### Voters
 
-#### GET `/api/elections/:id/voters`  *(auth required)*
+#### GET `/api/elections/:id/voters`  _(auth required)_
 List all registered voters for an election.
 
-#### POST `/api/elections/:id/voters`  *(auth required)*
+#### POST `/api/elections/:id/voters`  _(auth required)_
 Register a voter.
 
 ```json
@@ -420,7 +461,7 @@ Register a voter.
 }
 ```
 
-#### DELETE `/api/elections/:id/voters`  *(auth required)*
+#### DELETE `/api/elections/:id/voters`  _(auth required)_
 Remove a registered voter.
 
 ```json
@@ -429,7 +470,7 @@ Remove a registered voter.
 
 ---
 
-### Public Voting  *(no auth required)*
+### Public Voting  _(no auth required)_
 
 #### GET `/api/vote/:id/candidates`
 Get the candidate list for a public ballot page.
@@ -444,7 +485,7 @@ Verify a voter ID before showing the ballot.
 { "voter_id": "V001" }
 ```
 
-**Response:**
+Response:
 ```json
 { "success": true, "already_voted": false }
 ```
@@ -477,9 +518,9 @@ Get live results for an election.
 
 ## Deployment
 
-### Backend — Render.com
+### Backend - Render.com
 
-The backend is containerised with Docker and deployed to [Render](https://render.com) via `render.yaml`.
+The backend is containerised with Docker and deployed to [Render](https://render.com) via `render.yaml`. Push to the `main` branch triggers an automatic redeploy.
 
 ```yaml
 services:
@@ -489,22 +530,15 @@ services:
     dockerfilePath: ./Dockerfile
     branch: main
     plan: free
-    healthCheckPath: /candidates
+    healthCheckPath: /api/elections
 ```
 
-Push to `main` branch triggers an automatic redeploy.
+### Frontend - Netlify
 
-### Frontend — Netlify
+The `frontend/` directory is deployed as a static site on Netlify. Set the publish directory to `frontend/` in the Netlify dashboard.
 
-The `frontend/` directory is deployed as a static site on Netlify.
+Environment variable to configure in Netlify:
 
-```toml
-# frontend/netlify.toml
-```
-
-Set the **Publish directory** to `frontend/` in Netlify dashboard settings.
-
-**Environment variable to set in Netlify:**
 ```
 API_BASE = https://voting-management-system-1-zh39.onrender.com
 ```
@@ -513,25 +547,25 @@ API_BASE = https://voting-management-system-1-zh39.onrender.com
 
 ## Security
 
-| Concern | Implementation |
-|---|---|
-| Password storage | Bcrypt hashing via OpenSSL |
-| Session management | JWT tokens with expiry |
-| Duplicate vote prevention | Server-side voter ID check per election |
-| Data isolation | All queries scoped to authenticated user ID |
-| XSS prevention | `escHtml()` sanitiser on all user-supplied output |
-| CORS | Configured on backend for allowed origins |
-| Auth guards | `Auth.requireAuth()` / `Auth.requireGuest()` on every page load |
+| Concern                   | Implementation                                         |
+|---------------------------|--------------------------------------------------------|
+| Password storage          | Bcrypt hashing via OpenSSL                             |
+| Session management        | JWT tokens with expiry                                 |
+| Duplicate vote prevention | Server-side voter ID check per election                |
+| Data isolation            | All queries scoped to authenticated user ID            |
+| XSS prevention            | escHtml() sanitiser on all user-supplied output        |
+| CORS                      | Configured on backend for allowed origins              |
+| Auth guards               | Auth.requireAuth() / Auth.requireGuest() on every page |
 
 ---
 
 ## Developer
 
-**Naren S J**
-📧 [narensonu1520@gmail.com](mailto:narensonu1520@gmail.com)
+Naren S J  
+narensonu1520@gmail.com
 
-📖 [Project Documentation](https://deepwiki.com/Naren1520/Voting_Management_system)
+[Project Documentation](https://deepwiki.com/Naren1520/Voting_Management_system)
 
 ---
 
-*Built with a C++ backend for performance, Supabase for persistence, and a fully custom frontend design system — no UI frameworks used.*
+Built with a C++ backend for performance, Supabase for persistence, and a fully custom frontend design system - no UI frameworks used.

@@ -61,14 +61,15 @@ function initMobileMenu() {
 
   burger.addEventListener('click', () => {
     const open = drawer.classList.toggle('open');
+    burger.classList.toggle('is-open', open);
     burger.setAttribute('aria-expanded', open);
-    const spans = burger.querySelectorAll('span');
-    if (open) {
-      spans[0].style.transform = 'translateY(7px) rotate(45deg)';
-      spans[1].style.opacity   = '0';
-      spans[2].style.transform = 'translateY(-7px) rotate(-45deg)';
-    } else {
-      spans.forEach(s => { s.style.transform = ''; s.style.opacity = ''; });
+    drawer.setAttribute('aria-hidden', !open);
+  });
+
+  // Close on outside click
+  document.addEventListener('click', (e) => {
+    if (!burger.contains(e.target) && !drawer.contains(e.target)) {
+      closeMobileMenu();
     }
   });
 }
@@ -78,7 +79,9 @@ function closeMobileMenu() {
   const burger = document.getElementById('burger');
   if (!drawer || !burger) return;
   drawer.classList.remove('open');
-  burger.querySelectorAll('span').forEach(s => { s.style.transform = ''; s.style.opacity = ''; });
+  burger.classList.remove('is-open');
+  burger.setAttribute('aria-expanded', 'false');
+  drawer.setAttribute('aria-hidden', 'true');
 }
 
 /* ----------------------------------------------------------

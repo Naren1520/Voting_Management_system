@@ -242,7 +242,7 @@ ul     { list-style: none; }
   box-shadow: 0 4px 14px rgba(0,103,184,.4);
 }
 .btn-profile:hover::after {
-  content: 'My Profile';
+  content: 'Settings';
   position: absolute; bottom: -30px; left: 50%;
   transform: translateX(-50%);
   background: var(--ink);
@@ -254,11 +254,8 @@ ul     { list-style: none; }
   pointer-events: none;
   z-index: 10;
 }
-.btn-profile-avatar {
-  font-size: 13px; font-weight: 800;
-  color: #fff; letter-spacing: -.01em;
-  line-height: 1;
-  user-select: none;
+.btn-profile svg {
+  color: #fff;
   position: relative;
   z-index: 1;
 }

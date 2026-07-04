@@ -142,7 +142,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   border-color: rgba(255,255,255,.4);
   transform: translateY(-1px);
 }
-.header:not(.scrolled) .burger span {
+.header:not(.scrolled) .burger-icon span {
   background: #fff;
 }
 
@@ -174,27 +174,308 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
 .header-cta { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 
+/* ── Burger button ── */
 .burger {
-  display: none; flex-direction: column; gap: 5px;
-  padding: 6px; margin-left: auto;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  width: 40px; height: 40px;
+  padding: 0;
+  margin-left: auto;
+  border-radius: 10px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.18);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: background .2s, border-color .2s, transform .2s;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
 }
-.burger span { display: block; width: 22px; height: 2px; background: var(--ink); border-radius: 2px; transition: all .3s; }
+.burger::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,.14) 0%, transparent 100%);
+  pointer-events: none;
+  border-radius: inherit;
+}
+.header.scrolled .burger {
+  background: rgba(0,0,0,.05);
+  border-color: rgba(0,0,0,.1);
+}
+.burger:hover {
+  background: rgba(255,255,255,.16);
+  border-color: rgba(255,255,255,.32);
+  transform: scale(1.05);
+}
+.header.scrolled .burger:hover {
+  background: rgba(0,0,0,.1);
+  border-color: rgba(0,0,0,.18);
+}
 
-/* mobile drawer */
-.mobile-drawer {
-  display: none; flex-direction: column;
-  padding: 12px 20px 20px;
-  border-top: 1px solid var(--border);
+/* Three-bar icon — using a single SVG approach via spans */
+.burger-icon {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  pointer-events: none;
+}
+.burger-icon span {
+  display: block;
+  width: 18px; height: 1.5px;
   background: #fff;
+  border-radius: 2px;
+  transform-origin: center;
+  transition: transform .32s cubic-bezier(.22,.61,.36,1),
+              opacity   .22s ease,
+              width     .28s cubic-bezier(.22,.61,.36,1);
 }
-.mobile-drawer.open { display: flex; }
+.header.scrolled .burger-icon span { background: var(--ink); }
+
+/* open state — morphs to X */
+.burger.is-open .burger-icon span:nth-child(1) {
+  transform: translateY(6.5px) rotate(45deg);
+}
+.burger.is-open .burger-icon span:nth-child(2) {
+  opacity: 0;
+  width: 0;
+}
+.burger.is-open .burger-icon span:nth-child(3) {
+  transform: translateY(-6.5px) rotate(-45deg);
+}
+
+/* ── Mobile drawer — liquid glass panel ── */
+.mobile-drawer {
+  display: flex;
+  flex-direction: column;
+
+  /* Positioning: drop below the header */
+  position: fixed;
+  top: 66px;
+  left: 12px;
+  right: 12px;
+  z-index: 899;
+
+  /* Liquid glass surface */
+  background: rgba(10, 10, 24, 0.55);
+  backdrop-filter: blur(48px) saturate(220%) brightness(1.18);
+  -webkit-backdrop-filter: blur(48px) saturate(220%) brightness(1.18);
+
+  /* Shape */
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-top-color: rgba(255,255,255,.32);
+
+  /* Depth */
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,.28),
+    inset 0 -1px 0 rgba(0,0,0,.2),
+    inset 1px 0 0 rgba(255,255,255,.06),
+    inset -1px 0 0 rgba(255,255,255,.06),
+    0 32px 80px rgba(0,0,0,.45),
+    0  8px 24px rgba(0,0,0,.3);
+
+  /* Hide / show via clip-path + opacity for premium feel */
+  clip-path: inset(0 0 100% 0 round 20px);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    clip-path .42s cubic-bezier(.22,.61,.36,1),
+    opacity   .32s ease;
+
+  padding: 10px 14px 18px;
+  overflow: hidden;
+}
+
+/* Top refraction sheen */
+.mobile-drawer::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 44%;
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,.12) 0%,
+    rgba(255,255,255,.04) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Subtle prismatic edge — bottom */
+.mobile-drawer::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(120,160,255,.35) 30%,
+    rgba(200,140,255,.35) 60%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* open state */
+.mobile-drawer.open {
+  clip-path: inset(0 0 0% 0 round 20px);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Drawer nav items ── */
+.drawer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 0 4px;
+}
+
 .drawer-item {
-  padding: 12px 4px; font-size: 15px; font-weight: 500;
-  color: var(--ink-2); border-bottom: 1px solid var(--border-2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(255,255,255,.82);
+  border-radius: 12px;
+  letter-spacing: .01em;
+  transition: background .18s, color .18s, transform .18s;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
 }
-.drawer-item:last-child { border-bottom: none; }
-.drawer-rule { border: none; border-top: 1px solid var(--border); margin: 8px 0; }
-.drawer-btn { margin-top: 12px; text-align: center; justify-content: center; }
+.drawer-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,.07);
+  opacity: 0;
+  border-radius: inherit;
+  transition: opacity .18s;
+}
+.drawer-item:hover {
+  color: #fff;
+  transform: translateX(4px);
+}
+.drawer-item:hover::before { opacity: 1; }
+
+.drawer-item:active {
+  transform: scale(.98) translateX(4px);
+}
+
+/* Staggered entrance animation */
+.mobile-drawer.open .drawer-nav .drawer-item {
+  animation: drawerItemIn .38s cubic-bezier(.22,.61,.36,1) both;
+}
+.mobile-drawer.open .drawer-nav .drawer-item:nth-child(1) { animation-delay: .06s; }
+.mobile-drawer.open .drawer-nav .drawer-item:nth-child(2) { animation-delay: .10s; }
+.mobile-drawer.open .drawer-nav .drawer-item:nth-child(3) { animation-delay: .14s; }
+.mobile-drawer.open .drawer-nav .drawer-item:nth-child(4) { animation-delay: .18s; }
+
+@keyframes drawerItemIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Divider ── */
+.drawer-rule {
+  border: none;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,.15) 20%,
+    rgba(255,255,255,.15) 80%,
+    transparent 100%
+  );
+  margin: 6px 0 10px;
+}
+
+/* ── CTA section at bottom ── */
+.drawer-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 2px 4px;
+}
+
+.drawer-cta-signin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: rgba(255,255,255,.7);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.14);
+  transition: background .18s, color .18s, border-color .18s;
+  text-decoration: none;
+}
+.drawer-cta-signin:hover {
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  border-color: rgba(255,255,255,.25);
+}
+
+.drawer-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.28);
+  border-top-color: rgba(255,255,255,.42);
+  border-radius: 12px;
+  letter-spacing: .02em;
+  position: relative;
+  overflow: hidden;
+  transition: background .2s, transform .18s, box-shadow .2s;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.28),
+    0 4px 16px rgba(0,0,0,.3);
+  text-decoration: none;
+}
+.drawer-btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,.14) 0%, transparent 100%);
+  pointer-events: none;
+}
+.drawer-btn:hover {
+  background: rgba(255,255,255,.2);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.35),
+    0 8px 24px rgba(0,0,0,.35);
+}
+.drawer-btn:active {
+  transform: scale(.98);
+}
+
+/* Stagger the CTA items too */
+.mobile-drawer.open .drawer-cta-signin {
+  animation: drawerItemIn .38s cubic-bezier(.22,.61,.36,1) .22s both;
+}
+.mobile-drawer.open .drawer-btn {
+  animation: drawerItemIn .38s cubic-bezier(.22,.61,.36,1) .27s both;
+}
 
 @media (max-width: 900px) {
   .nav, .header-cta { display: none; }
@@ -983,19 +1264,9 @@ img {
   50% { transform: scale(1.08); opacity: .85; }
 }
 
-/* Mobile drawer slide animation */
-.mobile-drawer {
-  animation: slideDown .3s var(--ease);
-}
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+/* Mobile drawer animation is handled by clip-path transition above */
 
-/* Burger animation enhancement */
-.burger span {
-  transform-origin: center;
-}
+/* Burger icon span transform-origin set inline in burger-icon styles above */
 
 /* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {

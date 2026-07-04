@@ -31,18 +31,24 @@
         <a href="/auth/login.html"  class="btn-ghost">Sign in</a>
         <a href="/auth/signup.html" class="btn-filled">Get started free</a>
       </div>
-      <button class="burger" id="burger" aria-label="Open menu">
-        <span></span><span></span><span></span>
+      <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false">
+        <span class="burger-icon">
+          <span></span><span></span><span></span>
+        </span>
       </button>
     </div>
-    <div class="mobile-drawer" id="mobileDrawer">
-      <a href="#features"     class="drawer-item">Features</a>
-      <a href="#security"     class="drawer-item">Security</a>
-      <a href="#how-it-works" class="drawer-item">How it works</a>
-      <a href="#faq"          class="drawer-item">FAQ</a>
+    <div class="mobile-drawer" id="mobileDrawer" aria-hidden="true">
+      <nav class="drawer-nav">
+        <a href="#features"     class="drawer-item">Features</a>
+        <a href="#security"     class="drawer-item">Security</a>
+        <a href="#how-it-works" class="drawer-item">How it works</a>
+        <a href="#faq"          class="drawer-item">FAQ</a>
+      </nav>
       <hr class="drawer-rule" />
-      <a href="/auth/login.html"  class="drawer-item">Sign in</a>
-      <a href="/auth/signup.html" class="btn-filled drawer-btn">Get started free</a>
+      <div class="drawer-cta">
+        <a href="/auth/login.html"  class="drawer-cta-signin">Sign in</a>
+        <a href="/auth/signup.html" class="drawer-btn">Get started free</a>
+      </div>
     </div>
   </header>
 
