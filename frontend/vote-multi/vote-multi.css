@@ -1,0 +1,473 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap');
+
+/* ============================================================
+   TOKENS  (mirrors shared palette)
+============================================================ */
+:root {
+  --purple:        #9333ea;
+  --purple-dark:   #7e22ce;
+  --purple-light:  #fdf4ff;
+  --purple-mid:    #e9d5ff;
+  --ink:           #0f0f0f;
+  --ink-2:         #1a1a1a;
+  --ink-3:         #6a6a6a;
+  --ink-4:         #8f8f8f;
+  --border:        #e0e0e0;
+  --border-bright: #ebebeb;
+  --surface:       #ffffff;
+  --surface-2:     #f5f5f5;
+  --surface-3:     #f7f7f7;
+  --success:       #16a34a;
+  --success-light: #f0fdf4;
+  --danger:        #dc2626;
+  --danger-light:  #fef2f2;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+
+  --shadow-sm: 0 2px 12px rgba(0,0,0,.05);
+  --shadow-md: 0 4px 24px rgba(0,0,0,.08);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,.1);
+
+  --ease: cubic-bezier(0.33, 1, 0.68, 1);
+  --font: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ============================================================
+   RESET
+============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html  { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+body  {
+  font-family: var(--font);
+  color: var(--ink);
+  background: var(--surface-3);
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+  animation: pageReveal .35s var(--ease);
+}
+@keyframes pageReveal { from { opacity: 0; } to { opacity: 1; } }
+img    { display: block; max-width: 100%; }
+a      { text-decoration: none; color: inherit; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+/* ============================================================
+   PAGE SHELL
+============================================================ */
+.vote-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  background:
+    radial-gradient(ellipse at 20% 50%,  rgba(147,51,234,.07) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 30%,  rgba(0,217,255,.05)  0%, transparent 55%),
+    var(--surface-3);
+}
+
+.vote-box {
+  width: 100%;
+  max-width: 540px;
+}
+
+/* ============================================================
+   HEADER
+============================================================ */
+.vote-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.vote-header img {
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  margin: 0 auto 14px;
+  box-shadow: 0 4px 16px rgba(147,51,234,.2);
+}
+.vote-header h1 {
+  font-size: 1.625rem;
+  font-weight: 800;
+  letter-spacing: -.03em;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.vote-header p {
+  font-size: .875rem;
+  color: var(--ink-4);
+}
+
+/* ============================================================
+   CARD
+============================================================ */
+.vote-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ============================================================
+   PROGRESS BAR
+============================================================ */
+.progress-wrap {
+  margin-bottom: 28px;
+}
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-4);
+  margin-bottom: 8px;
+}
+.progress-track {
+  height: 6px;
+  background: var(--border-bright);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--purple), var(--purple-dark));
+  border-radius: 3px;
+  transition: width .5s cubic-bezier(.4, 0, .2, 1);
+  min-width: 0;
+}
+
+/* ============================================================
+   POSITION HEADER (inside vote step)
+============================================================ */
+.pos-vote-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.pos-vote-num {
+  width: 34px; height: 34px;
+  flex-shrink: 0;
+  background: var(--purple-light);
+  color: var(--purple);
+  border: 1px solid var(--purple-mid);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800;
+}
+.pos-vote-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -.02em;
+}
+.pos-vote-sub {
+  font-size: .8125rem;
+  color: var(--ink-4);
+  margin-top: 1px;
+}
+
+.voter-label {
+  font-size: .8125rem;
+  color: var(--ink-4);
+  margin-bottom: 16px;
+}
+.voter-label strong {
+  color: var(--purple);
+  font-weight: 700;
+}
+
+/* ============================================================
+   CANDIDATE OPTIONS
+============================================================ */
+.candidates-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.candidate-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color .2s, background .2s, box-shadow .2s;
+  user-select: none;
+}
+.candidate-option:hover {
+  border-color: var(--purple);
+  background: var(--purple-light);
+}
+.candidate-option.selected {
+  border-color: var(--purple);
+  background: var(--purple-light);
+  box-shadow: 0 0 0 3px rgba(147,51,234,.12);
+}
+
+.radio-circle {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .18s, border-color .18s;
+}
+.candidate-option.selected .radio-circle {
+  background: var(--purple);
+  border-color: var(--purple);
+}
+
+.candidate-name {
+  font-size: .9375rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* ============================================================
+   NAVIGATION BUTTONS
+============================================================ */
+.vote-nav {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.btn-vote-back {
+  padding: 11px 18px;
+  font-size: 13.5px; font-weight: 600;
+  color: var(--ink-3);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  transition: background .15s, border-color .15s;
+  white-space: nowrap;
+}
+.btn-vote-back:hover { background: var(--surface-2); border-color: #bbb; }
+
+.btn-vote-next {
+  flex: 1;
+  padding: 11px 20px;
+  font-size: 13.5px; font-weight: 700;
+  color: #fff;
+  background: var(--purple);
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: background .2s, transform .15s, box-shadow .2s;
+  white-space: nowrap;
+}
+.btn-vote-next svg {
+  width: 15px; height: 15px; flex-shrink: 0;
+  stroke: currentColor; fill: none;
+  stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+}
+.btn-vote-next:hover:not(:disabled) {
+  background: var(--purple-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+.btn-vote-next:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ============================================================
+   REVIEW STEP
+============================================================ */
+.review-title {
+  font-size: 1.05rem; font-weight: 800;
+  color: var(--ink); margin-bottom: 4px;
+}
+.review-sub {
+  font-size: .8125rem; color: var(--ink-4); margin-bottom: 20px;
+}
+
+.summary-list {
+  display: flex; flex-direction: column; gap: 8px;
+  margin-bottom: 4px;
+}
+.summary-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius-md);
+  gap: 12px;
+}
+.summary-pos  {
+  font-size: .875rem; font-weight: 700; color: var(--ink);
+}
+.summary-cand {
+  font-size: .875rem; font-weight: 600; color: var(--purple);
+  display: flex; align-items: center; gap: 5px;
+  text-align: right;
+}
+.summary-cand svg {
+  flex-shrink: 0;
+  stroke: var(--purple); fill: none;
+  stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;
+}
+.summary-skip {
+  font-size: .8125rem; color: var(--ink-4); font-style: italic;
+}
+
+/* ============================================================
+   DONE STEP
+============================================================ */
+.done-content { text-align: center; padding: 20px 0; }
+
+.done-icon-wrap {
+  width: 80px; height: 80px;
+  margin: 0 auto 20px;
+  background: var(--purple-light);
+  border: 1px solid var(--purple-mid);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.done-icon-wrap svg {
+  stroke: var(--purple); fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+
+.done-title {
+  font-size: 1.625rem; font-weight: 800;
+  letter-spacing: -.03em;
+  color: var(--purple);
+  margin-bottom: 12px;
+}
+.done-body {
+  font-size: .9375rem; color: var(--ink-3);
+  line-height: 1.8; margin-bottom: 24px;
+}
+
+.done-secure {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 14px 18px;
+  background: var(--purple-light);
+  border: 1px solid var(--purple-mid);
+  border-radius: var(--radius-md);
+}
+.done-secure svg {
+  flex-shrink: 0;
+  stroke: var(--purple); fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.done-secure span {
+  font-size: .8125rem; font-weight: 700; color: var(--purple);
+}
+
+/* ============================================================
+   FORM ELEMENTS (voter ID step)
+============================================================ */
+.input-group {
+  display: flex; flex-direction: column; gap: 6px;
+  margin-bottom: 20px;
+}
+.input-group label {
+  font-size: 11.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .07em;
+  color: var(--ink-3);
+}
+.input-field {
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: var(--font); font-size: 14.5px; color: var(--ink);
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  -webkit-appearance: none;
+}
+.input-field::placeholder { color: var(--ink-4); }
+.input-field:focus {
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(147,51,234,.1);
+}
+
+.btn-primary-full {
+  width: 100%;
+  padding: 12px 20px;
+  font-family: var(--font); font-size: 14px; font-weight: 700;
+  color: #fff; background: var(--purple);
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: background .2s, transform .15s, box-shadow .2s;
+}
+.btn-primary-full svg {
+  width: 15px; height: 15px; flex-shrink: 0;
+  stroke: currentColor; fill: none;
+  stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+}
+.btn-primary-full:hover:not(:disabled) {
+  background: var(--purple-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+.btn-primary-full:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+/* ============================================================
+   MESSAGES
+============================================================ */
+.msg-box {
+  display: none;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 13px; font-weight: 500;
+  border: 1.5px solid;
+  margin-bottom: 16px;
+  animation: msgIn .2s var(--ease);
+}
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.msg-box.error   { background: var(--danger-light);  color: var(--danger);  border-color: #fca5a5; }
+.msg-box.success { background: var(--success-light); color: var(--success); border-color: #86efac; }
+
+/* ============================================================
+   LOADING SPINNER
+============================================================ */
+.loading-wrap {
+  text-align: center;
+  padding: 32px;
+  color: var(--ink-4);
+}
+.spinner {
+  width: 28px; height: 28px;
+  border: 3px solid var(--border);
+  border-top-color: var(--purple);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  margin: 0 auto 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   FOOTER LINK
+============================================================ */
+.vote-footer {
+  text-align: center;
+  margin-top: 20px;
+}
+.vote-footer a {
+  font-size: .8125rem;
+  color: var(--ink-4);
+  transition: color .15s;
+}
+.vote-footer a:hover { color: var(--ink-3); }
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width: 540px) {
+  .vote-page  { padding: 24px 16px; }
+  .vote-card  { padding: 24px 20px; }
+  .vote-header h1 { font-size: 1.375rem; }
+}

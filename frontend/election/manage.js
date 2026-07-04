@@ -18,6 +18,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!res.success) { window.location.href = '/dashboard/index.html'; return; }
 
   const e = res.election;
+
+  // Guard: redirect multi elections to the correct page
+  if (e.election_type === 'multi') {
+    window.location.href = `/election/manage-multi.html?id=${electionId}`;
+    return;
+  }
   document.title = `${e.title} — VoteStack`;
   document.getElementById('electionTitle').textContent = e.title;
   document.getElementById('electionMeta').textContent  = 'Created ' + fmt(e.created_at);

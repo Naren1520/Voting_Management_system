@@ -128,20 +128,20 @@ function renderCandidates(pos, stepIdx) {
   const wrap = document.getElementById('candidateOptions');
 
   if (!pos.candidates || !pos.candidates.length) {
-    wrap.innerHTML = '<p style="color:var(--text-2);text-align:center;padding:16px 0;">No candidates added for this position.</p>';
-    document.getElementById('nextBtn').disabled = false; // allow skip
+    wrap.innerHTML = '<p style="color:var(--ink-4);text-align:center;padding:16px 0;font-size:.875rem;">No candidates added for this position.</p>';
+    document.getElementById('nextBtn').disabled = false;
     return;
   }
 
   wrap.innerHTML = pos.candidates.map((c, i) => `
-    <label class="candidate-option ${selections[pos.id] === c.name ? 'selected' : ''}"
-           id="opt_${stepIdx}_${i}"
-           onclick="selectCandidate(${stepIdx}, ${i}, '${escJs(c.name)}')">
+    <div class="candidate-option ${selections[pos.id] === c.name ? 'selected' : ''}"
+         id="opt_${stepIdx}_${i}"
+         onclick="selectCandidate(${stepIdx}, ${i}, '${escJs(c.name)}')">
       <div class="radio-circle" id="rc_${stepIdx}_${i}">
         ${selections[pos.id] === c.name ? checkSvg() : ''}
       </div>
-      <span style="font-size:15px;font-weight:600;">${esc(c.name)}</span>
-    </label>
+      <span class="candidate-name">${esc(c.name)}</span>
+    </div>
   `).join('');
 }
 
@@ -201,8 +201,8 @@ function showReview() {
         <span class="summary-pos">${esc(pos.title)}</span>
         <span class="summary-cand">
           ${choice
-            ? `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9333ea" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><polyline points="20 6 9 17 4 12"/></svg>${esc(choice)}`
-            : '<span style="color:var(--text-2);font-style:italic">Skipped</span>'}
+            ? `<svg viewBox="0 0 24 24" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg>${esc(choice)}`
+            : '<span class="summary-skip">Skipped</span>'}
         </span>
       </div>`;
   }).join('');
@@ -234,7 +234,7 @@ async function submitAllVotes() {
     show('stepDone');
   } else {
     btn.disabled  = false;
-    btn.innerHTML = 'Submit all votes <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+    btn.innerHTML = 'Submit all votes <svg viewBox="0 0 24 24" width="15" height="15"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
     showMsg(res.message || 'Failed to submit votes. Please try again.', 'error');
   }
 }
@@ -248,8 +248,8 @@ function hideMsg()   { const el = document.getElementById('msgBox'); if (el) el.
 
 function showMsg(text, type) {
   const el = document.getElementById('msgBox');
-  el.textContent = text;
-  el.className   = 'msg msg-' + type;
+  el.textContent   = text;
+  el.className     = 'msg-box ' + type;
   el.style.display = 'block';
 }
 

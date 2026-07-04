@@ -897,7 +897,10 @@ public:
                 res["success"]=true; res["message"]="Position added";
                 res["positions"] = getPositions(userId,electionId)["positions"];
             } else {
-                res["success"]=false; res["message"]="Failed to add position";
+                std::cerr << "[addPosition] Supabase error. Status: " << r.statusCode
+                          << " Body: " << r.body << std::endl;
+                res["success"]=false;
+                res["message"]="Failed to add position (DB error: " + std::to_string(r.statusCode) + ")";
             }
         } catch(...) { res["success"]=false; res["message"]="Server error"; }
         return res;
@@ -1590,13 +1593,8 @@ private:
                 }
 
             // ── POSITIONS (multi-election admin) ─────────────────────────
-            // GET  /api/elections/:id/positions
+            // GET /api/elections/:id/positions
             // POST /api/elections/:id/positions
-            } else if (segs.size()==3 && segs[1]=="elections" && segs[2]!="positions"
-                       && path=="/api/elections/"+segs[2]+"/positions" ) {
-                // unreachable — handled below
-                response = respond(404, err("Not found").dump());
-
             } else if (segs.size()==4 && segs[1]=="elections" && segs[3]=="positions") {
                 std::string elecId = segs[2];
                 std::string uid = authCtrl.validateToken(token);

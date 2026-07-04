@@ -5,165 +5,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Cast Your Vote — VoteStack</title>
   <link rel="icon" href="/assets/Logo.png" type="image/png"/>
-  <link rel="stylesheet" href="/shared/styles.css"/>
-  <style>
-    /* ── Page layout ── */
-    .vote-page {
-      min-height: 100vh;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 40px 24px;
-      background:
-        radial-gradient(ellipse at 20% 50%, rgba(147,51,234,.06) 0%, transparent 55%),
-        radial-gradient(ellipse at 80% 30%, rgba(0,217,255,.05) 0%, transparent 55%);
-    }
-    .vote-box { width: 100%; max-width: 540px; }
-    .vote-header { text-align: center; margin-bottom: 28px; }
-    .vote-header img { width: 52px; height: 52px; border-radius: 12px; margin: 0 auto 14px; }
-    .vote-header h1 { font-size: 26px; margin-bottom: 6px; }
-    .vote-header p  { color: var(--text-2); font-size: 14px; }
-    .vote-card { padding: 32px; }
-
-    /* ── Progress bar ── */
-    .progress-wrap { margin-bottom: 28px; }
-    .progress-label {
-      display: flex; justify-content: space-between;
-      font-size: 12px; font-weight: 700;
-      color: var(--text-2); margin-bottom: 8px;
-    }
-    .progress-track {
-      height: 6px; background: var(--border-bright);
-      border-radius: 3px; overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #9333ea, #7e22ce);
-      border-radius: 3px;
-      transition: width .5s cubic-bezier(.4,0,.2,1);
-    }
-
-    /* ── Steps ── */
-    #stepId   { display: block; }
-    #stepVote { display: none; }
-    #stepDone { display: none; }
-
-    /* ── Position header in vote step ── */
-    .pos-vote-header {
-      display: flex; align-items: center; gap: 10px;
-      margin-bottom: 20px;
-    }
-    .pos-vote-num {
-      width: 30px; height: 30px; flex-shrink: 0;
-      background: #fdf4ff; color: #9333ea;
-      border: 1px solid #e9d5ff;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 12px; font-weight: 800;
-    }
-    .pos-vote-title { font-size: 17px; font-weight: 800; }
-    .pos-vote-sub   { font-size: 13px; color: var(--text-2); margin-top: 2px; }
-
-    /* ── Candidate options ── */
-    .candidate-option {
-      display: flex; align-items: center; gap: 14px;
-      padding: 14px 16px;
-      border: 1.5px solid var(--border-bright);
-      border-radius: 10px; margin-bottom: 8px;
-      cursor: pointer; transition: all .2s;
-    }
-    .candidate-option:hover  { border-color: #9333ea; background: #fdf4ff; }
-    .candidate-option.selected {
-      border-color: #9333ea; background: #fdf4ff;
-      box-shadow: 0 0 0 3px rgba(147,51,234,.15);
-    }
-    .radio-circle {
-      width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
-      border: 2px solid var(--border-bright);
-      display: flex; align-items: center; justify-content: center;
-      transition: all .18s;
-    }
-    .candidate-option.selected .radio-circle {
-      background: #9333ea; border-color: #9333ea; color: #fff;
-    }
-
-    /* ── Nav buttons ── */
-    .vote-nav { display: flex; gap: 10px; margin-top: 24px; }
-    .btn-vote-back {
-      padding: 11px 20px;
-      font-family: inherit; font-size: 14px; font-weight: 600;
-      color: var(--text-2);
-      border: 1.5px solid var(--border-bright);
-      border-radius: 10px; background: none; cursor: pointer;
-      transition: background .15s;
-    }
-    .btn-vote-back:hover { background: var(--border-bright); }
-    .btn-vote-next {
-      flex: 1; padding: 11px 20px;
-      font-family: inherit; font-size: 14px; font-weight: 700;
-      color: #fff; background: #9333ea;
-      border: none; border-radius: 10px; cursor: pointer;
-      transition: background .2s, transform .15s;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-    }
-    .btn-vote-next:hover:not(:disabled) { background: #7e22ce; transform: translateY(-1px); }
-    .btn-vote-next:disabled { opacity: .45; cursor: not-allowed; transform: none; }
-
-    /* ── Done step ── */
-    .done-content { text-align: center; padding: 24px 0; }
-    .done-icon-wrap {
-      width: 80px; height: 80px; margin: 0 auto 20px;
-      background: #fdf4ff; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    /* ── Summary before final submit ── */
-    .summary-item {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 14px;
-      background: var(--border-bright);
-      border-radius: 8px; margin-bottom: 8px;
-      font-size: 13.5px;
-    }
-    .summary-pos  { font-weight: 700; color: var(--text-1); }
-    .summary-cand { color: #9333ea; font-weight: 600; }
-
-    #loadingMsg { text-align:center; padding:32px; color:var(--text-2); }
-    #msgBox     { display:none; margin-bottom:14px; }
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="vote-multi.css"/>
 </head>
 <body>
+
   <div class="vote-page">
     <div class="vote-box">
+
+      <!-- Header -->
       <div class="vote-header">
         <img src="/assets/Logo.png" alt="VoteStack"/>
         <h1 id="electionTitleDisplay">Loading…</h1>
         <p id="electionSubtitle">Multi-position election</p>
       </div>
 
-      <div class="card vote-card">
-        <div id="msgBox" class="msg"></div>
-        <div id="loadingMsg"><span class="spinner" style="width:28px;height:28px;display:block;margin:0 auto;"></span></div>
+      <div class="vote-card">
 
-        <!-- Step 1: Voter ID -->
+        <!-- Message box -->
+        <div class="msg-box" id="msgBox"></div>
+
+        <!-- Loading -->
+        <div class="loading-wrap" id="loadingMsg">
+          <div class="spinner"></div>
+          <p>Loading ballot…</p>
+        </div>
+
+        <!-- ══ Step 1: Voter ID ══ -->
         <div id="stepId" style="display:none;">
-          <div class="input-group" style="margin-bottom:20px;">
+          <div class="input-group">
             <label for="voterIdInput">Your Voter ID</label>
             <input id="voterIdInput" class="input-field" type="text"
               placeholder="Enter your assigned voter ID"
-              onkeydown="if(event.key==='Enter')checkVoter()"/>
+              onkeydown="if(event.key==='Enter') checkVoter()"/>
           </div>
-          <button id="checkBtn" class="btn btn-primary btn-full" onclick="checkVoter()">
+          <button id="checkBtn" class="btn-primary-full" onclick="checkVoter()">
             Verify &amp; Start Voting
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-              stroke-linejoin="round" style="margin-left:6px">
-              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-            </svg>
+            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </button>
         </div>
 
-        <!-- Step 2: Vote for each position -->
+        <!-- ══ Step 2: Vote per position ══ -->
         <div id="stepVote" style="display:none;">
+
+          <!-- Progress -->
           <div class="progress-wrap">
             <div class="progress-label">
               <span id="progressLabel">Position 1 of —</span>
@@ -174,6 +60,7 @@
             </div>
           </div>
 
+          <!-- Position title -->
           <div class="pos-vote-header">
             <div class="pos-vote-num" id="posVoteNum">1</div>
             <div>
@@ -182,77 +69,75 @@
             </div>
           </div>
 
-          <p style="font-size:13px;color:var(--text-2);margin-bottom:16px;">
-            Voting as: <strong style="color:#9333ea" id="voterIdLabel"></strong>
+          <p class="voter-label">
+            Voting as: <strong id="voterIdLabel"></strong>
           </p>
 
-          <div id="candidateOptions"></div>
+          <!-- Candidate list -->
+          <div class="candidates-wrap" id="candidateOptions"></div>
 
+          <!-- Nav -->
           <div class="vote-nav">
-            <button class="btn-vote-back" id="backBtn" onclick="goBack()">← Back</button>
+            <button class="btn-vote-back" id="backBtn" onclick="goBack()">
+              <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;display:inline;vertical-align:-1px;margin-right:4px"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+              Back
+            </button>
             <button class="btn-vote-next" id="nextBtn" onclick="goNext()" disabled>
               <span id="nextBtnLabel">Next</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-                stroke-linejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-              </svg>
+              <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </button>
           </div>
         </div>
 
-        <!-- Step 3: Review & submit -->
+        <!-- ══ Step 3: Review ══ -->
         <div id="stepReview" style="display:none;">
-          <h3 style="font-size:16px;font-weight:800;margin-bottom:4px;">Review your ballot</h3>
-          <p style="font-size:13px;color:var(--text-2);margin-bottom:20px;">Check your choices before submitting.</p>
-          <div id="summaryList"></div>
-          <div class="vote-nav" style="margin-top:24px;">
-            <button class="btn-vote-back" onclick="backToVote()">← Edit</button>
+          <div class="review-title">Review your ballot</div>
+          <div class="review-sub">Check your choices before submitting.</div>
+          <div class="summary-list" id="summaryList"></div>
+          <div class="vote-nav">
+            <button class="btn-vote-back" onclick="backToVote()">
+              <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;display:inline;vertical-align:-1px;margin-right:4px"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+              Edit
+            </button>
             <button class="btn-vote-next" id="submitBtn" onclick="submitAllVotes()">
               Submit all votes
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                <polyline points="22 4 12 14.01 9 11.01"/>
-              </svg>
+              <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </button>
           </div>
         </div>
 
-        <!-- Step 4: Done -->
+        <!-- ══ Step 4: Done ══ -->
         <div id="stepDone" style="display:none;">
           <div class="done-content">
             <div class="done-icon-wrap">
-              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
-                fill="none" stroke="#9333ea" stroke-width="2" stroke-linecap="round"
-                stroke-linejoin="round">
+              <svg width="40" height="40" viewBox="0 0 24 24">
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
                 <polyline points="22 4 12 14.01 9 11.01"/>
               </svg>
             </div>
-            <h2 style="font-size:26px;font-weight:800;margin-bottom:12px;color:#9333ea;">Thank You!</h2>
-            <p style="color:var(--text-2);font-size:15px;line-height:1.8;">
+            <div class="done-title">Thank You!</div>
+            <p class="done-body">
               All your votes have been recorded.<br/>
               Results will be announced by the election host.
             </p>
-            <div style="margin-top:24px;padding:14px 18px;background:#fdf4ff;border:1px solid #e9d5ff;border-radius:10px;display:flex;align-items:center;gap:10px;justify-content:center;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
-                fill="none" stroke="#9333ea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <div class="done-secure">
+              <svg width="15" height="15" viewBox="0 0 24 24">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
               </svg>
-              <span style="color:#9333ea;font-size:13.5px;font-weight:700;">Your votes are secure and confidential</span>
+              <span>Your votes are secure and confidential</span>
             </div>
           </div>
         </div>
+
+      </div><!-- /.vote-card -->
+
+      <div class="vote-footer">
+        <a href="/landing/index.html">Powered by VoteStack</a>
       </div>
 
-      <div style="text-align:center;margin-top:20px;">
-        <a href="/landing/index.html" style="color:var(--text-3);font-size:13px;">Powered by VoteStack</a>
-      </div>
-    </div>
-  </div>
+    </div><!-- /.vote-box -->
+  </div><!-- /.vote-page -->
 
   <script src="/config.js"></script>
   <script src="/shared/api.js"></script>
