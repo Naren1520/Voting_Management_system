@@ -36,6 +36,7 @@
 #include <stdexcept>
 #include <array>
 #include <map>
+#include <set>
 #include <functional>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -572,7 +573,7 @@ public:
     // GET /api/elections  (owned by user)
     json getElections(const std::string& userId) {
         auto r = supabaseRequest("GET",
-            "elections?select=id,title,is_active,created_at&user_id=eq." +
+            "elections?select=id,title,is_active,election_type,created_at&user_id=eq." +
             userId + "&order=created_at.desc");
         try {
             auto arr = json::parse(r.body);
@@ -586,17 +587,19 @@ public:
         }
     }
 
-    // POST /api/elections  { title }
-    json createElection(const std::string& userId, const std::string& title) {
+    // POST /api/elections  { title, election_type }
+    json createElection(const std::string& userId, const std::string& title,
+                        const std::string& electionType = "standard") {
         json res;
         if (title.empty()) {
             res["success"] = false; res["message"] = "Title is required";
             return res;
         }
         json body;
-        body["user_id"] = userId;
-        body["title"]   = title;
-        body["is_active"] = true;
+        body["user_id"]       = userId;
+        body["title"]         = title;
+        body["is_active"]     = true;
+        body["election_type"] = electionType;
         auto r = supabaseRequest("POST", "elections", body.dump());
         try {
             auto arr = json::parse(r.body);
@@ -616,7 +619,7 @@ public:
     // GET single election (ownership verified)
     json getElection(const std::string& userId, const std::string& electionId) {
         auto r = supabaseRequest("GET",
-            "elections?select=id,title,is_active,created_at&id=eq." +
+            "elections?select=id,title,is_active,election_type,created_at&id=eq." +
             electionId + "&user_id=eq." + userId + "&limit=1");
         try {
             auto arr = json::parse(r.body);
@@ -835,6 +838,345 @@ public:
 };
 
 // ============================================================================
+// POSITION CONTROLLER  (multi-position elections)
+// ============================================================================
+
+class PositionController {
+public:
+
+    bool ownsElection(const std::string& userId, const std::string& electionId) {
+        auto r = supabaseRequest("GET",
+            "elections?select=id&id=eq."+electionId+"&user_id=eq."+userId+"&limit=1");
+        try { auto a = json::parse(r.body); return a.is_array() && !a.empty(); }
+        catch(...) { return false; }
+    }
+
+    // GET /api/elections/:id/positions
+    json getPositions(const std::string& userId, const std::string& electionId) {
+        if (!ownsElection(userId, electionId)) {
+            json r; r["success"]=false; r["message"]="Unauthorized"; return r;
+        }
+        auto r = supabaseRequest("GET",
+            "positions?select=id,title,order_index&election_id=eq."+electionId+
+            "&order=order_index.asc");
+        try {
+            json res; res["success"]=true;
+            res["positions"] = json::parse(r.body);
+            return res;
+        } catch(...) {
+            json res; res["success"]=false; res["message"]="Failed to load positions";
+            return res;
+        }
+    }
+
+    // POST /api/elections/:id/positions  { title }
+    json addPosition(const std::string& userId, const std::string& electionId,
+                     const std::string& title) {
+        json res;
+        if (!ownsElection(userId, electionId)) {
+            res["success"]=false; res["message"]="Unauthorized"; return res;
+        }
+        if (title.empty()) {
+            res["success"]=false; res["message"]="Position title required"; return res;
+        }
+        // Get current count for order_index
+        auto cnt = supabaseRequest("GET",
+            "positions?select=id&election_id=eq."+electionId);
+        int idx = 0;
+        try { auto a = json::parse(cnt.body); if (a.is_array()) idx = (int)a.size(); }
+        catch(...) {}
+
+        json body;
+        body["election_id"]  = electionId;
+        body["title"]        = title;
+        body["order_index"]  = idx;
+        auto r = supabaseRequest("POST","positions",body.dump());
+        try {
+            auto arr = json::parse(r.body);
+            if ((r.statusCode==200||r.statusCode==201) && arr.is_array() && !arr.empty()) {
+                res["success"]=true; res["message"]="Position added";
+                res["positions"] = getPositions(userId,electionId)["positions"];
+            } else {
+                res["success"]=false; res["message"]="Failed to add position";
+            }
+        } catch(...) { res["success"]=false; res["message"]="Server error"; }
+        return res;
+    }
+
+    // DELETE /api/elections/:id/positions/:posId
+    json deletePosition(const std::string& userId, const std::string& electionId,
+                        const std::string& positionId) {
+        if (!ownsElection(userId, electionId)) {
+            json r; r["success"]=false; r["message"]="Unauthorized"; return r;
+        }
+        supabaseRequest("DELETE","positions?id=eq."+positionId+
+            "&election_id=eq."+electionId);
+        json res; res["success"]=true; res["message"]="Position deleted";
+        res["positions"] = getPositions(userId,electionId)["positions"];
+        return res;
+    }
+
+    // GET /api/elections/:id/positions/:posId/candidates
+    json getCandidates(const std::string& userId, const std::string& electionId,
+                       const std::string& positionId) {
+        if (!ownsElection(userId, electionId)) {
+            json r; r["success"]=false; r["message"]="Unauthorized"; return r;
+        }
+        auto r = supabaseRequest("GET",
+            "candidates?select=id,name,votes&election_id=eq."+electionId+
+            "&position_id=eq."+positionId+"&order=votes.desc");
+        try {
+            json res; res["success"]=true;
+            res["candidates"] = json::parse(r.body);
+            return res;
+        } catch(...) {
+            json res; res["success"]=false; res["message"]="Failed to load candidates";
+            return res;
+        }
+    }
+
+    // POST /api/elections/:id/positions/:posId/candidates  { name }
+    json addCandidate(const std::string& userId, const std::string& electionId,
+                      const std::string& positionId, const std::string& name) {
+        json res;
+        if (!ownsElection(userId, electionId)) {
+            res["success"]=false; res["message"]="Unauthorized"; return res;
+        }
+        if (name.empty()) {
+            res["success"]=false; res["message"]="Candidate name required"; return res;
+        }
+        // Duplicate check within same position
+        auto check = supabaseRequest("GET",
+            "candidates?select=id&election_id=eq."+electionId+
+            "&position_id=eq."+positionId+"&name=eq."+urlEncode(name)+"&limit=1");
+        try {
+            auto a = json::parse(check.body);
+            if (a.is_array() && !a.empty()) {
+                res["success"]=false; res["message"]="Candidate already exists in this position";
+                return res;
+            }
+        } catch(...) {}
+
+        json body;
+        body["election_id"]  = electionId;
+        body["position_id"]  = positionId;
+        body["name"]         = name;
+        body["votes"]        = 0;
+        auto r = supabaseRequest("POST","candidates",body.dump());
+        try {
+            auto arr = json::parse(r.body);
+            if ((r.statusCode==200||r.statusCode==201) && arr.is_array() && !arr.empty()) {
+                res["success"]=true; res["message"]="Candidate added";
+                res["candidates"] = getCandidates(userId,electionId,positionId)["candidates"];
+            } else {
+                res["success"]=false; res["message"]="Failed to add candidate";
+            }
+        } catch(...) { res["success"]=false; res["message"]="Server error"; }
+        return res;
+    }
+
+    // DELETE /api/elections/:id/positions/:posId/candidates  { name }
+    json deleteCandidate(const std::string& userId, const std::string& electionId,
+                         const std::string& positionId, const std::string& name) {
+        if (!ownsElection(userId, electionId)) {
+            json r; r["success"]=false; r["message"]="Unauthorized"; return r;
+        }
+        supabaseRequest("DELETE",
+            "candidates?election_id=eq."+electionId+
+            "&position_id=eq."+positionId+"&name=eq."+urlEncode(name));
+        json res; res["success"]=true; res["message"]="Candidate removed";
+        res["candidates"] = getCandidates(userId,electionId,positionId)["candidates"];
+        return res;
+    }
+};
+
+// ============================================================================
+// PUBLIC MULTI-VOTE CONTROLLER  (no auth - public voting for multi elections)
+// ============================================================================
+
+class PublicMultiVoteController {
+public:
+
+    // GET /api/multi-vote/:id/positions  — all positions + candidates
+    json getBallot(const std::string& electionId) {
+        auto elec = supabaseRequest("GET",
+            "elections?select=id,title,is_active,election_type&id=eq."+
+            electionId+"&limit=1");
+        try {
+            auto arr = json::parse(elec.body);
+            if (!arr.is_array() || arr.empty()) {
+                json r; r["success"]=false; r["message"]="Election not found"; return r;
+            }
+            if (!arr[0]["is_active"].get<bool>()) {
+                json r; r["success"]=false; r["message"]="This election is closed"; return r;
+            }
+        } catch(...) {
+            json r; r["success"]=false; r["message"]="Election not found"; return r;
+        }
+
+        // Get positions ordered
+        auto posRes = supabaseRequest("GET",
+            "positions?select=id,title,order_index&election_id=eq."+
+            electionId+"&order=order_index.asc");
+
+        json positions = json::array();
+        try { positions = json::parse(posRes.body); } catch(...) {}
+
+        // For each position, attach its candidates
+        for (auto& pos : positions) {
+            std::string posId = pos["id"].get<std::string>();
+            auto candRes = supabaseRequest("GET",
+                "candidates?select=name&election_id=eq."+electionId+
+                "&position_id=eq."+posId+"&order=name.asc");
+            try { pos["candidates"] = json::parse(candRes.body); }
+            catch(...) { pos["candidates"] = json::array(); }
+        }
+
+        json res;
+        res["success"]   = true;
+        res["positions"] = positions;
+        return res;
+    }
+
+    // POST /api/multi-vote/:id/check  { voter_id }
+    json checkVoter(const std::string& electionId, const std::string& voterId) {
+        json res;
+        if (voterId.empty()) {
+            res["success"]=false; res["message"]="Voter ID required"; return res;
+        }
+        // Registered?
+        auto reg = supabaseRequest("GET",
+            "registered_voters?select=voter_id,name&election_id=eq."+electionId+
+            "&voter_id=eq."+urlEncode(voterId)+"&limit=1");
+        try {
+            auto arr = json::parse(reg.body);
+            if (!arr.is_array() || arr.empty()) {
+                res["success"]=false; res["registered"]=false;
+                res["message"]="Voter ID not registered for this election";
+                return res;
+            }
+        } catch(...) {
+            res["success"]=false; res["message"]="Database error"; return res;
+        }
+        // How many positions exist
+        auto posRes = supabaseRequest("GET",
+            "positions?select=id&election_id=eq."+electionId);
+        int totalPositions = 0;
+        try {
+            auto arr = json::parse(posRes.body);
+            if (arr.is_array()) totalPositions = (int)arr.size();
+        } catch(...) {}
+
+        // How many positions this voter has already voted for
+        auto votedRes = supabaseRequest("GET",
+            "votes_cast?select=position_id&election_id=eq."+electionId+
+            "&voter_id=eq."+urlEncode(voterId));
+        int votedCount = 0;
+        json votedPositions = json::array();
+        try {
+            auto arr = json::parse(votedRes.body);
+            if (arr.is_array()) {
+                votedCount = (int)arr.size();
+                for (auto& v : arr) votedPositions.push_back(v["position_id"]);
+            }
+        } catch(...) {}
+
+        res["success"]          = true;
+        res["registered"]       = true;
+        res["total_positions"]  = totalPositions;
+        res["voted_count"]      = votedCount;
+        res["voted_positions"]  = votedPositions;
+        res["fully_voted"]      = (votedCount >= totalPositions && totalPositions > 0);
+        return res;
+    }
+
+    // POST /api/multi-vote/:id/cast  { voter_id, votes: [{position_id, candidate_name}] }
+    json castVotes(const std::string& electionId, const std::string& voterId,
+                   const json& votes) {
+        json res;
+        // Re-verify voter
+        auto chk = checkVoter(electionId, voterId);
+        if (!chk["success"].get<bool>()) return chk;
+        if (chk["fully_voted"].get<bool>()) {
+            res["success"]=false;
+            res["message"]="You have already voted in all positions";
+            return res;
+        }
+
+        json votedPositions = chk["voted_positions"];
+        std::set<std::string> alreadyVoted;
+        for (auto& p : votedPositions) alreadyVoted.insert(p.get<std::string>());
+
+        for (const auto& v : votes) {
+            std::string posId   = v.value("position_id","");
+            std::string candName= v.value("candidate_name","");
+            if (posId.empty() || candName.empty()) continue;
+            if (alreadyVoted.count(posId)) continue; // skip already voted positions
+
+            // Verify candidate exists in this position
+            auto cand = supabaseRequest("GET",
+                "candidates?select=name,votes&election_id=eq."+electionId+
+                "&position_id=eq."+posId+"&name=eq."+urlEncode(candName)+"&limit=1");
+            try {
+                auto arr = json::parse(cand.body);
+                if (!arr.is_array() || arr.empty()) continue;
+                int newVotes = arr[0]["votes"].get<int>() + 1;
+                json upd; upd["votes"] = newVotes;
+                supabaseRequest("PATCH",
+                    "candidates?election_id=eq."+electionId+
+                    "&position_id=eq."+posId+
+                    "&name=eq."+urlEncode(candName), upd.dump());
+            } catch(...) { continue; }
+
+            // Record vote with position_id
+            json voteBody;
+            voteBody["election_id"]    = electionId;
+            voteBody["voter_id"]       = voterId;
+            voteBody["position_id"]    = posId;
+            voteBody["candidate_name"] = candName;
+            supabaseRequest("POST","votes_cast",voteBody.dump());
+        }
+
+        res["success"] = true;
+        res["message"] = "Votes cast successfully";
+        return res;
+    }
+
+    // GET /api/multi-vote/:id/results
+    json getResults(const std::string& electionId) {
+        auto posRes = supabaseRequest("GET",
+            "positions?select=id,title,order_index&election_id=eq."+
+            electionId+"&order=order_index.asc");
+        json positions = json::array();
+        try { positions = json::parse(posRes.body); } catch(...) {}
+
+        for (auto& pos : positions) {
+            std::string posId = pos["id"].get<std::string>();
+            auto candRes = supabaseRequest("GET",
+                "candidates?select=name,votes&election_id=eq."+electionId+
+                "&position_id=eq."+posId+"&order=votes.desc");
+            try { pos["candidates"] = json::parse(candRes.body); }
+            catch(...) { pos["candidates"] = json::array(); }
+
+            auto totalRes = supabaseRequest("GET",
+                "votes_cast?select=voter_id&election_id=eq."+electionId+
+                "&position_id=eq."+posId);
+            int total = 0;
+            try {
+                auto arr = json::parse(totalRes.body);
+                if (arr.is_array()) total = (int)arr.size();
+            } catch(...) {}
+            pos["total_votes"] = total;
+        }
+
+        json res;
+        res["success"]   = true;
+        res["positions"] = positions;
+        return res;
+    }
+};
+
+// ============================================================================
 // PUBLIC VOTING CONTROLLER (no auth - election_id scoped)
 // ============================================================================
 
@@ -976,11 +1318,13 @@ public:
 
 class HttpServer {
 private:
-    AuthController     authCtrl;
-    ElectionController electionCtrl;
-    CandidateController candidateCtrl;
-    VoterController    voterCtrl;
+    AuthController       authCtrl;
+    ElectionController   electionCtrl;
+    CandidateController  candidateCtrl;
+    VoterController      voterCtrl;
     PublicVoteController voteCtrl;
+    PositionController        posCtrl;
+    PublicMultiVoteController multiVoteCtrl;
     int listenFd, port;
 
     // ---- Request parsing helpers ----
@@ -1145,7 +1489,8 @@ private:
                 if (uid.empty()) { response = respond(401, err("Unauthorized").dump()); }
                 else {
                     auto rb = json::parse(body);
-                    auto r = electionCtrl.createElection(uid, rb.value("title",""));
+                    auto r = electionCtrl.createElection(uid, rb.value("title",""),
+                                rb.value("election_type","standard"));
                     response = respond(r["success"].get<bool>() ? 201:400, r.dump());
                 }
 
@@ -1242,6 +1587,107 @@ private:
                             response = respond(500, err("Failed to load vote data").dump());
                         }
                     }
+                }
+
+            // ── POSITIONS (multi-election admin) ─────────────────────────
+            // GET  /api/elections/:id/positions
+            // POST /api/elections/:id/positions
+            } else if (segs.size()==3 && segs[1]=="elections" && segs[2]!="positions"
+                       && path=="/api/elections/"+segs[2]+"/positions" ) {
+                // unreachable — handled below
+                response = respond(404, err("Not found").dump());
+
+            } else if (segs.size()==4 && segs[1]=="elections" && segs[3]=="positions") {
+                std::string elecId = segs[2];
+                std::string uid = authCtrl.validateToken(token);
+                if (uid.empty()) { response = respond(401, err("Unauthorized").dump()); }
+                else if (method=="GET") {
+                    auto r = posCtrl.getPositions(uid, elecId);
+                    response = respond(r["success"].get<bool>() ? 200:403, r.dump());
+                } else if (method=="POST") {
+                    auto rb = json::parse(body);
+                    auto r = posCtrl.addPosition(uid, elecId, rb.value("title",""));
+                    response = respond(r["success"].get<bool>() ? 201:400, r.dump());
+                }
+
+            // DELETE /api/elections/:id/positions/:posId
+            } else if (segs.size()==5 && segs[1]=="elections" && segs[3]=="positions"
+                       && method=="DELETE") {
+                std::string elecId = segs[2];
+                std::string posId  = segs[4];
+                std::string uid = authCtrl.validateToken(token);
+                if (uid.empty()) { response = respond(401, err("Unauthorized").dump()); }
+                else {
+                    auto r = posCtrl.deletePosition(uid, elecId, posId);
+                    response = respond(r["success"].get<bool>() ? 200:403, r.dump());
+                }
+
+            // GET/POST /api/elections/:id/positions/:posId/candidates
+            } else if (segs.size()==6 && segs[1]=="elections" && segs[3]=="positions"
+                       && segs[5]=="candidates") {
+                std::string elecId = segs[2];
+                std::string posId  = segs[4];
+                std::string uid = authCtrl.validateToken(token);
+                if (uid.empty()) { response = respond(401, err("Unauthorized").dump()); }
+                else if (method=="GET") {
+                    auto r = posCtrl.getCandidates(uid, elecId, posId);
+                    response = respond(r["success"].get<bool>() ? 200:403, r.dump());
+                } else if (method=="POST") {
+                    auto rb = json::parse(body);
+                    auto r = posCtrl.addCandidate(uid, elecId, posId, rb.value("name",""));
+                    response = respond(r["success"].get<bool>() ? 201:400, r.dump());
+                } else if (method=="DELETE") {
+                    auto rb = json::parse(body);
+                    auto r = posCtrl.deleteCandidate(uid, elecId, posId, rb.value("name",""));
+                    response = respond(r["success"].get<bool>() ? 200:400, r.dump());
+                }
+
+            // ── PUBLIC MULTI-VOTE ─────────────────────────────────────────
+            // GET  /api/multi-vote/:id/positions
+            } else if (segs.size()==4 && segs[1]=="multi-vote" && segs[3]=="positions"
+                       && method=="GET") {
+                auto r = multiVoteCtrl.getBallot(segs[2]);
+                response = respond(r["success"].get<bool>() ? 200:404, r.dump());
+
+            // POST /api/multi-vote/:id/check
+            } else if (segs.size()==4 && segs[1]=="multi-vote" && segs[3]=="check"
+                       && method=="POST") {
+                auto rb = json::parse(body);
+                auto r = multiVoteCtrl.checkVoter(segs[2], rb.value("voter_id",""));
+                response = respond(r["success"].get<bool>() ? 200:400, r.dump());
+
+            // POST /api/multi-vote/:id/cast
+            } else if (segs.size()==4 && segs[1]=="multi-vote" && segs[3]=="cast"
+                       && method=="POST") {
+                auto rb = json::parse(body);
+                auto r = multiVoteCtrl.castVotes(segs[2],
+                    rb.value("voter_id",""),
+                    rb.value("votes", json::array()));
+                response = respond(r["success"].get<bool>() ? 200:400, r.dump());
+
+            // GET /api/multi-vote/:id/results
+            } else if (segs.size()==4 && segs[1]=="multi-vote" && segs[3]=="results"
+                       && method=="GET") {
+                auto r = multiVoteCtrl.getResults(segs[2]);
+                response = respond(r["success"].get<bool>() ? 200:404, r.dump());
+
+            // GET /api/multi-vote/:id/info  (reuse elections table)
+            } else if (segs.size()==4 && segs[1]=="multi-vote" && segs[3]=="info"
+                       && method=="GET") {
+                auto r = supabaseRequest("GET",
+                    "elections?select=title,is_active&id=eq."+segs[2]+"&limit=1");
+                try {
+                    auto arr = json::parse(r.body);
+                    if (arr.is_array() && !arr.empty()) {
+                        json res; res["success"]=true;
+                        res["title"]=arr[0]["title"];
+                        res["is_active"]=arr[0]["is_active"];
+                        response = respond(200, res.dump());
+                    } else {
+                        response = respond(404, err("Election not found").dump());
+                    }
+                } catch(...) {
+                    response = respond(404, err("Election not found").dump());
                 }
 
             // ── PUBLIC VOTE ──────────────────────────────────────────────

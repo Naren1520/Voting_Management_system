@@ -105,7 +105,10 @@ ul     { list-style: none; }
   font-size: 13.5px; font-weight: 500; color: var(--ink-3);
 }
 
-/* New election button */
+/* New election button + dropdown */
+.btn-new-wrap {
+  position: relative;
+}
 .btn-new {
   display: inline-flex; align-items: center; gap: 7px;
   padding: 8px 18px;
@@ -116,7 +119,98 @@ ul     { list-style: none; }
   white-space: nowrap;
 }
 .btn-new svg { width: 15px; height: 15px; flex-shrink: 0; }
+.btn-new-caret { transition: transform .2s; }
 .btn-new:hover { background: #2e2e2e; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+.btn-new-menu {
+  position: absolute; top: calc(100% + 8px); right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  min-width: 280px;
+  padding: 8px;
+  z-index: 300;
+  opacity: 0; transform: translateY(-8px) scale(.97);
+  pointer-events: none;
+  transition: opacity .18s var(--ease), transform .18s var(--ease);
+}
+.btn-new-menu.open {
+  opacity: 1; transform: translateY(0) scale(1);
+  pointer-events: all;
+}
+.new-menu-item {
+  display: flex; align-items: center; gap: 14px;
+  width: 100%; padding: 12px 14px;
+  border-radius: var(--radius-md);
+  text-align: left;
+  transition: background .15s;
+}
+.new-menu-item:hover { background: var(--surface-2); }
+.new-menu-icon {
+  width: 38px; height: 38px; flex-shrink: 0;
+  background: var(--blue-light); border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+}
+.new-menu-icon svg { width: 17px; height: 17px; stroke: var(--blue); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.new-menu-icon.multi { background: #fdf4ff; }
+.new-menu-icon.multi svg { stroke: #9333ea; }
+.new-menu-title { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+.new-menu-sub   { font-size: 12px; color: var(--ink-4); margin-top: 1px; }
+
+/* Election type badge on card */
+.ec-type-badge {
+  display: inline-flex; align-items: center;
+  font-size: 10px; font-weight: 800;
+  background: #fdf4ff; color: #9333ea;
+  border: 1px solid #e9d5ff;
+  padding: 1px 7px; border-radius: 100px;
+  letter-spacing: .04em;
+  margin-right: 6px; vertical-align: middle;
+}
+
+/* Wide modal for multi */
+.modal--wide { max-width: 560px; }
+
+/* Positions list in multi modal */
+.positions-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.position-field {
+  display: flex; align-items: center; gap: 10px;
+  animation: msgIn .18s var(--ease);
+}
+.position-field-num {
+  width: 26px; height: 26px; flex-shrink: 0;
+  background: var(--blue-light); color: var(--blue);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800;
+}
+.position-field-input { flex: 1; }
+.position-field-remove {
+  width: 30px; height: 30px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-4); border-radius: var(--radius-sm);
+  transition: background .15s, color .15s;
+}
+.position-field-remove svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.position-field-remove:hover { background: var(--danger-light); color: var(--danger); }
+
+.btn-add-position {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px;
+  font-size: 13px; font-weight: 600; color: var(--blue);
+  border: 1.5px dashed var(--blue-mid);
+  border-radius: var(--radius-md);
+  background: var(--blue-light);
+  transition: background .15s, border-color .15s;
+  width: 100%;
+  justify-content: center;
+}
+.btn-add-position svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.btn-add-position:hover { background: #d4e8f8; border-color: #99c0e8; }
+
+.btn-confirm--multi { background: #9333ea; }
+.btn-confirm--multi:hover:not(:disabled) { background: #7e22ce; }
 
 /* Profile avatar button */
 .btn-profile {

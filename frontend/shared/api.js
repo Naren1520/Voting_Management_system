@@ -43,10 +43,25 @@ const API = (() => {
     ping:                 ()          => req('GET',    '/api/auth/ping'),
 
     // Elections
-    getElections:    ()            => req('GET',    '/api/elections'),
-    createElection:  (title)       => req('POST',   '/api/elections', { title }),
-    getElection:     (id)          => req('GET',    `/api/elections/${id}`),
-    deleteElection:  (id)          => req('DELETE', `/api/elections/${id}`),
+    getElections:    ()                     => req('GET',    '/api/elections'),
+    createElection:  (title, type='standard') => req('POST', '/api/elections', { title, election_type: type }),
+    getElection:     (id)                   => req('GET',    `/api/elections/${id}`),
+    deleteElection:  (id)                   => req('DELETE', `/api/elections/${id}`),
+
+    // Positions (multi elections)
+    getPositions:    (elecId)             => req('GET',    `/api/elections/${elecId}/positions`),
+    addPosition:     (elecId, title)      => req('POST',   `/api/elections/${elecId}/positions`, { title }),
+    deletePosition:  (elecId, posId)      => req('DELETE', `/api/elections/${elecId}/positions/${posId}`),
+    getPosCandidates:(elecId, posId)      => req('GET',    `/api/elections/${elecId}/positions/${posId}/candidates`),
+    addPosCandidate: (elecId, posId, name)=> req('POST',   `/api/elections/${elecId}/positions/${posId}/candidates`, { name }),
+    delPosCandidate: (elecId, posId, name)=> req('DELETE', `/api/elections/${elecId}/positions/${posId}/candidates`, { name }),
+
+    // Public multi-vote (no auth)
+    getMultiBallot:  (elecId)             => req('GET',  `/api/multi-vote/${elecId}/positions`, null, false),
+    getMultiInfo:    (elecId)             => req('GET',  `/api/multi-vote/${elecId}/info`,      null, false),
+    checkMultiVoter: (elecId, voter_id)   => req('POST', `/api/multi-vote/${elecId}/check`,     { voter_id }, false),
+    castMultiVotes:  (elecId, voter_id, votes) => req('POST', `/api/multi-vote/${elecId}/cast`, { voter_id, votes }, false),
+    getMultiResults: (elecId)             => req('GET',  `/api/multi-vote/${elecId}/results`,   null, false),
 
     // Candidates
     getCandidates:   (elecId)      => req('GET',    `/api/elections/${elecId}/candidates`),

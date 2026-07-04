@@ -45,10 +45,33 @@
         <h1>My Elections</h1>
         <p>Create, manage and share your voting sessions.</p>
       </div>
-      <button class="btn-new" onclick="openCreateModal()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        New Election
-      </button>
+      <div class="btn-new-wrap">
+        <button class="btn-new" id="btnNew" onclick="toggleNewMenu()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Election
+          <svg class="btn-new-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="btn-new-menu" id="newMenu">
+          <button class="new-menu-item" onclick="closeNewMenu(); openCreateModal('standard')">
+            <div class="new-menu-icon">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12h6M12 9v6"/></svg>
+            </div>
+            <div>
+              <div class="new-menu-title">Standard Election</div>
+              <div class="new-menu-sub">One pool of candidates, one vote per voter</div>
+            </div>
+          </button>
+          <button class="new-menu-item" onclick="closeNewMenu(); openCreateModal('multi')">
+            <div class="new-menu-icon multi">
+              <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <div>
+              <div class="new-menu-title">Multi-Position Election</div>
+              <div class="new-menu-sub">Multiple roles, one ballot per voter</div>
+            </div>
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Stats strip -->
@@ -97,12 +120,12 @@
   </main>
 
   <!-- =====================================================
-       CREATE MODAL
+       CREATE STANDARD MODAL
   ====================================================== -->
   <div class="modal-overlay" id="createOverlay" onclick="closeModalOutside(event,'createOverlay')">
     <div class="modal">
       <div class="modal-header">
-        <div class="modal-title">New Election</div>
+        <div class="modal-title" id="createModalTitle">New Standard Election</div>
         <button class="modal-close" onclick="closeCreateModal()" aria-label="Close">
           <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
@@ -118,6 +141,43 @@
         <button class="btn-cancel" onclick="closeCreateModal()">Cancel</button>
         <button class="btn-confirm" id="createBtn" onclick="createElection()">
           Create
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       CREATE MULTI-POSITION MODAL
+  ====================================================== -->
+  <div class="modal-overlay" id="multiOverlay" onclick="closeModalOutside(event,'multiOverlay')">
+    <div class="modal modal--wide">
+      <div class="modal-header">
+        <div class="modal-title">New Multi-Position Election</div>
+        <button class="modal-close" onclick="closeMultiModal()" aria-label="Close">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div id="multiMsg" class="modal-msg"></div>
+
+      <div class="m-input-group" style="margin-bottom:24px;">
+        <label for="multiTitle">Election title</label>
+        <input id="multiTitle" class="m-input" type="text" placeholder="e.g. College Elections 2025" />
+      </div>
+
+      <div class="m-input-group" style="margin-bottom:12px;">
+        <label>Positions <span style="color:#dc2626">*</span></label>
+      </div>
+      <div id="positionsList" class="positions-list"></div>
+      <button class="btn-add-position" onclick="addPositionField()">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add position
+      </button>
+
+      <div class="modal-actions" style="margin-top:28px;">
+        <button class="btn-cancel" onclick="closeMultiModal()">Cancel</button>
+        <button class="btn-confirm btn-confirm--multi" id="multiCreateBtn" onclick="createMultiElection()">
+          Create Election
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </button>
       </div>

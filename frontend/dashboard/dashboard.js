@@ -69,7 +69,7 @@ function renderElections() {
         </div>
         <h3>No elections yet</h3>
         <p>Create your first election to get started.</p>
-        <button class="btn-new" onclick="openCreateModal()">
+        <button class="btn-new" onclick="toggleNewMenu()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           New Election
         </button>
@@ -77,10 +77,15 @@ function renderElections() {
     return;
   }
 
-  grid.innerHTML = elections.map(e => `
-    <div class="election-card" onclick="goManage('${e.id}')">
+  grid.innerHTML = elections.map(e => {
+    const isMulti = e.election_type === 'multi';
+    return `
+    <div class="election-card" onclick="goManage('${e.id}','${e.election_type||'standard'}')">
       <div class="ec-top">
-        <div class="ec-title">${escHtml(e.title)}</div>
+        <div class="ec-title">
+          ${isMulti ? '<span class="ec-type-badge">Multi</span>' : ''}
+          ${escHtml(e.title)}
+        </div>
         <span class="ec-badge ${e.is_active ? 'active' : 'closed'}">
           ${e.is_active ? 'Active' : 'Closed'}
         </span>
@@ -91,11 +96,11 @@ function renderElections() {
       </div>
       <div class="ec-divider"></div>
       <div class="ec-actions" onclick="event.stopPropagation()">
-        <button class="ec-btn ec-btn-manage" onclick="goManage('${e.id}')">
+        <button class="ec-btn ec-btn-manage" onclick="goManage('${e.id}','${e.election_type||'standard'}')">
           <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           Manage
         </button>
-        <button class="ec-btn ec-btn-copy" onclick="copyLink('${e.id}')">
+        <button class="ec-btn ec-btn-copy" onclick="copyLink('${e.id}','${e.election_type||'standard'}')">
           <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           Copy link
         </button>
@@ -104,25 +109,38 @@ function renderElections() {
         </button>
       </div>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 /* ----------------------------------------------------------
    Navigation
 ---------------------------------------------------------- */
-function goManage(id) {
-  window.location.href = `/election/manage.html?id=${id}`;
+function goManage(id, type) {
+  if (type === 'multi') {
+    window.location.href = `/election/manage-multi.html?id=${id}`;
+  } else {
+    window.location.href = `/election/manage.html?id=${id}`;
+  }
 }
 
-function copyLink(id) {
-  const link = `${window.location.origin}/vote/index.html?election=${id}`;
+function copyLink(id, type) {
+  const path = type === 'multi' ? 'vote-multi' : 'vote';
+  const link = `${window.location.origin}/${path}/index.html?election=${id}`;
   navigator.clipboard.writeText(link).then(() => showToast('Voting link copied!'));
 }
 
 /* ----------------------------------------------------------
    Create election modal
 ---------------------------------------------------------- */
-function openCreateModal() {
+let _createType = 'standard';
+
+function openCreateModal(type = 'standard') {
+  _createType = type;
+  if (type === 'multi') {
+    openMultiModal();
+    return;
+  }
+  document.getElementById('createModalTitle').textContent = 'New Standard Election';
   document.getElementById('createOverlay').classList.add('open');
   setTimeout(() => document.getElementById('electionTitle').focus(), 50);
 }
@@ -137,20 +155,19 @@ function closeModalOutside(e, modalId) {
   if (e.target === document.getElementById(modalId)) {
     if (modalId === 'createOverlay') closeCreateModal();
     if (modalId === 'deleteOverlay') closeDeleteModal();
+    if (modalId === 'multiOverlay')  closeMultiModal();
   }
 }
 
 async function createElection() {
   const title = document.getElementById('electionTitle').value.trim();
   const btn   = document.getElementById('createBtn');
-
   if (!title) { showModalMsg('createMsg', 'Please enter a title.', 'error'); return; }
 
   btn.disabled = true;
   btn.innerHTML = '<span class="m-spinner"></span> Creating…';
 
-  const res = await API.createElection(title);
-
+  const res = await API.createElection(title, 'standard');
   if (res.success) {
     closeCreateModal();
     showToast('Election created successfully');
@@ -160,6 +177,111 @@ async function createElection() {
     btn.disabled = false;
     btn.innerHTML = `Create <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`;
   }
+}
+
+/* ----------------------------------------------------------
+   New election dropdown menu
+---------------------------------------------------------- */
+function toggleNewMenu() {
+  const menu = document.getElementById('newMenu');
+  menu.classList.toggle('open');
+}
+
+function closeNewMenu() {
+  document.getElementById('newMenu')?.classList.remove('open');
+}
+
+// Close menu if clicking outside
+document.addEventListener('click', e => {
+  const wrap = document.getElementById('btnNew')?.closest('.btn-new-wrap');
+  if (wrap && !wrap.contains(e.target)) closeNewMenu();
+});
+
+/* ----------------------------------------------------------
+   Multi-position modal
+---------------------------------------------------------- */
+let _positionCount = 0;
+
+function openMultiModal() {
+  _positionCount = 0;
+  document.getElementById('positionsList').innerHTML = '';
+  document.getElementById('multiTitle').value = '';
+  hideModalMsg('multiMsg');
+  document.getElementById('multiOverlay').classList.add('open');
+  // Start with 2 position fields
+  addPositionField();
+  addPositionField();
+  setTimeout(() => document.getElementById('multiTitle').focus(), 50);
+}
+
+function closeMultiModal() {
+  document.getElementById('multiOverlay').classList.remove('open');
+}
+
+function addPositionField() {
+  _positionCount++;
+  const id  = `posField_${_positionCount}`;
+  const n   = _positionCount;
+  const div = document.createElement('div');
+  div.className = 'position-field';
+  div.id = id;
+  div.innerHTML = `
+    <div class="position-field-num">${n}</div>
+    <input class="m-input position-field-input" type="text"
+      placeholder="e.g. Sports Head"
+      onkeydown="if(event.key==='Enter'){event.preventDefault();addPositionField()}" />
+    <button class="position-field-remove" onclick="removePositionField('${id}')" title="Remove">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>`;
+  document.getElementById('positionsList').appendChild(div);
+  div.querySelector('input').focus();
+}
+
+function removePositionField(id) {
+  document.getElementById(id)?.remove();
+  // Re-number
+  document.querySelectorAll('.position-field').forEach((el, i) => {
+    const num = el.querySelector('.position-field-num');
+    if (num) num.textContent = i + 1;
+  });
+}
+
+async function createMultiElection() {
+  const title = document.getElementById('multiTitle').value.trim();
+  if (!title) { showModalMsg('multiMsg', 'Please enter an election title.', 'error'); return; }
+
+  const inputs = document.querySelectorAll('.position-field-input');
+  const positions = Array.from(inputs)
+    .map(el => el.value.trim())
+    .filter(Boolean);
+
+  if (positions.length < 2) {
+    showModalMsg('multiMsg', 'Add at least 2 positions.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('multiCreateBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="m-spinner"></span> Creating…';
+
+  // 1 — create the election with type=multi
+  const res = await API.createElection(title, 'multi');
+  if (!res.success) {
+    showModalMsg('multiMsg', res.message || 'Failed to create election.', 'error');
+    btn.disabled = false;
+    btn.innerHTML = 'Create Election <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+    return;
+  }
+
+  // 2 — create each position sequentially
+  const elecId = res.election.id;
+  for (const pos of positions) {
+    await API.addPosition(elecId, pos);
+  }
+
+  closeMultiModal();
+  showToast('Multi-position election created');
+  loadElections();
 }
 
 /* ----------------------------------------------------------

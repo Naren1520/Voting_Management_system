@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manage Election — VoteStack</title>
+  <link rel="icon" href="/assets/Logo.png" type="image/png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="manage.css"/>
+  <link rel="stylesheet" href="manage-multi.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="mn-header">
+    <div class="mn-header-inner">
+      <a class="mn-brand" href="/landing/index.html">
+        <img src="/assets/Logo.png" alt="VoteStack"/>
+        VoteStack
+      </a>
+      <div class="mn-header-right">
+        <a href="/dashboard/index.html" class="btn-back">
+          <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Dashboard
+        </a>
+        <button class="btn-logout" onclick="handleLogout()">
+          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="mn-page">
+
+    <!-- Hero -->
+    <div class="election-hero">
+      <div class="election-hero-left">
+        <div class="multi-badge-hero">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Multi-Position
+        </div>
+        <h1 id="electionTitle">Loading…</h1>
+        <p id="electionMeta"></p>
+      </div>
+      <div class="election-hero-right">
+        <span class="status-badge active" id="electionStatus">Active</span>
+        <button class="btn-ghost-sm" onclick="loadAll()">
+          <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Share Banner -->
+    <div class="share-banner">
+      <div class="share-banner-icon">
+        <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      </div>
+      <div class="share-banner-text">
+        <h3>Voting Link</h3>
+        <p>Share with registered voters — they vote for all positions in one session.</p>
+      </div>
+      <div class="share-url-pill" id="shareUrl" onclick="copyLink()" title="Click to copy">Loading…</div>
+      <button class="btn-copy-pill" onclick="copyLink()">
+        <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy link
+      </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="mn-stats">
+      <div class="mn-stat-card">
+        <div class="mn-stat-icon" style="background:#fdf4ff">
+          <svg viewBox="0 0 24 24" style="stroke:#9333ea"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <div>
+          <div class="mn-stat-num" id="statPositions">—</div>
+          <div class="mn-stat-lbl">Positions</div>
+        </div>
+      </div>
+      <div class="mn-stat-card">
+        <div class="mn-stat-icon">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div>
+          <div class="mn-stat-num" id="statCandidates">—</div>
+          <div class="mn-stat-lbl">Total candidates</div>
+        </div>
+      </div>
+      <div class="mn-stat-card">
+        <div class="mn-stat-icon">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div>
+          <div class="mn-stat-num" id="statVoters">—</div>
+          <div class="mn-stat-lbl">Registered voters</div>
+        </div>
+      </div>
+      <div class="mn-stat-card">
+        <div class="mn-stat-icon green">
+          <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div>
+          <div class="mn-stat-num" id="statTurnout">—</div>
+          <div class="mn-stat-lbl">Avg turnout</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="mn-tabs">
+      <button class="mn-tab active" id="tab-positions" onclick="switchTab('positions',this)">
+        <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Positions &amp; Candidates
+        <span class="mn-tab-count" id="tcPos">0</span>
+      </button>
+      <button class="mn-tab" id="tab-voters" onclick="switchTab('voters',this)">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Voters
+        <span class="mn-tab-count" id="tcVoter">0</span>
+      </button>
+      <button class="mn-tab" id="tab-results" onclick="switchTab('results',this)">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Results
+      </button>
+    </div>
+
+    <!-- PANEL: POSITIONS & CANDIDATES -->
+    <div class="mn-panel active" id="panelPositions">
+      <div class="panel-header">
+        <div>
+          <h2>Manage Positions &amp; Candidates</h2>
+          <p>Each position is a separate race. Voters vote once per position.</p>
+        </div>
+        <button class="btn-blue" onclick="openAddPositionModal()">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add position
+        </button>
+      </div>
+      <div id="posMsg" class="mn-msg"></div>
+      <div id="positionsAccordion"></div>
+    </div>
+
+    <!-- PANEL: VOTERS (reuses same logic as standard) -->
+    <div class="mn-panel" id="panelVoters">
+      <div class="panel-header">
+        <div>
+          <h2>Manage Voters</h2>
+          <p>Voters are shared across all positions. Each voter votes once per position.</p>
+        </div>
+      </div>
+      <div id="voterMsg" class="mn-msg"></div>
+      <div class="add-voter-grid">
+        <div class="form-field"><label>Voter ID <span style="color:#dc2626">*</span></label>
+          <input id="vVoterId" class="mn-input" type="text" placeholder="Unique ID (e.g. STU001)"/></div>
+        <div class="form-field"><label>Full Name <span style="color:#dc2626">*</span></label>
+          <input id="vName" class="mn-input" type="text" placeholder="Full name"/></div>
+        <div class="form-field"><label>Email</label>
+          <input id="vEmail" class="mn-input" type="email" placeholder="voter@email.com"/></div>
+        <div class="form-field"><label>Phone</label>
+          <input id="vPhone" class="mn-input" type="tel" placeholder="+91 …"/></div>
+      </div>
+      <button class="btn-blue" style="margin-bottom:28px;" onclick="addVoter()">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add voter
+      </button>
+      <div class="voter-search-row">
+        <div class="voter-search-wrap">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="voter-search" id="voterSearch" type="text" placeholder="Search voters…" oninput="filterVoters()"/>
+        </div>
+        <div class="voter-filter-pills">
+          <button class="filter-pill active" id="fpAll"     onclick="setVoterFilter('all',this)">All <span id="fpAllCount">0</span></button>
+          <button class="filter-pill voted"   id="fpVoted"  onclick="setVoterFilter('voted',this)">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Voted <span id="fpVotedCount">0</span>
+          </button>
+          <button class="filter-pill pending" id="fpPending" onclick="setVoterFilter('pending',this)">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Not voted <span id="fpPendingCount">0</span>
+          </button>
+        </div>
+      </div>
+      <div class="section-lbl">Registered voters</div>
+      <div class="voters-list" id="votersList"></div>
+    </div>
+
+    <!-- PANEL: RESULTS -->
+    <div class="mn-panel" id="panelResults">
+      <div class="results-total-card">
+        <div class="results-total-left">
+          <h2 id="totalPositionsResult">0</h2>
+          <p>Positions voted on</p>
+        </div>
+        <div class="results-total-right">
+          <button class="btn-ghost-sm" onclick="loadResults()">
+            <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Refresh
+          </button>
+        </div>
+      </div>
+      <div id="multiResultsList"></div>
+    </div>
+
+  </main>
+
+  <!-- ADD POSITION MODAL -->
+  <div class="modal-overlay-mn" id="addPosOverlay" onclick="if(event.target===this)closeAddPositionModal()">
+    <div class="modal-mn">
+      <div class="modal-mn-header">
+        <div class="modal-mn-title">Add Position</div>
+        <button class="modal-close" onclick="closeAddPositionModal()">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div id="addPosMsg" class="mn-msg"></div>
+      <div class="form-field">
+        <label>Position title</label>
+        <input id="newPosTitle" class="mn-input" type="text" placeholder="e.g. Cultural Head"
+          onkeydown="if(event.key==='Enter')submitAddPosition()"/>
+      </div>
+      <div class="modal-mn-actions">
+        <button class="btn-cancel-mn" onclick="closeAddPositionModal()">Cancel</button>
+        <button class="btn-primary" onclick="submitAddPosition()">Add Position</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="mn-toast" id="mnToast" role="status" aria-live="polite">
+    <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    <span id="mnToastMsg"></span>
+  </div>
+
+  <script src="/config.js"></script>
+  <script src="/shared/api.js"></script>
+  <script src="manage-multi.js"></script>
+</body>
+</html>
