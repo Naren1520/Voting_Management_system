@@ -1,0 +1,501 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&display=swap');
+
+/* ----------------------------------------------------------
+   TOKENS
+---------------------------------------------------------- */
+:root {
+  --blue:        #0067b8;
+  --blue-dark:   #005196;
+  --blue-light:  #e8f1fb;
+  --blue-mid:    #cce0f5;
+  --ink:         #1a1a1a;
+  --ink-2:       #3d3d3d;
+  --ink-3:       #6e6e6e;
+  --ink-4:       #9e9e9e;
+  --border:      #e0e0e0;
+  --border-2:    #ebebeb;
+  --surface:     #ffffff;
+  --surface-2:   #f5f5f5;
+  --surface-3:   #fafafa;
+  --danger:      #dc2626;
+  --danger-light:#fef2f2;
+  --success:     #16a34a;
+  --success-light:#f0fdf4;
+
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   16px;
+  --radius-xl:   22px;
+
+  --shadow-xs:   0 1px 2px rgba(0,0,0,.06);
+  --shadow-sm:   0 2px 8px rgba(0,0,0,.07);
+  --shadow-md:   0 4px 20px rgba(0,0,0,.09);
+  --shadow-lg:   0 8px 40px rgba(0,0,0,.11);
+
+  --ease:        cubic-bezier(.22,.61,.36,1);
+  --font:        'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ----------------------------------------------------------
+   RESET
+---------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: var(--font);
+  color: var(--ink);
+  background: var(--surface-3);
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+  animation: pageReveal .4s var(--ease);
+}
+@keyframes pageReveal { from { opacity: 0; } to { opacity: 1; } }
+img    { display: block; max-width: 100%; }
+a      { text-decoration: none; color: inherit; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+ul     { list-style: none; }
+
+/* ----------------------------------------------------------
+   HEADER / NAV
+---------------------------------------------------------- */
+.dash-header {
+  position: sticky; top: 0; z-index: 200;
+  height: 60px;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-xs);
+}
+.dash-header-inner {
+  max-width: 1280px; margin: 0 auto;
+  padding: 0 32px; height: 100%;
+  display: flex; align-items: center; gap: 24px;
+}
+
+.dash-brand {
+  display: flex; align-items: center; gap: 9px;
+  font-size: 18px; font-weight: 800;
+  letter-spacing: -.02em; color: var(--ink);
+  flex-shrink: 0;
+}
+.dash-brand img {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 1.5px solid rgba(0,0,0,.1);
+}
+
+.dash-header-right {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 12px;
+}
+
+.dash-greeting {
+  font-size: 13.5px; font-weight: 500; color: var(--ink-3);
+}
+
+/* New election button */
+.btn-new {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 18px;
+  background: var(--ink); color: #fff;
+  font-size: 13.5px; font-weight: 700;
+  border-radius: var(--radius-sm);
+  transition: background .2s var(--ease), transform .15s, box-shadow .2s;
+  white-space: nowrap;
+}
+.btn-new svg { width: 15px; height: 15px; flex-shrink: 0; }
+.btn-new:hover { background: #2e2e2e; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+/* Logout button */
+.btn-logout {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px;
+  font-size: 13.5px; font-weight: 500; color: var(--ink-3);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: border-color .15s, color .15s, background .15s;
+}
+.btn-logout svg { width: 14px; height: 14px; }
+.btn-logout:hover { border-color: var(--ink-3); color: var(--ink); background: var(--surface-2); }
+
+/* ----------------------------------------------------------
+   PAGE WRAPPER
+---------------------------------------------------------- */
+.dash-page {
+  max-width: 1280px; margin: 0 auto;
+  padding: 36px 32px 64px;
+}
+
+/* ----------------------------------------------------------
+   PAGE TITLE ROW
+---------------------------------------------------------- */
+.dash-title-row {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  margin-bottom: 32px; gap: 16px; flex-wrap: wrap;
+}
+.dash-title-row h1 {
+  font-size: 1.75rem; font-weight: 800;
+  letter-spacing: -.03em; color: var(--ink);
+  line-height: 1.1;
+}
+.dash-title-row p {
+  font-size: .9rem; color: var(--ink-3); margin-top: 4px;
+}
+
+/* ----------------------------------------------------------
+   STATS STRIP
+---------------------------------------------------------- */
+.dash-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.dash-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  display: flex; align-items: center; gap: 16px;
+  transition: box-shadow .2s, border-color .2s;
+}
+.dash-stat-card:hover { box-shadow: var(--shadow-sm); border-color: #ccc; }
+.dash-stat-icon {
+  width: 44px; height: 44px; flex-shrink: 0;
+  background: var(--blue-light);
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+}
+.dash-stat-icon svg { width: 20px; height: 20px; stroke: var(--blue); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.dash-stat-num {
+  font-size: 1.75rem; font-weight: 800;
+  letter-spacing: -.04em; color: var(--ink); line-height: 1;
+}
+.dash-stat-lbl {
+  font-size: .8rem; color: var(--ink-4);
+  font-weight: 500; margin-top: 3px;
+}
+
+/* ----------------------------------------------------------
+   ELECTIONS GRID
+---------------------------------------------------------- */
+.dash-section-label {
+  font-size: 11.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .08em;
+  color: var(--ink-4); margin-bottom: 16px;
+}
+
+.elections-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+/* ----------------------------------------------------------
+   ELECTION CARD
+---------------------------------------------------------- */
+.election-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  cursor: pointer;
+  transition: transform .22s var(--ease), box-shadow .22s var(--ease), border-color .22s;
+  display: flex; flex-direction: column; gap: 0;
+  position: relative; overflow: hidden;
+}
+.election-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--blue);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .3s var(--ease);
+}
+.election-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: #ccd9ee;
+}
+.election-card:hover::before { transform: scaleX(1); }
+
+.ec-top {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 12px; gap: 12px;
+}
+.ec-title {
+  font-size: 1rem; font-weight: 700;
+  color: var(--ink); line-height: 1.3;
+  flex: 1;
+}
+.ec-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .02em;
+  flex-shrink: 0;
+}
+.ec-badge.active {
+  background: var(--success-light);
+  color: var(--success);
+  border: 1px solid #bbf7d0;
+}
+.ec-badge.active::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%; background: var(--success);
+}
+.ec-badge.closed {
+  background: var(--surface-2);
+  color: var(--ink-4);
+  border: 1px solid var(--border);
+}
+
+.ec-date {
+  font-size: 12px; color: var(--ink-4);
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 5px;
+}
+.ec-date svg { width: 12px; height: 12px; stroke: var(--ink-4); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.ec-divider {
+  height: 1px; background: var(--border-2);
+  margin-bottom: 16px;
+}
+
+.ec-actions {
+  display: flex; gap: 8px;
+  margin-top: auto;
+}
+
+/* Action buttons on card */
+.ec-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  padding: 7px 14px;
+  font-size: 12.5px; font-weight: 600;
+  border-radius: var(--radius-sm);
+  transition: background .15s, color .15s, border-color .15s, transform .15s;
+  flex: 1;
+}
+.ec-btn svg { width: 13px; height: 13px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.ec-btn-manage {
+  background: var(--blue-light);
+  color: var(--blue);
+  border: 1px solid var(--blue-mid);
+}
+.ec-btn-manage:hover { background: #d4e8f8; border-color: #99c0e8; transform: translateY(-1px); }
+
+.ec-btn-copy {
+  background: var(--surface-2);
+  color: var(--ink-2);
+  border: 1px solid var(--border);
+}
+.ec-btn-copy:hover { background: #ececec; border-color: #ccc; transform: translateY(-1px); }
+
+.ec-btn-delete {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; flex: none;
+  background: var(--surface-2);
+  color: var(--ink-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: background .15s, color .15s, border-color .15s;
+}
+.ec-btn-delete svg { width: 13px; height: 13px; }
+.ec-btn-delete:hover { background: var(--danger-light); color: var(--danger); border-color: #fca5a5; }
+
+/* ----------------------------------------------------------
+   LOADING STATE
+---------------------------------------------------------- */
+.dash-loading {
+  text-align: center; padding: 80px 24px;
+  color: var(--ink-4);
+}
+.dash-spinner {
+  width: 32px; height: 32px; margin: 0 auto 16px;
+  border: 3px solid var(--border);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ----------------------------------------------------------
+   EMPTY STATE
+---------------------------------------------------------- */
+.dash-empty {
+  grid-column: 1 / -1;
+  background: var(--surface);
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius-xl);
+  padding: 64px 32px;
+  text-align: center;
+}
+.dash-empty-icon {
+  width: 56px; height: 56px; margin: 0 auto 20px;
+  background: var(--blue-light);
+  border-radius: var(--radius-lg);
+  display: flex; align-items: center; justify-content: center;
+}
+.dash-empty-icon svg { width: 26px; height: 26px; stroke: var(--blue); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.dash-empty h3 { font-size: 1.15rem; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+.dash-empty p  { font-size: .9rem; color: var(--ink-3); margin-bottom: 24px; }
+
+/* ----------------------------------------------------------
+   MODAL OVERLAY
+---------------------------------------------------------- */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center;
+  z-index: 500; padding: 24px;
+  animation: fadeIn .2s var(--ease);
+}
+.modal-overlay.open { display: flex; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 36px;
+  width: 100%; max-width: 460px;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp .25s var(--ease);
+  position: relative;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 24px;
+}
+.modal-title {
+  font-size: 1.25rem; font-weight: 800;
+  letter-spacing: -.025em; color: var(--ink);
+}
+.modal-close {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-sm); color: var(--ink-4);
+  transition: background .15s, color .15s;
+}
+.modal-close:hover { background: var(--surface-2); color: var(--ink); }
+.modal-close svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Input inside modal */
+.modal .m-input-group { display: flex; flex-direction: column; gap: 6px; }
+.modal .m-input-group label {
+  font-size: 11.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .07em;
+  color: var(--ink-3);
+}
+.modal .m-input {
+  width: 100%; padding: 11px 14px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: var(--font); font-size: 14.5px; color: var(--ink);
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  -webkit-appearance: none; appearance: none;
+}
+.modal .m-input::placeholder { color: var(--ink-4); }
+.modal .m-input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(0,103,184,.1);
+}
+
+.modal-actions {
+  display: flex; gap: 10px; margin-top: 24px;
+}
+.modal-actions .btn-cancel {
+  flex: 1; padding: 11px 20px;
+  font-size: 14px; font-weight: 600; color: var(--ink-2);
+  border: 1.5px solid var(--border); border-radius: var(--radius-md);
+  transition: background .15s, border-color .15s;
+  background: var(--surface);
+}
+.modal-actions .btn-cancel:hover { background: var(--surface-2); border-color: #ccc; }
+
+.modal-actions .btn-confirm {
+  flex: 2; padding: 11px 20px;
+  font-size: 14px; font-weight: 700; color: #fff;
+  background: var(--ink); border: none; border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: background .2s, transform .15s, box-shadow .2s;
+}
+.modal-actions .btn-confirm:hover:not(:disabled) {
+  background: #2e2e2e; transform: translateY(-1px); box-shadow: var(--shadow-md);
+}
+.modal-actions .btn-confirm:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.modal-actions .btn-confirm svg { width: 15px; height: 15px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+.modal-actions .btn-delete {
+  flex: 1; padding: 11px 20px;
+  font-size: 14px; font-weight: 700; color: #fff;
+  background: var(--danger); border: none; border-radius: var(--radius-md);
+  transition: background .15s, transform .15s;
+}
+.modal-actions .btn-delete:hover { background: #b91c1c; transform: translateY(-1px); }
+
+/* Modal message */
+.modal-msg {
+  display: none;
+  padding: 10px 14px; border-radius: var(--radius-md);
+  font-size: 13px; font-weight: 500; border: 1.5px solid;
+  margin-bottom: 16px;
+  animation: msgIn .2s var(--ease);
+}
+@keyframes msgIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+.modal-msg.error   { background: var(--danger-light);  color: var(--danger);  border-color: #fca5a5; }
+.modal-msg.success { background: var(--success-light); color: var(--success); border-color: #86efac; }
+
+/* Modal spinner */
+.m-spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .6s linear infinite; flex-shrink: 0;
+}
+
+/* ----------------------------------------------------------
+   TOAST
+---------------------------------------------------------- */
+.dash-toast {
+  position: fixed; bottom: 28px; right: 28px; z-index: 600;
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 20px;
+  background: var(--ink); color: #fff;
+  border-radius: var(--radius-md);
+  font-size: 13.5px; font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  transform: translateY(12px); opacity: 0;
+  transition: transform .3s var(--ease), opacity .3s var(--ease);
+  pointer-events: none;
+}
+.dash-toast.show { transform: translateY(0); opacity: 1; }
+.dash-toast svg { width: 15px; height: 15px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ----------------------------------------------------------
+   RESPONSIVE
+---------------------------------------------------------- */
+@media (max-width: 900px) {
+  .dash-stats { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .dash-page { padding: 24px 16px 48px; }
+  .dash-header-inner { padding: 0 16px; }
+  .dash-stats { grid-template-columns: 1fr; }
+  .dash-greeting { display: none; }
+  .elections-grid { grid-template-columns: 1fr; }
+  .modal { padding: 24px 20px; }
+}
