@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap');
 
 /* ----------------------------------------------------------
    TOKENS
@@ -8,33 +8,33 @@
   --blue-dark:    #005196;
   --blue-light:   #e8f1fb;
   --blue-mid:     #cce0f5;
-  --ink:          #1a1a1a;
-  --ink-2:        #3d3d3d;
-  --ink-3:        #6e6e6e;
-  --ink-4:        #9e9e9e;
+  --ink:          #0f0f0f;
+  --ink-2:        #1a1a1a;
+  --ink-3:        #6a6a6a;
+  --ink-4:        #8f8f8f;
   --border:       #e0e0e0;
   --border-2:     #ebebeb;
   --surface:      #ffffff;
   --surface-2:    #f5f5f5;
-  --surface-3:    #fafafa;
+  --surface-3:    #f7f7f7;
   --danger:       #dc2626;
   --danger-light: #fef2f2;
   --success:      #16a34a;
   --success-light:#f0fdf4;
 
-  --radius-sm:  6px;
-  --radius-md:  10px;
-  --radius-lg:  16px;
-  --radius-xl:  22px;
+  --radius-sm:  8px;
+  --radius-md:  14px;
+  --radius-lg:  20px;
+  --radius-xl:  24px;
   --radius-full:9999px;
 
-  --shadow-xs: 0 1px 2px rgba(0,0,0,.06);
-  --shadow-sm: 0 2px 8px rgba(0,0,0,.07);
-  --shadow-md: 0 4px 20px rgba(0,0,0,.09);
-  --shadow-lg: 0 8px 40px rgba(0,0,0,.11);
+  --shadow-xs: 0 1px 2px rgba(0,0,0,.04);
+  --shadow-sm: 0 2px 12px rgba(0,0,0,.04), 0 1px 4px rgba(0,0,0,.02);
+  --shadow-md: 0 4px 24px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.03);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.04);
 
-  --ease: cubic-bezier(.22,.61,.36,1);
-  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --ease: cubic-bezier(0.33, 1, 0.68, 1);
+  --font: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 /* ----------------------------------------------------------
@@ -46,6 +46,16 @@ body {
   font-family: var(--font);
   color: var(--ink);
   background: var(--surface-3);
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(0,103,184,.02) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(0,103,184,.015) 0%, transparent 50%),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,.008) 2px,
+      rgba(0,0,0,.008) 4px
+    );
   min-height: 100vh;
   line-height: 1.6;
   overflow-x: hidden;
@@ -61,7 +71,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 ---------------------------------------------------------- */
 .sess-header {
   position: sticky; top: 0; z-index: 200;
-  height: 60px;
+  height: 66px;
   background: rgba(255,255,255,.92);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -74,13 +84,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   display: flex; align-items: center; justify-content: space-between;
 }
 .sess-brand {
-  display: flex; align-items: center; gap: 9px;
-  font-size: 18px; font-weight: 800;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 19px; font-weight: 800;
   letter-spacing: -.02em; color: var(--ink);
 }
 .sess-brand img {
-  width: 30px; height: 30px; border-radius: 50%;
-  border: 1.5px solid rgba(0,0,0,.1);
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 1.5px solid rgba(0,0,0,.15);
 }
 .btn-back {
   display: inline-flex; align-items: center; gap: 7px;
@@ -172,21 +182,43 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   border-radius: var(--radius-lg);
   padding: 22px 24px;
   display: flex; align-items: center; gap: 20px;
-  transition: box-shadow .2s, border-color .2s;
+  transition: box-shadow .2s, border-color .2s, transform .2s;
   position: relative;
   overflow: hidden;
 }
-.sess-card:hover { box-shadow: var(--shadow-sm); border-color: #ccc; }
+.sess-card::before {
+  content: '';
+  position: absolute;
+  top: -40%; right: -30%;
+  width: 220px; height: 220px;
+  background: radial-gradient(circle, rgba(0,103,184,.03) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  transition: transform .4s var(--ease);
+}
+.sess-card:hover::before {
+  transform: translate(-18px, 18px) scale(1.12);
+}
+.sess-card:hover { 
+  box-shadow: var(--shadow-md); 
+  border-color: #ccc; 
+  transform: translateY(-2px); 
+}
 
 /* current session highlight */
 .sess-card.current {
   border-color: var(--blue-mid);
   background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 60%);
+  position: relative;
 }
 .sess-card.current::before {
+  background: radial-gradient(circle, rgba(0,103,184,.05) 0%, transparent 70%);
+}
+.sess-card.current::after {
   content: '';
   position: absolute; left: 0; top: 0; bottom: 0;
-  width: 3px; background: var(--blue);
+  width: 3px; 
+  background: linear-gradient(180deg, var(--blue), var(--blue-dark));
   border-radius: 0 3px 3px 0;
 }
 

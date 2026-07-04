@@ -20,10 +20,10 @@ function populateProfile() {
     .toUpperCase()
     .slice(0, 2);
 
-  setEl('profAvatar',    initials);
-  setEl('profName',      name);
-  setEl('profNameVal',   name);
-  setEl('profEmailVal',  email);
+  setEl('profHeroAvatar', initials);
+  setEl('profHeroName',   name);
+  setEl('profNameVal',    name);
+  setEl('profEmailVal',   email);
 }
 
 document.getElementById('newPassword').addEventListener('input', function () {
