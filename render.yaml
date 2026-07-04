@@ -5,4 +5,9 @@ services:
     dockerfilePath: ./Dockerfile
     branch: main
     plan: free
-    healthCheckPath: /candidates
+    healthCheckPath: /api/elections
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false

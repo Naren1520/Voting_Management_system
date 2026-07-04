@@ -1,0 +1,25 @@
+# Git
+.git
+.gitignore
+
+# Frontend (not needed in backend image)
+frontend/
+
+# Windows build artifacts
+backend/voting_server.exe
+
+# Dev/docs
+*.bat
+*.txt
+*.md
+README.md
+run.bat
+run.txt
+
+# IDE
+.vscode/
+.hintrc
+
+# Render/deployment config (not needed inside image)
+render.yaml
+Dockerfile

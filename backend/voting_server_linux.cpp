@@ -47,11 +47,26 @@
 using json = nlohmann::json;
 
 // ============================================================================
-// CONFIG
+// CONFIG — loaded from environment variables at startup
 // ============================================================================
 
-const std::string SUPABASE_URL = "https://drwkzpoxyhluwuxzcjxx.supabase.co";
-const std::string SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyd2t6cG94eWhsdXd1eHpjanh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3ODk2NDEsImV4cCI6MjA5ODM2NTY0MX0.ZC6uOOGc8frORkSolT47YwRIQ6QxnBbnkHxpyYQ61Pw";
+static std::string SUPABASE_URL;
+static std::string SUPABASE_KEY;
+
+void loadConfig() {
+    const char* url = std::getenv("SUPABASE_URL");
+    const char* key = std::getenv("SUPABASE_KEY");
+    if (!url || std::string(url).empty()) {
+        std::cerr << "[FATAL] SUPABASE_URL environment variable is not set\n";
+        std::exit(1);
+    }
+    if (!key || std::string(key).empty()) {
+        std::cerr << "[FATAL] SUPABASE_KEY environment variable is not set\n";
+        std::exit(1);
+    }
+    SUPABASE_URL = url;
+    SUPABASE_KEY = key;
+}
 
 // ============================================================================
 // SIMPLE PASSWORD HASHING (SHA-256 via openssl CLI)
@@ -1290,6 +1305,7 @@ public:
 // ============================================================================
 
 int main() {
+    loadConfig();
     int port = 8080;
     const char* ep = std::getenv("PORT");
     if (ep) port = std::atoi(ep);
