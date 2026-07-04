@@ -86,6 +86,25 @@
             <span class="prof-badge">Admin</span>
           </div>
         </div>
+
+        <a class="btn-sessions-link" href="/profile/sessions/index.html">
+          <div class="btn-sessions-link-left">
+            <div class="btn-sessions-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2"/>
+                <path d="M8 21h8M12 17v4"/>
+              </svg>
+            </div>
+            <div>
+              <div class="btn-sessions-title">Active Sessions</div>
+              <div class="btn-sessions-sub">View devices & locations</div>
+            </div>
+          </div>
+          <svg class="btn-sessions-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </a>
       </section>
 
       <!-- ── Change Password Card ── -->
@@ -165,9 +184,6 @@
           </div>
 
           <button class="btn-update-pwd" id="updatePwdBtn" onclick="submitPasswordChange()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            </svg>
             Update Password
           </button>
         </div>

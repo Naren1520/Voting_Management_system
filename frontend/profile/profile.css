@@ -293,6 +293,40 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   min-width: 48px;
 }
 
+/* Sessions link button */
+.btn-sessions-link {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color .2s, background .2s, transform .15s, box-shadow .2s;
+  text-decoration: none; color: inherit;
+}
+.btn-sessions-link:hover {
+  border-color: var(--blue-mid);
+  background: var(--blue-light);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+.btn-sessions-link-left { display: flex; align-items: center; gap: 12px; }
+.btn-sessions-icon {
+  width: 36px; height: 36px; flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+}
+.btn-sessions-icon svg { width: 17px; height: 17px; stroke: var(--ink-3); }
+.btn-sessions-link:hover .btn-sessions-icon { border-color: var(--blue-mid); }
+.btn-sessions-link:hover .btn-sessions-icon svg { stroke: var(--blue); }
+.btn-sessions-title { font-size: .9rem; font-weight: 700; color: var(--ink); }
+.btn-sessions-sub   { font-size: .78rem; color: var(--ink-4); margin-top: 1px; }
+.btn-sessions-arrow { width: 16px; height: 16px; flex-shrink: 0; stroke: var(--ink-4); transition: stroke .2s, transform .2s; }
+.btn-sessions-link:hover .btn-sessions-arrow { stroke: var(--blue); transform: translateX(3px); }
+
 /* Update password button */
 .btn-update-pwd {
   display: flex; align-items: center; justify-content: center; gap: 8px;

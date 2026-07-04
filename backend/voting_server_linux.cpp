@@ -174,7 +174,9 @@ public:
 
     // POST /api/auth/signup  { name, email, password }
     json signup(const std::string& name, const std::string& email,
-                const std::string& password) {
+                const std::string& password,
+                const std::string& userAgent = "",
+                const std::string& ipAddress = "") {
         json res;
         if (name.empty() || email.empty() || password.empty()) {
             res["success"] = false;
@@ -217,7 +219,7 @@ public:
             if ((r.statusCode == 200 || r.statusCode == 201) &&
                 arr.is_array() && !arr.empty()) {
                 std::string userId = arr[0]["id"].get<std::string>();
-                std::string token = createSession(userId);
+                std::string token = createSession(userId, userAgent, ipAddress);
                 res["success"] = true;
                 res["message"] = "Account created successfully";
                 res["token"] = token;
@@ -238,7 +240,9 @@ public:
     }
 
     // POST /api/auth/login  { email, password }
-    json login(const std::string& email, const std::string& password) {
+    json login(const std::string& email, const std::string& password,
+               const std::string& userAgent = "",
+               const std::string& ipAddress = "") {
         json res;
         if (email.empty() || password.empty()) {
             res["success"] = false;
@@ -264,7 +268,7 @@ public:
                 return res;
             }
             std::string userId = arr[0]["id"].get<std::string>();
-            std::string token  = createSession(userId);
+            std::string token  = createSession(userId, userAgent, ipAddress);
             res["success"] = true;
             res["message"] = "Login successful";
             res["token"] = token;
@@ -381,14 +385,137 @@ public:
     }
 
 private:
-    std::string createSession(const std::string& userId) {
-        std::string token = generateToken();
-        // Expires in 24 hours
-        std::string expires = futureTimestamp(86400);
+    // GET /api/auth/sessions  — all active sessions for logged-in user
+    json getSessions(const std::string& token) {
+        json res;
+        std::string userId = validateToken(token);
+        if (userId.empty()) {
+            res["success"] = false; res["message"] = "Unauthorized"; return res;
+        }
+        // Clean expired sessions first
+        supabaseRequest("DELETE", "sessions?expires_at=lt." + currentTimestamp());
+
+        auto r = supabaseRequest("GET",
+            "sessions?select=token,user_agent,ip_address,location,created_at,expires_at"
+            "&user_id=eq." + userId + "&order=created_at.desc");
+        try {
+            auto arr = json::parse(r.body);
+            json sessions = json::array();
+            for (auto& s : arr) {
+                s["is_current"] = (s["token"].get<std::string>() == token);
+                s["session_id"] = s["token"].get<std::string>().substr(0, 16);
+                s.erase("token");
+                sessions.push_back(s);
+            }
+            res["success"]  = true;
+            res["sessions"] = sessions;
+        } catch (...) {
+            res["success"] = false; res["message"] = "Failed to load sessions";
+        }
+        return res;
+    }
+
+    // DELETE /api/auth/sessions/:session_id  — revoke a specific session
+    json revokeSession(const std::string& token, const std::string& sessionId) {
+        json res;
+        std::string userId = validateToken(token);
+        if (userId.empty()) {
+            res["success"] = false; res["message"] = "Unauthorized"; return res;
+        }
+        auto r = supabaseRequest("GET",
+            "sessions?select=token&user_id=eq." + userId +
+            "&token=like." + urlEncode(sessionId + "%") + "&limit=1");
+        try {
+            auto arr = json::parse(r.body);
+            if (!arr.is_array() || arr.empty()) {
+                res["success"] = false; res["message"] = "Session not found"; return res;
+            }
+            std::string fullToken = arr[0]["token"].get<std::string>();
+            if (fullToken == token) {
+                res["success"] = false;
+                res["message"] = "Use logout to end your current session";
+                return res;
+            }
+            supabaseRequest("DELETE", "sessions?token=eq." + urlEncode(fullToken));
+            res["success"] = true; res["message"] = "Session revoked";
+        } catch (...) {
+            res["success"] = false; res["message"] = "Server error";
+        }
+        return res;
+    }
+
+    // DELETE /api/auth/sessions  — revoke ALL other sessions
+    json revokeAllOtherSessions(const std::string& token) {
+        json res;
+        std::string userId = validateToken(token);
+        if (userId.empty()) {
+            res["success"] = false; res["message"] = "Unauthorized"; return res;
+        }
+        supabaseRequest("DELETE",
+            "sessions?user_id=eq." + userId +
+            "&token=neq." + urlEncode(token));
+        res["success"] = true; res["message"] = "All other sessions revoked";
+        return res;
+    }
+
+    // Resolve city+country from IP using ip-api.com (free, no key needed)
+    std::string getLocation(const std::string& ip) {
+        if (ip.empty() || ip == "127.0.0.1" || ip.substr(0,3) == "10."
+            || ip.substr(0,8) == "192.168." || ip.substr(0,7) == "172.16.")
+            return "Local / Unknown";
+        std::string cmd = "curl -s --max-time 3 \"http://ip-api.com/json/" + ip +
+                          "?fields=city,country\" 2>/dev/null";
+        std::array<char,512> buf;
+        std::string result;
+        FILE* pipe = popen(cmd.c_str(), "r");
+        if (!pipe) return "Unknown";
+        while (fgets(buf.data(), buf.size(), pipe)) result += buf.data();
+        pclose(pipe);
+        try {
+            auto j = json::parse(result);
+            std::string city    = j.value("city","");
+            std::string country = j.value("country","");
+            if (!city.empty() && !country.empty()) return city + ", " + country;
+            if (!country.empty()) return country;
+        } catch (...) {}
+        return "Unknown";
+    }
+
+    // Parse friendly device string from User-Agent
+    std::string parseDevice(const std::string& ua) {
+        if (ua.empty()) return "Unknown Device";
+        std::string browser = "Unknown Browser";
+        std::string os      = "Unknown OS";
+        if (ua.find("Edg/") != std::string::npos)          browser = "Edge";
+        else if (ua.find("OPR/") != std::string::npos ||
+                 ua.find("Opera") != std::string::npos)    browser = "Opera";
+        else if (ua.find("Chrome/") != std::string::npos)  browser = "Chrome";
+        else if (ua.find("Firefox/") != std::string::npos) browser = "Firefox";
+        else if (ua.find("Safari/") != std::string::npos)  browser = "Safari";
+        if (ua.find("Windows NT") != std::string::npos)    os = "Windows";
+        else if (ua.find("Android") != std::string::npos)  os = "Android";
+        else if (ua.find("iPhone") != std::string::npos ||
+                 ua.find("iPad") != std::string::npos)     os = "iOS";
+        else if (ua.find("Mac OS X") != std::string::npos) os = "macOS";
+        else if (ua.find("Linux") != std::string::npos)    os = "Linux";
+        return browser + " on " + os;
+    }
+
+    std::string createSession(const std::string& userId,
+                              const std::string& userAgent = "",
+                              const std::string& ipAddress = "") {
+        std::string token    = generateToken();
+        std::string expires  = futureTimestamp(86400);
+        std::string device   = parseDevice(userAgent);
+        std::string location = getLocation(ipAddress);
+
         json body;
         body["token"]      = token;
         body["user_id"]    = userId;
         body["expires_at"] = expires;
+        body["user_agent"] = userAgent;
+        body["ip_address"] = ipAddress;
+        body["location"]   = location;
         supabaseRequest("POST", "sessions", body.dump());
         return token;
     }
@@ -927,13 +1054,29 @@ private:
             // ── AUTH ─────────────────────────────────────────────────────
             } else if (path == "/api/auth/signup" && method == "POST") {
                 auto rb = json::parse(body);
+                std::string ua = getHeader(request, "User-Agent");
+                std::string ip = getHeader(request, "X-Forwarded-For");
+                if (ip.empty()) ip = getHeader(request, "X-Real-IP");
+                // X-Forwarded-For may be comma-separated, take first
+                size_t comma = ip.find(',');
+                if (comma != std::string::npos) ip = ip.substr(0, comma);
+                // trim
+                ip.erase(0, ip.find_first_not_of(" \t"));
+                ip.erase(ip.find_last_not_of(" \t") + 1);
                 auto r = authCtrl.signup(rb.value("name",""), rb.value("email",""),
-                                         rb.value("password",""));
+                                         rb.value("password",""), ua, ip);
                 response = respond(r["success"].get<bool>() ? 201:400, r.dump());
 
             } else if (path == "/api/auth/login" && method == "POST") {
                 auto rb = json::parse(body);
-                auto r = authCtrl.login(rb.value("email",""), rb.value("password",""));
+                std::string ua = getHeader(request, "User-Agent");
+                std::string ip = getHeader(request, "X-Forwarded-For");
+                if (ip.empty()) ip = getHeader(request, "X-Real-IP");
+                size_t comma = ip.find(',');
+                if (comma != std::string::npos) ip = ip.substr(0, comma);
+                ip.erase(0, ip.find_first_not_of(" \t"));
+                ip.erase(ip.find_last_not_of(" \t") + 1);
+                auto r = authCtrl.login(rb.value("email",""), rb.value("password",""), ua, ip);
                 response = respond(r["success"].get<bool>() ? 200:401, r.dump());
 
             } else if (path == "/api/auth/logout" && method == "POST") {
@@ -945,6 +1088,19 @@ private:
                 auto r = authCtrl.changePassword(token,
                     rb.value("current_password",""),
                     rb.value("new_password",""));
+                response = respond(r["success"].get<bool>() ? 200:401, r.dump());
+
+            } else if (path == "/api/auth/sessions" && method == "GET") {
+                auto r = authCtrl.getSessions(token);
+                response = respond(r["success"].get<bool>() ? 200:401, r.dump());
+
+            } else if (path == "/api/auth/sessions" && method == "DELETE") {
+                auto r = authCtrl.revokeAllOtherSessions(token);
+                response = respond(r["success"].get<bool>() ? 200:401, r.dump());
+
+            } else if (segs.size()==4 && segs[0]=="api" && segs[1]=="auth" &&
+                       segs[2]=="sessions" && method == "DELETE") {
+                auto r = authCtrl.revokeSession(token, segs[3]);
                 response = respond(r["success"].get<bool>() ? 200:401, r.dump());
 
             // ── ELECTIONS ────────────────────────────────────────────────

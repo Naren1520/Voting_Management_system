@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Active Sessions — VoteStack</title>
+  <meta name="description" content="View and manage all active login sessions for your VoteStack account." />
+  <link rel="icon" href="/assets/Logo.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="sessions.css" />
+</head>
+<body>
+
+  <!-- =====================================================
+       HEADER
+  ====================================================== -->
+  <header class="sess-header">
+    <div class="sess-header-inner">
+      <a class="sess-brand" href="/landing/index.html">
+        <img src="/assets/Logo.png" alt="VoteStack" />
+        VoteStack
+      </a>
+      <div class="sess-header-right">
+        <a class="btn-back" href="/profile/index.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"/>
+            <polyline points="12 19 5 12 12 5"/>
+          </svg>
+          Back to Profile
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- =====================================================
+       PAGE
+  ====================================================== -->
+  <main class="sess-page">
+
+    <!-- Title -->
+    <div class="sess-title-row">
+      <div class="sess-title-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2"/>
+          <path d="M8 21h8M12 17v4"/>
+        </svg>
+      </div>
+      <div class="sess-title-text">
+        <h1>Active Sessions</h1>
+        <p>Devices and locations where your account is currently signed in.</p>
+      </div>
+      <button class="btn-revoke-all" id="revokeAllBtn" onclick="revokeAll()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+        Sign out all others
+      </button>
+    </div>
+
+    <!-- Loading -->
+    <div class="sess-loading" id="sessLoading">
+      <div class="sess-spinner"></div>
+      <p>Loading sessions…</p>
+    </div>
+
+    <!-- Sessions list -->
+    <div class="sess-list" id="sessList"></div>
+
+  </main>
+
+  <!-- =====================================================
+       TOAST
+  ====================================================== -->
+  <div class="sess-toast" id="sessToast" role="status" aria-live="polite">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+      <polyline points="22 4 12 14.01 9 11.01"/>
+    </svg>
+    <span class="toast-msg"></span>
+  </div>
+
+  <script src="/config.js"></script>
+  <script src="/shared/api.js"></script>
+  <script src="sessions.js"></script>
+</body>
+</html>

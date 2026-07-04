@@ -1,9 +1,7 @@
 ﻿
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&display=swap');
 
-/* ----------------------------------------------------------
-   TOKENS
----------------------------------------------------------- */
+
 :root {
   --blue:        #0067b8;   /* Microsoft blue */
   --blue-dark:   #005196;
@@ -32,9 +30,7 @@
   --font:        'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* ----------------------------------------------------------
-   RESET
----------------------------------------------------------- */
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; overscroll-behavior: none; }
 body { font-family: var(--font); color: var(--ink); background: var(--surface); overflow-x: hidden; line-height: 1.6; overscroll-behavior: none; }
@@ -43,9 +39,7 @@ a    { text-decoration: none; color: inherit; }
 ul   { list-style: none; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; }
 
-/* ----------------------------------------------------------
-   CONTAINER
----------------------------------------------------------- */
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -53,9 +47,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 @media (max-width: 640px) { .container { padding: 0 20px; } }
 
-/* ----------------------------------------------------------
-   BUTTONS
----------------------------------------------------------- */
+
 .btn-filled {
   display: inline-flex; align-items: center; gap: 8px;
   padding: 10px 22px;
@@ -104,9 +96,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .btn-lg { padding: 13px 28px; font-size: 16px; }
 .btn-lg i { width: 18px; height: 18px; }
 
-/* ----------------------------------------------------------
-   HEADER / NAV
----------------------------------------------------------- */
+
 .header {
   position: fixed; top: 0; left: 0; right: 0; z-index: 900;
   background: transparent;
@@ -211,9 +201,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   .burger { display: flex; }
 }
 
-/* ----------------------------------------------------------
-   HERO
----------------------------------------------------------- */
+
 .hero {
   padding: 160px 0 100px;
   text-align: center;
@@ -265,9 +253,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   background: var(--border); display: inline-block;
 }
 
-/* ----------------------------------------------------------
-   STATS BAND
----------------------------------------------------------- */
+
 .stats-band {
   background: var(--surface-2);
   border-top: 1px solid var(--border);
@@ -297,9 +283,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 @media (max-width: 640px) { .stat-sep { display: none; } }
 
-/* ----------------------------------------------------------
-   SECTIONS
----------------------------------------------------------- */
+
 .section { padding: 100px 0; }
 .section--gray { background: var(--surface-3); }
 
@@ -318,9 +302,6 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   line-height: 1.75; margin-bottom: 60px;
 }
 
-/* ----------------------------------------------------------
-   FEATURES â€” BENTO GRID
----------------------------------------------------------- */
 .feat-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -386,9 +367,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   font-size: 12.5px; font-weight: 600; color: var(--ink-2);
 }
 
-/* ----------------------------------------------------------
-   SECURITY GRID
----------------------------------------------------------- */
+
 .sec-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -434,9 +413,6 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .compliance-badge i { width: 14px; height: 14px; color: var(--blue); }
 
-/* ----------------------------------------------------------
-   STEPS
----------------------------------------------------------- */
 .steps {
   display: flex; flex-direction: column;
   gap: 0;
@@ -485,9 +461,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   .step-num { font-size: 1.5rem; }
 }
 
-/* ----------------------------------------------------------
-   FAQ
----------------------------------------------------------- */
+
 .faq-container {
   display: grid;
   grid-template-columns: 360px 1fr;
@@ -529,9 +503,7 @@ details[open] .faq-q i { transform: rotate(45deg); }
   font-size: .95rem; color: var(--ink-3); line-height: 1.75;
 }
 
-/* ----------------------------------------------------------
-   CTA SECTION
----------------------------------------------------------- */
+
 .cta-section {
   background: #f0f0f0;
   padding: 48px 0;
@@ -612,9 +584,7 @@ details[open] .faq-q i { transform: rotate(45deg); }
   transform: translateY(-2px);
 }
 
-/* ----------------------------------------------------------
-   FOOTER
----------------------------------------------------------- */
+
 .footer {
   background: #111;
   color: #aaa;
@@ -670,9 +640,7 @@ details[open] .faq-q i { transform: rotate(45deg); }
 }
 .footer-badges i { width: 13px; height: 13px; color: #0067b8; }
 
-/* ----------------------------------------------------------
-   SCROLL ANIMATIONS
----------------------------------------------------------- */
+
 [data-aos] {
   opacity: 0;
   transform: translateY(22px);
@@ -683,9 +651,7 @@ details[open] .faq-q i { transform: rotate(45deg); }
   transform: translateY(0);
 }
 
-/* ----------------------------------------------------------
-   LUCIDE ICON DEFAULTS
----------------------------------------------------------- */
+
 [data-lucide] {
   stroke: currentColor;
   stroke-width: 2;
@@ -696,9 +662,7 @@ details[open] .faq-q i { transform: rotate(45deg); }
   vertical-align: middle;
 }
 
-/* ----------------------------------------------------------
-   HERO PREVIEW / PRODUCT MOCKUP
----------------------------------------------------------- */
+
 .hero-preview {
   padding: 0 0 60px;
 }
@@ -735,9 +699,7 @@ details[open] .faq-q i { transform: rotate(45deg); }
   position: relative;
 }
 
-/* ----------------------------------------------------------
-   VIDEO SECTION
----------------------------------------------------------- */
+
 .video-section {
   padding: 100px 0 120px;
   background: var(--surface-3);
@@ -752,9 +714,7 @@ details[open] .faq-q i { transform: rotate(45deg); }
   margin: 0 auto;
 }
 
-/* ----------------------------------------------------------
-   MOCKUP SCREENSHOT
----------------------------------------------------------- */
+
 .mockup-screenshot {
   position: absolute;
   top: 0; left: 0;
@@ -764,9 +724,7 @@ details[open] .faq-q i { transform: rotate(45deg); }
   display: block;
 }
 
-/* ----------------------------------------------------------
-   VIDEO SECTION â€” real video
----------------------------------------------------------- */
+
 .video-frame {
   position: relative;
   border-radius: var(--radius-xl);
@@ -813,9 +771,7 @@ details[open] .faq-q i { transform: rotate(45deg); }
 .play-btn i { width: 28px; height: 28px; color: var(--blue); margin-left: 3px; }
 .play-btn svg { width: 28px; height: 28px; color: var(--blue); margin-left: 3px; }
 
-/* ----------------------------------------------------------
-   SPOTLIGHT IMAGES â€” real photos
----------------------------------------------------------- */
+
 .spotlight-img {
   width: 100%;
   height: auto;
@@ -839,9 +795,7 @@ details[open] .faq-q i { transform: rotate(45deg); }
 
 
 
-/* ----------------------------------------------------------
-   SPOTLIGHT SECTIONS (Image + Text)
----------------------------------------------------------- */
+
 .spotlight-section { padding: 100px 0; }
 .spotlight {
   display: grid;
@@ -1083,9 +1037,6 @@ img {
 
 
 
-/* ----------------------------------------------------------
-   HERO — CINEMA (premium dark, video bg, floating cards)
----------------------------------------------------------- */
 
 .hero--cinema {
   position: relative;

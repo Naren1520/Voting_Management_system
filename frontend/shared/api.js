@@ -36,6 +36,11 @@ const API = (() => {
     changePassword: (currentPassword, newPassword) =>
       req('POST', '/api/auth/change-password', { current_password: currentPassword, new_password: newPassword }),
 
+    // Sessions
+    getSessions:          ()          => req('GET',    '/api/auth/sessions'),
+    revokeSession:        (sessionId) => req('DELETE', `/api/auth/sessions/${sessionId}`),
+    revokeAllSessions:    ()          => req('DELETE', '/api/auth/sessions'),
+
     // Elections
     getElections:    ()            => req('GET',    '/api/elections'),
     createElection:  (title)       => req('POST',   '/api/elections', { title }),
