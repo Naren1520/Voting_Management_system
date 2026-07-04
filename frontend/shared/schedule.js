@@ -258,19 +258,33 @@ const Schedule = (() => {
       </div>`).join('');
 
     return `
-      <div class="sched-tz-panel" id="${cid}_tzPanel">
-        <div class="sched-tz-search-wrap">
-          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input class="sched-tz-search" id="${cid}_tzSearch"
-            placeholder="Search timezone…"
-            oninput="Schedule._filterTZ('${cid}', this.value)"/>
-        </div>
-        <div class="sched-tz-list" id="${cid}_tzList">
-          <div class="sched-tz-group-label">Popular</div>
-          ${renderOpts(popular)}
-          <div class="sched-tz-group-label">All timezones</div>
-          ${renderOpts(rest)}
+      <!-- Timezone modal overlay — centered, same pattern as calendar popover -->
+      <div class="sched-tz-popover" id="${cid}_tzPanel"
+           onclick="Schedule._tzBackdropClick('${cid}',event)">
+        <div class="sched-tz-popover-card" onclick="event.stopPropagation()">
+          <div class="sched-tz-popover-bar">
+            <div class="sched-tz-popover-title">Select timezone</div>
+            <button type="button" class="sched-cal-close"
+              onclick="Schedule._toggleTZPanel('${cid}')" title="Close">
+              <svg viewBox="0 0 24 24">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+          <div class="sched-tz-search-wrap">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="sched-tz-search" id="${cid}_tzSearch"
+              placeholder="Search timezone…"
+              oninput="Schedule._filterTZ('${cid}', this.value)"/>
+          </div>
+          <div class="sched-tz-list" id="${cid}_tzList">
+            <div class="sched-tz-group-label">Popular</div>
+            ${renderOpts(popular)}
+            <div class="sched-tz-group-label">All timezones</div>
+            ${renderOpts(rest)}
+          </div>
         </div>
       </div>`;
   }
@@ -431,12 +445,23 @@ const Schedule = (() => {
   function _toggleTZPanel(cid) {
     const panel = document.getElementById(`${cid}_tzPanel`);
     if (!panel) return;
-    const isOpen = panel.classList.toggle('open');
-    if (isOpen) {
-      setTimeout(() => document.getElementById(`${cid}_tzSearch`)?.focus(), 50);
+    const opening = !panel.classList.contains('open');
+    panel.classList.toggle('open', opening);
+    if (opening) {
+      // Clear previous search
+      const search = document.getElementById(`${cid}_tzSearch`);
+      if (search) { search.value = ''; _filterTZ(cid, ''); }
+      setTimeout(() => search?.focus(), 50);
       // Scroll selected into view
       const sel = panel.querySelector('.sched-tz-option.selected');
-      if (sel) sel.scrollIntoView({ block: 'nearest' });
+      if (sel) setTimeout(() => sel.scrollIntoView({ block: 'nearest' }), 60);
+    }
+  }
+
+  // Close ONLY when clicking directly on the backdrop
+  function _tzBackdropClick(cid, event) {
+    if (event.target === event.currentTarget) {
+      document.getElementById(`${cid}_tzPanel`)?.classList.remove('open');
     }
   }
 
@@ -451,7 +476,7 @@ const Schedule = (() => {
     document.querySelectorAll(`#${cid}_tzList .sched-tz-option`).forEach(el => {
       el.classList.toggle('selected', el.textContent.trim().startsWith(tzLabel(tz)));
     });
-    // Close panel
+    // Close modal
     document.getElementById(`${cid}_tzPanel`)?.classList.remove('open');
   }
 
@@ -751,6 +776,7 @@ const Schedule = (() => {
     getStatus, renderStatusBanner, startCountdown,
     _setType, _toggleDay, _toggleTZPanel, _selectTZ,
     _filterTZ, _setPeriod, _clampHour, _clampMin,
-    _calNav, _toggleDate, _renderCal, _toggleCal, _calBackdropClick
+    _calNav, _toggleDate, _renderCal, _toggleCal, _calBackdropClick,
+    _tzBackdropClick
   };
 })();

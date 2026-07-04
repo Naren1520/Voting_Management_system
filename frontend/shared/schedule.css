@@ -78,21 +78,49 @@
   white-space: nowrap; flex-shrink: 0;
 }
 
-/* ── Timezone dropdown panel ── */
-.sched-tz-panel {
+/* ── Timezone modal overlay — centered, matches calendar popover ── */
+.sched-tz-popover {
   display: none;
-  background: var(--surface, #fff);
-  border: 1.5px solid var(--border, #e0e0e0);
-  border-radius: var(--radius-md, 14px);
-  box-shadow: 0 8px 32px rgba(0,0,0,.1);
-  margin-bottom: 18px;
-  overflow: hidden;
+  position: fixed;
+  z-index: 600;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0,0,0,.4);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
 }
-.sched-tz-panel.open { display: block; }
+.sched-tz-popover.open { display: flex; }
+
+.sched-tz-popover-card {
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #e0e0e0);
+  border-radius: var(--radius-xl, 24px);
+  box-shadow: 0 24px 64px rgba(0,0,0,.18);
+  width: 340px;
+  max-height: 480px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: calPop .22s cubic-bezier(.33,1,.68,1);
+}
+
+.sched-tz-popover-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px 0;
+  flex-shrink: 0;
+}
+.sched-tz-popover-title {
+  font-size: 13px; font-weight: 800;
+  color: var(--ink, #0f0f0f); letter-spacing: -.01em;
+}
+
 .sched-tz-search-wrap {
   display: flex; align-items: center; gap: 8px;
   padding: 10px 14px;
   border-bottom: 1px solid var(--border, #e0e0e0);
+  flex-shrink: 0;
 }
 .sched-tz-search-wrap svg { width: 14px; height: 14px; stroke: var(--ink-4, #8f8f8f); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 .sched-tz-search {
@@ -102,7 +130,8 @@
 }
 .sched-tz-search::placeholder { color: var(--ink-4, #8f8f8f); }
 .sched-tz-list {
-  max-height: 220px; overflow-y: auto;
+  flex: 1;
+  overflow-y: auto;
   overscroll-behavior: contain;
 }
 .sched-tz-group-label {
