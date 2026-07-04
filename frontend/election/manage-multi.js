@@ -1,10 +1,10 @@
 const params     = new URLSearchParams(location.search);
 const electionId = params.get('id');
 
-let allPositions = [];   // { id, title, order_index, candidates[] }
+let allPositions = [];
 let allVoters    = [];
 let voterFilter  = 'all';
-let doughnutInsts = {};  // per-position chart instances
+let doughnutInsts = {};
 
 /* ─────────────────────────────────────────────────────
    Init
@@ -36,6 +36,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   pill.textContent = link;
   pill._link = link;
 
+  // Schedule widget
+  Schedule.buildWidget('manageSchedWidget');
+  Schedule.setValue('manageSchedWidget', e);
+  Schedule.renderStatusBanner(e, document.getElementById('schedStatusWrap'));
+
   await loadAll();
 });
 
@@ -50,8 +55,31 @@ function switchTab(name, btn) {
   document.querySelectorAll('.mn-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.mn-panel').forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
-  const map = { positions: 'panelPositions', voters: 'panelVoters', results: 'panelResults' };
-  document.getElementById(map[name]).classList.add('active');
+  const map = {
+    positions: 'panelPositions',
+    voters:    'panelVoters',
+    results:   'panelResults',
+    schedule:  'panelSchedule'
+  };
+  document.getElementById(map[name])?.classList.add('active');
+}
+
+/* ─────────────────────────────────────────────────────
+   SCHEDULE
+───────────────────────────────────────────────────── */
+async function saveSchedule() {
+  const err = Schedule.validate('manageSchedWidget');
+  if (err) { showMsg('schedMsg', err, 'error'); return; }
+
+  const sched = Schedule.getValue('manageSchedWidget');
+  const res   = await API.updateSchedule(electionId, sched);
+
+  if (res.success) {
+    showMsg('schedMsg', 'Schedule saved.', 'success');
+    Schedule.renderStatusBanner(sched, document.getElementById('schedStatusWrap'));
+  } else {
+    showMsg('schedMsg', res.message || 'Failed to save schedule.', 'error');
+  }
 }
 
 /* ─────────────────────────────────────────────────────

@@ -170,7 +170,11 @@ ul     { list-style: none; }
 }
 
 /* Wide modal for multi */
-.modal--wide { max-width: 560px; }
+.modal--wide {
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
 
 /* Positions list in multi modal */
 .positions-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
@@ -449,9 +453,18 @@ ul     { list-style: none; }
 .ec-date {
   font-size: 12px; color: var(--ink-4);
   margin-bottom: 16px;
-  display: flex; align-items: center; gap: 5px;
+  display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
 }
 .ec-date svg { width: 12px; height: 12px; stroke: var(--ink-4); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.ec-sched-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10.5px; font-weight: 700;
+  color: #0067b8; background: #e8f1fb;
+  border: 1px solid #cce0f5;
+  padding: 2px 8px; border-radius: 100px;
+}
+.ec-sched-badge svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 .ec-divider {
   height: 1px; background: var(--border-2);
@@ -558,6 +571,8 @@ ul     { list-style: none; }
   border-radius: var(--radius-xl);
   padding: 36px;
   width: 100%; max-width: 460px;
+  max-height: 90vh;
+  overflow-y: auto;
   box-shadow: var(--shadow-lg);
   animation: slideUp .25s var(--ease);
   position: relative;

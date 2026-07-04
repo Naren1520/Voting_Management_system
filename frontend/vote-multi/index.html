@@ -8,6 +8,24 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="vote-multi.css"/>
+  <style>
+    /* Schedule blocked overlay */
+    .sched-block {
+      display: none;
+      text-align: center;
+      padding: 20px 0;
+    }
+    .sched-block-icon {
+      width: 64px; height: 64px;
+      background: #fffbeb; border: 1px solid #fde68a;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+    }
+    .sched-block-label  { font-size: 1.05rem; font-weight: 800; color: #d97706; margin-bottom: 6px; }
+    .sched-block-reason { font-size: .875rem; color: #6a6a6a; margin-bottom: 16px; line-height: 1.6; }
+    .sched-block-countdown { font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; color: #0f0f0f; }
+  </style>
 </head>
 <body>
 
@@ -30,6 +48,22 @@
         <div class="loading-wrap" id="loadingMsg">
           <div class="spinner"></div>
           <p>Loading ballot…</p>
+        </div>
+
+        <!-- Schedule blocked -->
+        <div class="sched-block" id="schedBlock">
+          <div class="sched-block-icon">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#d97706"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </div>
+          <div class="sched-block-label"  id="schedBlockLabel">Outside voting hours</div>
+          <div class="sched-block-reason" id="schedBlockReason"></div>
+          <div class="sched-block-countdown" id="schedBlockCountdown"></div>
         </div>
 
         <!-- ══ Step 1: Voter ID ══ -->
@@ -141,6 +175,7 @@
 
   <script src="/config.js"></script>
   <script src="/shared/api.js"></script>
+  <script src="/shared/schedule.js"></script>
   <script src="vote-multi.js"></script>
 </body>
 </html>

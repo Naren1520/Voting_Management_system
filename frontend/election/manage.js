@@ -2,10 +2,11 @@
 const params     = new URLSearchParams(location.search);
 const electionId = params.get('id');
 
-let allVoters    = [];    // cache for client-side search/filter
-let voterFilter  = 'all'; // 'all' | 'voted' | 'pending'
-let doughnutInst = null;  // Chart.js instances
+let allVoters    = [];
+let voterFilter  = 'all';
+let doughnutInst = null;
 let barInst      = null;
+let _electionData = null; // cached election for schedule
 
 /* ─────────────────────────────────────────────────────
    Init
@@ -18,12 +19,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!res.success) { window.location.href = '/dashboard/index.html'; return; }
 
   const e = res.election;
+  _electionData = e;
 
   // Guard: redirect multi elections to the correct page
   if (e.election_type === 'multi') {
     window.location.href = `/election/manage-multi.html?id=${electionId}`;
     return;
   }
+
   document.title = `${e.title} — VoteStack`;
   document.getElementById('electionTitle').textContent = e.title;
   document.getElementById('electionMeta').textContent  = 'Created ' + fmt(e.created_at);
@@ -35,6 +38,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   const link = `${location.origin}/vote/index.html?election=${electionId}`;
   document.getElementById('shareUrl').textContent = link;
   document.getElementById('shareUrl')._link = link;
+
+  // Build schedule widget with saved values
+  Schedule.buildWidget('manageSchedWidget');
+  Schedule.setValue('manageSchedWidget', e);
+  Schedule.renderStatusBanner(e, document.getElementById('schedStatusWrap'));
 
   await loadAll();
 });
@@ -53,9 +61,29 @@ function switchTab(name, btn) {
   const panelId = {
     candidates: 'panelCandidates',
     voters:     'panelVoters',
-    results:    'panelResults'
+    results:    'panelResults',
+    schedule:   'panelSchedule'
   }[name];
-  document.getElementById(panelId).classList.add('active');
+  document.getElementById(panelId)?.classList.add('active');
+}
+
+/* ─────────────────────────────────────────────────────
+   SCHEDULE
+───────────────────────────────────────────────────── */
+async function saveSchedule() {
+  const err = Schedule.validate('manageSchedWidget');
+  if (err) { showMsg('schedMsg', err, 'error'); return; }
+
+  const sched = Schedule.getValue('manageSchedWidget');
+  const res   = await API.updateSchedule(electionId, sched);
+
+  if (res.success) {
+    showMsg('schedMsg', 'Schedule saved.', 'success');
+    // Re-render status banner with new values
+    Schedule.renderStatusBanner(sched, document.getElementById('schedStatusWrap'));
+  } else {
+    showMsg('schedMsg', res.message || 'Failed to save schedule.', 'error');
+  }
 }
 
 /* ─────────────────────────────────────────────────────

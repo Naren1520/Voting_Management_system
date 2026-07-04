@@ -43,10 +43,12 @@ const API = (() => {
     ping:                 ()          => req('GET',    '/api/auth/ping'),
 
     // Elections
-    getElections:    ()                     => req('GET',    '/api/elections'),
-    createElection:  (title, type='standard') => req('POST', '/api/elections', { title, election_type: type }),
-    getElection:     (id)                   => req('GET',    `/api/elections/${id}`),
-    deleteElection:  (id)                   => req('DELETE', `/api/elections/${id}`),
+    getElections:    ()                          => req('GET',    '/api/elections'),
+    createElection:  (title, type='standard', sched={}) =>
+      req('POST', '/api/elections', { title, election_type: type, ...sched }),
+    getElection:     (id)                        => req('GET',    `/api/elections/${id}`),
+    deleteElection:  (id)                        => req('DELETE', `/api/elections/${id}`),
+    updateSchedule:  (id, sched)                 => req('PATCH',  `/api/elections/${id}/schedule`, sched),
 
     // Positions (multi elections)
     getPositions:    (elecId)             => req('GET',    `/api/elections/${elecId}/positions`),

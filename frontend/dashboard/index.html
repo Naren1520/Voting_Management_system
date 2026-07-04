@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="dashboard.css" />
+  <link rel="stylesheet" href="/shared/schedule.css" />
 </head>
 <body>
 
@@ -137,6 +138,8 @@
           placeholder="e.g. Student Council 2025"
           onkeydown="if(event.key==='Enter') createElection()" />
       </div>
+      <!-- Schedule widget -->
+      <div id="stdSchedWidget"></div>
       <div class="modal-actions">
         <button class="btn-cancel" onclick="closeCreateModal()">Cancel</button>
         <button class="btn-confirm" id="createBtn" onclick="createElection()">
@@ -173,7 +176,8 @@
         <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Add position
       </button>
-
+      <!-- Schedule widget -->
+      <div id="multiSchedWidget"></div>
       <div class="modal-actions" style="margin-top:28px;">
         <button class="btn-cancel" onclick="closeMultiModal()">Cancel</button>
         <button class="btn-confirm btn-confirm--multi" id="multiCreateBtn" onclick="createMultiElection()">
@@ -217,6 +221,7 @@
 
   <script src="/config.js"></script>
   <script src="/shared/api.js"></script>
+  <script src="/shared/schedule.js"></script>
   <script src="dashboard.js"></script>
 </body>
 </html>

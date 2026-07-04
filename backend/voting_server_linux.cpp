@@ -573,7 +573,7 @@ public:
     // GET /api/elections  (owned by user)
     json getElections(const std::string& userId) {
         auto r = supabaseRequest("GET",
-            "elections?select=id,title,is_active,election_type,created_at&user_id=eq." +
+            "elections?select=id,title,is_active,election_type,schedule_type,starts_at,ends_at,schedule_json,timezone,created_at&user_id=eq." +
             userId + "&order=created_at.desc");
         try {
             auto arr = json::parse(r.body);
@@ -587,9 +587,14 @@ public:
         }
     }
 
-    // POST /api/elections  { title, election_type }
+    // POST /api/elections  { title, election_type, schedule_type, starts_at, ends_at, schedule_json, timezone }
     json createElection(const std::string& userId, const std::string& title,
-                        const std::string& electionType = "standard") {
+                        const std::string& electionType = "standard",
+                        const std::string& scheduleType = "always_on",
+                        const std::string& startsAt     = "",
+                        const std::string& endsAt       = "",
+                        const std::string& scheduleJson = "",
+                        const std::string& timezone     = "UTC") {
         json res;
         if (title.empty()) {
             res["success"] = false; res["message"] = "Title is required";
@@ -600,7 +605,14 @@ public:
         body["title"]         = title;
         body["is_active"]     = true;
         body["election_type"] = electionType;
-        auto r = supabaseRequest("POST", "elections", body.dump());
+        body["schedule_type"] = scheduleType;
+        body["timezone"]      = timezone.empty() ? "UTC" : timezone;
+        if (!startsAt.empty())     body["starts_at"]      = startsAt;
+        if (!endsAt.empty())       body["ends_at"]        = endsAt;
+        if (!scheduleJson.empty()) {
+            try { body["schedule_json"] = json::parse(scheduleJson); }
+            catch(...) {}
+        }        auto r = supabaseRequest("POST", "elections", body.dump());
         try {
             auto arr = json::parse(r.body);
             if ((r.statusCode==200||r.statusCode==201) && arr.is_array() && !arr.empty()) {
@@ -619,7 +631,7 @@ public:
     // GET single election (ownership verified)
     json getElection(const std::string& userId, const std::string& electionId) {
         auto r = supabaseRequest("GET",
-            "elections?select=id,title,is_active,election_type,created_at&id=eq." +
+            "elections?select=id,title,is_active,election_type,schedule_type,starts_at,ends_at,schedule_json,timezone,created_at&id=eq." +
             electionId + "&user_id=eq." + userId + "&limit=1");
         try {
             auto arr = json::parse(r.body);
@@ -646,6 +658,49 @@ public:
         } catch (...) {}
         supabaseRequest("DELETE", "elections?id=eq."+electionId);
         json res; res["success"]=true; res["message"]="Election deleted";
+        return res;
+    }
+
+    // PATCH /api/elections/:id/schedule
+    json updateSchedule(const std::string& userId, const std::string& electionId,
+                        const json& body) {
+        // Verify ownership
+        auto check = supabaseRequest("GET",
+            "elections?select=id&id=eq."+electionId+"&user_id=eq."+userId+"&limit=1");
+        try {
+            auto arr = json::parse(check.body);
+            if (!arr.is_array() || arr.empty()) {
+                json res; res["success"]=false; res["message"]="Election not found";
+                return res;
+            }
+        } catch(...) {
+            json res; res["success"]=false; res["message"]="Server error";
+            return res;
+        }
+
+        json upd;
+        std::string schedType = body.value("schedule_type","always_on");
+        upd["schedule_type"] = schedType;
+        upd["timezone"]      = body.value("timezone","UTC");
+        if (schedType == "date_range") {
+            upd["starts_at"]      = body.value("starts_at","");
+            upd["ends_at"]        = body.value("ends_at","");
+            upd["schedule_json"]  = nullptr;
+        } else if (schedType == "recurring") {
+            upd["starts_at"]     = nullptr;
+            upd["ends_at"]       = nullptr;
+            upd["schedule_json"] = body.value("schedule_json", json::object());
+        } else {
+            upd["starts_at"]     = nullptr;
+            upd["ends_at"]       = nullptr;
+            upd["schedule_json"] = nullptr;
+        }
+
+        auto r = supabaseRequest("PATCH",
+            "elections?id=eq."+electionId, upd.dump());
+        json res;
+        res["success"] = (r.statusCode==200||r.statusCode==204);
+        res["message"] = res["success"].get<bool>() ? "Schedule updated" : "Failed to update schedule";
         return res;
     }
 };
@@ -1363,14 +1418,14 @@ private:
     // ---- Response builder ----
     std::string respond(int code, const std::string& body) {
         std::string s;
-        switch(code){case 200:s="OK";break;case 201:s="Created";break;
+        switch(code){case 200:s="OK";break;case 201:s="Created";break;case 204:s="No Content";break;
                      case 400:s="Bad Request";break;case 401:s="Unauthorized";break;
                      case 403:s="Forbidden";break;case 404:s="Not Found";break;
                      default:s="OK";}
         std::string r = "HTTP/1.1 "+std::to_string(code)+" "+s+"\r\n";
         r += "Content-Type: application/json\r\n";
         r += "Access-Control-Allow-Origin: *\r\n";
-        r += "Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\n";
+        r += "Access-Control-Allow-Methods: GET, POST, DELETE, PATCH, OPTIONS\r\n";
         r += "Access-Control-Allow-Headers: Content-Type, Authorization\r\n";
         r += "Content-Length: "+std::to_string(body.size())+"\r\n";
         r += "Connection: close\r\n\r\n";
@@ -1492,9 +1547,28 @@ private:
                 if (uid.empty()) { response = respond(401, err("Unauthorized").dump()); }
                 else {
                     auto rb = json::parse(body);
-                    auto r = electionCtrl.createElection(uid, rb.value("title",""),
-                                rb.value("election_type","standard"));
+                    auto r = electionCtrl.createElection(
+                        uid,
+                        rb.value("title",""),
+                        rb.value("election_type","standard"),
+                        rb.value("schedule_type","always_on"),
+                        rb.value("starts_at",""),
+                        rb.value("ends_at",""),
+                        rb.contains("schedule_json") ? rb["schedule_json"].dump() : "",
+                        rb.value("timezone","UTC")
+                    );
                     response = respond(r["success"].get<bool>() ? 201:400, r.dump());
+                }
+
+            // PATCH /api/elections/:id/schedule
+            } else if (segs.size()==4 && segs[1]=="elections" && segs[3]=="schedule"
+                       && method=="PATCH") {
+                std::string uid = authCtrl.validateToken(token);
+                if (uid.empty()) { response = respond(401, err("Unauthorized").dump()); }
+                else {
+                    auto rb = json::parse(body);
+                    auto r  = electionCtrl.updateSchedule(uid, segs[2], rb);
+                    response = respond(r["success"].get<bool>() ? 200:400, r.dump());
                 }
 
             // /api/elections/:id
@@ -1673,13 +1747,21 @@ private:
             } else if (segs.size()==4 && segs[1]=="multi-vote" && segs[3]=="info"
                        && method=="GET") {
                 auto r = supabaseRequest("GET",
-                    "elections?select=title,is_active&id=eq."+segs[2]+"&limit=1");
+                    "elections?select=title,is_active,schedule_type,starts_at,ends_at,schedule_json,timezone&id=eq."+segs[2]+"&limit=1");
                 try {
                     auto arr = json::parse(r.body);
                     if (arr.is_array() && !arr.empty()) {
                         json res; res["success"]=true;
-                        res["title"]=arr[0]["title"];
-                        res["is_active"]=arr[0]["is_active"];
+                        res["title"]         = arr[0]["title"];
+                        res["is_active"]     = arr[0]["is_active"];
+                        res["schedule_type"] = arr[0].value("schedule_type","always_on");
+                        res["timezone"]      = arr[0].value("timezone","UTC");
+                        if (arr[0].contains("starts_at") && !arr[0]["starts_at"].is_null())
+                            res["starts_at"] = arr[0]["starts_at"];
+                        if (arr[0].contains("ends_at") && !arr[0]["ends_at"].is_null())
+                            res["ends_at"] = arr[0]["ends_at"];
+                        if (arr[0].contains("schedule_json") && !arr[0]["schedule_json"].is_null())
+                            res["schedule_json"] = arr[0]["schedule_json"];
                         response = respond(200, res.dump());
                     } else {
                         response = respond(404, err("Election not found").dump());
@@ -1687,8 +1769,6 @@ private:
                 } catch(...) {
                     response = respond(404, err("Election not found").dump());
                 }
-
-            // ── PUBLIC VOTE ──────────────────────────────────────────────
             // /api/vote/:election_id/candidates
             } else if (segs.size()==4 && segs[1]=="vote" && segs[3]=="candidates") {
                 auto r = voteCtrl.getCandidates(segs[2]);
@@ -1715,12 +1795,21 @@ private:
             // GET /api/vote/:election_id/info  (public - election title)
             } else if (segs.size()==4 && segs[1]=="vote" && segs[3]=="info") {
                 auto r = supabaseRequest("GET",
-                    "elections?select=title,is_active&id=eq."+segs[2]+"&limit=1");
+                    "elections?select=title,is_active,schedule_type,starts_at,ends_at,schedule_json,timezone&id=eq."+segs[2]+"&limit=1");
                 try {
                     auto arr = json::parse(r.body);
                     if (arr.is_array() && !arr.empty()) {
-                        json res; res["success"]=true; res["title"]=arr[0]["title"];
-                        res["is_active"]=arr[0]["is_active"];
+                        json res; res["success"]=true;
+                        res["title"]         = arr[0]["title"];
+                        res["is_active"]     = arr[0]["is_active"];
+                        res["schedule_type"] = arr[0].value("schedule_type","always_on");
+                        res["timezone"]      = arr[0].value("timezone","UTC");
+                        if (arr[0].contains("starts_at") && !arr[0]["starts_at"].is_null())
+                            res["starts_at"] = arr[0]["starts_at"];
+                        if (arr[0].contains("ends_at") && !arr[0]["ends_at"].is_null())
+                            res["ends_at"] = arr[0]["ends_at"];
+                        if (arr[0].contains("schedule_json") && !arr[0]["schedule_json"].is_null())
+                            res["schedule_json"] = arr[0]["schedule_json"];
                         response = respond(200, res.dump());
                     } else {
                         response = respond(404, err("Election not found").dump());

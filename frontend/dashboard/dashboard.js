@@ -93,6 +93,12 @@ function renderElections() {
       <div class="ec-date">
         <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         ${formatDate(e.created_at)}
+        ${e.schedule_type && e.schedule_type !== 'always_on'
+          ? `<span class="ec-sched-badge">
+               <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+               Scheduled
+             </span>`
+          : ''}
       </div>
       <div class="ec-divider"></div>
       <div class="ec-actions" onclick="event.stopPropagation()">
@@ -142,6 +148,7 @@ function openCreateModal(type = 'standard') {
   }
   document.getElementById('createModalTitle').textContent = 'New Standard Election';
   document.getElementById('createOverlay').classList.add('open');
+  Schedule.buildWidget('stdSchedWidget');
   setTimeout(() => document.getElementById('electionTitle').focus(), 50);
 }
 
@@ -164,10 +171,15 @@ async function createElection() {
   const btn   = document.getElementById('createBtn');
   if (!title) { showModalMsg('createMsg', 'Please enter a title.', 'error'); return; }
 
+  const schedErr = Schedule.validate('stdSchedWidget');
+  if (schedErr) { showModalMsg('createMsg', schedErr, 'error'); return; }
+
+  const sched = Schedule.getValue('stdSchedWidget');
+
   btn.disabled = true;
   btn.innerHTML = '<span class="m-spinner"></span> Creating…';
 
-  const res = await API.createElection(title, 'standard');
+  const res = await API.createElection(title, 'standard', sched);
   if (res.success) {
     closeCreateModal();
     showToast('Election created successfully');
@@ -208,7 +220,7 @@ function openMultiModal() {
   document.getElementById('multiTitle').value = '';
   hideModalMsg('multiMsg');
   document.getElementById('multiOverlay').classList.add('open');
-  // Start with 2 position fields
+  Schedule.buildWidget('multiSchedWidget');
   addPositionField();
   addPositionField();
   setTimeout(() => document.getElementById('multiTitle').focus(), 50);
@@ -250,22 +262,20 @@ async function createMultiElection() {
   const title = document.getElementById('multiTitle').value.trim();
   if (!title) { showModalMsg('multiMsg', 'Please enter an election title.', 'error'); return; }
 
-  const inputs = document.querySelectorAll('.position-field-input');
-  const positions = Array.from(inputs)
-    .map(el => el.value.trim())
-    .filter(Boolean);
+  const inputs    = document.querySelectorAll('.position-field-input');
+  const positions = Array.from(inputs).map(el => el.value.trim()).filter(Boolean);
+  if (positions.length < 2) { showModalMsg('multiMsg', 'Add at least 2 positions.', 'error'); return; }
 
-  if (positions.length < 2) {
-    showModalMsg('multiMsg', 'Add at least 2 positions.', 'error');
-    return;
-  }
+  const schedErr = Schedule.validate('multiSchedWidget');
+  if (schedErr) { showModalMsg('multiMsg', schedErr, 'error'); return; }
+
+  const sched = Schedule.getValue('multiSchedWidget');
 
   const btn = document.getElementById('multiCreateBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="m-spinner"></span> Creating…';
 
-  // 1 — create the election with type=multi
-  const res = await API.createElection(title, 'multi');
+  const res = await API.createElection(title, 'multi', sched);
   if (!res.success) {
     showModalMsg('multiMsg', res.message || 'Failed to create election.', 'error');
     btn.disabled = false;
@@ -273,11 +283,8 @@ async function createMultiElection() {
     return;
   }
 
-  // 2 — create each position sequentially
   const elecId = res.election.id;
-  for (const pos of positions) {
-    await API.addPosition(elecId, pos);
-  }
+  for (const pos of positions) await API.addPosition(elecId, pos);
 
   closeMultiModal();
   showToast('Multi-position election created');

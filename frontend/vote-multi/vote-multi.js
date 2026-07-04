@@ -18,7 +18,7 @@ let currentVoterId = null;
 document.addEventListener('DOMContentLoaded', async () => {
   if (!electionId) { showError('Invalid voting link.'); return; }
 
-  // Load election info + ballot in parallel
+  // Load info + ballot in parallel
   const [infoRes, ballotRes] = await Promise.all([
     API.getMultiInfo(electionId),
     API.getMultiBallot(electionId)
@@ -26,13 +26,35 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   hide('loadingMsg');
 
-  if (!infoRes.success) { showError(infoRes.message || 'Election not found.'); return; }
+  if (!infoRes.success)   { showError(infoRes.message  || 'Election not found.'); return; }
   if (!ballotRes.success) { showError(ballotRes.message || 'Could not load ballot.'); return; }
   if (!infoRes.is_active) { showError('This election is closed.'); return; }
 
   document.getElementById('electionTitleDisplay').textContent = infoRes.title;
   document.getElementById('electionSubtitle').textContent     = 'Multi-position election';
   document.title = infoRes.title + ' — VoteStack';
+
+  // ── Schedule check ────────────────────────────────────────
+  const sched = {
+    schedule_type: infoRes.schedule_type || 'always_on',
+    timezone:      infoRes.timezone,
+    starts_at:     infoRes.starts_at,
+    ends_at:       infoRes.ends_at,
+    schedule_json: infoRes.schedule_json
+  };
+  const status = Schedule.getStatus(sched);
+  if (!status.open) {
+    const block = document.getElementById('schedBlock');
+    block.style.display = 'block';
+    document.getElementById('schedBlockLabel').textContent  = status.label;
+    document.getElementById('schedBlockReason').textContent = status.reason;
+    if (status.nextChange) {
+      Schedule.startCountdown(status.nextChange,
+        document.getElementById('schedBlockCountdown'));
+    }
+    return;
+  }
+  // ─────────────────────────────────────────────────────────
 
   positions = ballotRes.positions || [];
 
