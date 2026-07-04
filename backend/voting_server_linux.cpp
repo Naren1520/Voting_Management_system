@@ -384,7 +384,6 @@ public:
         return res;
     }
 
-private:
     // GET /api/auth/sessions  — all active sessions for logged-in user
     json getSessions(const std::string& token) {
         json res;
@@ -457,6 +456,8 @@ private:
         res["success"] = true; res["message"] = "All other sessions revoked";
         return res;
     }
+
+private:
 
     // Resolve city+country from IP using ip-api.com (free, no key needed)
     std::string getLocation(const std::string& ip) {
