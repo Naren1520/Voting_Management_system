@@ -2,7 +2,8 @@
 const params     = new URLSearchParams(location.search);
 const electionId = params.get('id');
 
-let allVoters    = [];    // cache for client-side search
+let allVoters    = [];    // cache for client-side search/filter
+let voterFilter  = 'all'; // 'all' | 'voted' | 'pending'
 let doughnutInst = null;  // Chart.js instances
 let barInst      = null;
 
@@ -111,11 +112,60 @@ async function deleteCandidate(name) {
    VOTERS
 ───────────────────────────────────────────────────── */
 async function loadVoters() {
-  const res = await API.getVoters(electionId);
-  allVoters = res.voters || [];
+  // Fetch registered voters and voted IDs in parallel
+  const [voterRes, votedRes] = await Promise.all([
+    API.getVoters(electionId),
+    API.getVotedIds(electionId)
+  ]);
+
+  const voters   = voterRes.voters   || [];
+  const votedIds = new Set(votedRes.voted_ids || []);
+
+  allVoters = voters.map(v => ({
+    ...v,
+    has_voted: votedIds.has(v.voter_id)
+  }));
+
   document.getElementById('statVoters').textContent = allVoters.length;
   document.getElementById('tcVoter').textContent    = allVoters.length;
-  renderVoters(allVoters);
+
+  updateFilterCounts();
+  applyVoterFilter();
+}
+
+function updateFilterCounts() {
+  const voted   = allVoters.filter(v => v.has_voted).length;
+  const pending = allVoters.length - voted;
+  document.getElementById('fpAllCount').textContent     = allVoters.length;
+  document.getElementById('fpVotedCount').textContent   = voted;
+  document.getElementById('fpPendingCount').textContent = pending;
+}
+
+function setVoterFilter(filter, btn) {
+  voterFilter = filter;
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  applyVoterFilter();
+}
+
+function applyVoterFilter() {
+  const q = (document.getElementById('voterSearch').value || '').toLowerCase();
+  let filtered = allVoters;
+
+  // Apply voted/pending filter
+  if (voterFilter === 'voted')   filtered = filtered.filter(v => v.has_voted);
+  if (voterFilter === 'pending') filtered = filtered.filter(v => !v.has_voted);
+
+  // Apply search on top
+  if (q) {
+    filtered = filtered.filter(v =>
+      v.name.toLowerCase().includes(q) ||
+      v.voter_id.toLowerCase().includes(q) ||
+      (v.email || '').toLowerCase().includes(q)
+    );
+  }
+
+  renderVoters(filtered);
 }
 
 function renderVoters(voters) {
@@ -123,14 +173,18 @@ function renderVoters(voters) {
   if (!voters.length) {
     list.innerHTML = emptyState(
       '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
-      'No voters registered',
-      'Add voters above so they can participate in this election.'
+      voterFilter === 'voted'   ? 'No one has voted yet' :
+      voterFilter === 'pending' ? 'Everyone has voted!' :
+                                  'No voters registered',
+      voterFilter === 'voted'   ? 'Votes will appear here once voters cast their ballots.' :
+      voterFilter === 'pending' ? 'All registered voters have submitted their votes.' :
+                                  'Add voters above so they can participate in this election.'
     );
     return;
   }
   list.innerHTML = voters.map(v => `
-    <div class="voter-card">
-      <div class="voter-avatar">${esc(v.name).charAt(0).toUpperCase()}</div>
+    <div class="voter-card ${v.has_voted ? 'voter-card--voted' : ''}">
+      <div class="voter-avatar ${v.has_voted ? 'voted' : ''}">${esc(v.name).charAt(0).toUpperCase()}</div>
       <div class="voter-info">
         <strong>${esc(v.name)}</strong>
         <small>${[v.email, v.phone].filter(Boolean).map(esc).join(' · ') || 'No contact info'}</small>
@@ -138,7 +192,7 @@ function renderVoters(voters) {
       <span class="voter-id-chip">${esc(v.voter_id)}</span>
       ${v.has_voted
         ? '<span class="voted-chip"><svg viewBox="0 0 24 24" style="width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round"><polyline points="20 6 9 17 4 12"/></svg>Voted</span>'
-        : ''}
+        : '<span class="pending-chip"><svg viewBox="0 0 24 24" style="width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Pending</span>'}
       <button class="btn-danger-icon" onclick="deleteVoter('${esc(v.voter_id)}')" title="Remove voter">
         <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
@@ -147,13 +201,7 @@ function renderVoters(voters) {
 }
 
 function filterVoters() {
-  const q = document.getElementById('voterSearch').value.toLowerCase();
-  if (!q) { renderVoters(allVoters); return; }
-  renderVoters(allVoters.filter(v =>
-    v.name.toLowerCase().includes(q) ||
-    v.voter_id.toLowerCase().includes(q) ||
-    (v.email || '').toLowerCase().includes(q)
-  ));
+  applyVoterFilter();
 }
 
 async function addVoter() {

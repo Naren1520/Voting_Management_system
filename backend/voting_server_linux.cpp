@@ -1213,6 +1213,37 @@ private:
                     response = respond(r["success"].get<bool>() ? 200:400, r.dump());
                 }
 
+            // /api/elections/:id/voted  — returns voter_ids who have voted
+            } else if (segs.size()==4 && segs[1]=="elections" && segs[3]=="voted" && method=="GET") {
+                std::string elecId = segs[2];
+                std::string uid = authCtrl.validateToken(token);
+                if (uid.empty()) { response = respond(401, err("Unauthorized").dump()); }
+                else {
+                    // Verify ownership
+                    auto own = supabaseRequest("GET",
+                        "elections?select=id&id=eq."+elecId+"&user_id=eq."+uid+"&limit=1");
+                    bool owns = false;
+                    try { auto a = json::parse(own.body); owns = a.is_array() && !a.empty(); } catch(...) {}
+                    if (!owns) { response = respond(403, err("Unauthorized").dump()); }
+                    else {
+                        auto r = supabaseRequest("GET",
+                            "votes_cast?select=voter_id&election_id=eq."+elecId);
+                        try {
+                            auto arr = json::parse(r.body);
+                            json res;
+                            res["success"] = true;
+                            res["voted_ids"] = json::array();
+                            if (arr.is_array()) {
+                                for (auto& v : arr)
+                                    res["voted_ids"].push_back(v["voter_id"]);
+                            }
+                            response = respond(200, res.dump());
+                        } catch(...) {
+                            response = respond(500, err("Failed to load vote data").dump());
+                        }
+                    }
+                }
+
             // ── PUBLIC VOTE ──────────────────────────────────────────────
             // /api/vote/:election_id/candidates
             } else if (segs.size()==4 && segs[1]=="vote" && segs[3]=="candidates") {

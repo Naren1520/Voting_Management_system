@@ -633,8 +633,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .voter-search-row {
   display: flex; gap: 10px; align-items: center;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
-.voter-search-wrap { position: relative; flex: 1; }
+.voter-search-wrap { position: relative; flex: 1; min-width: 200px; }
 .voter-search-wrap svg {
   position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
   width: 15px; height: 15px; stroke: var(--ink-4); fill: none;
@@ -651,6 +652,76 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .voter-search::placeholder { color: var(--ink-4); }
 .voter-search:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,103,184,.1); }
+
+/* ----------------------------------------------------------
+   VOTER FILTER PILLS
+---------------------------------------------------------- */
+.voter-filter-pills {
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.filter-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 14px;
+  font-family: var(--font); font-size: 12.5px; font-weight: 700;
+  border: 1.5px solid var(--border);
+  border-radius: 100px;
+  background: var(--surface);
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s, box-shadow .15s;
+  white-space: nowrap;
+}
+.filter-pill svg {
+  width: 11px; height: 11px; stroke: currentColor; fill: none;
+  stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+}
+.filter-pill span {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 18px; height: 18px; padding: 0 5px;
+  background: var(--surface-2); color: var(--ink-4);
+  font-size: 10.5px; font-weight: 700;
+  border-radius: 100px;
+  transition: background .15s, color .15s;
+}
+.filter-pill:hover { border-color: #aaa; color: var(--ink); }
+
+/* Active — All */
+.filter-pill.active {
+  background: var(--ink); color: #fff;
+  border-color: var(--ink);
+}
+.filter-pill.active span { background: rgba(255,255,255,.2); color: #fff; }
+
+/* Voted variant */
+.filter-pill.voted.active {
+  background: var(--success); border-color: var(--success); color: #fff;
+}
+.filter-pill.voted:not(.active):hover { border-color: var(--success); color: var(--success); background: var(--success-light); }
+.filter-pill.voted.active span { background: rgba(255,255,255,.25); color: #fff; }
+
+/* Pending variant */
+.filter-pill.pending.active {
+  background: var(--warning); border-color: var(--warning); color: #fff;
+}
+.filter-pill.pending:not(.active):hover { border-color: var(--warning); color: var(--warning); background: var(--warning-light); }
+.filter-pill.pending.active span { background: rgba(255,255,255,.25); color: #fff; }
+
+/* ----------------------------------------------------------
+   PENDING CHIP (mirrors voted-chip style)
+---------------------------------------------------------- */
+.pending-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 700;
+  color: var(--ink-4); background: var(--surface-2);
+  padding: 3px 9px; border-radius: 100px;
+  border: 1px solid var(--border);
+}
+
+/* Voted voter card subtle highlight */
+.voter-card--voted { border-color: #bbf7d0; background: #f0fdf4; }
+.voter-card--voted .voter-avatar.voted {
+  background: var(--success-light); color: var(--success);
+}
 
 /* ----------------------------------------------------------
    RESPONSIVE

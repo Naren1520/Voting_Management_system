@@ -60,6 +60,7 @@ const API = (() => {
     syncVoters:   (elecId, voters) => req('POST',   `/api/elections/${elecId}/voters/sync`, { voters }),
     deleteVoter:  (elecId, voter_id) =>
       req('DELETE', `/api/elections/${elecId}/voters`, { voter_id }),
+    getVotedIds:  (elecId)         => req('GET',    `/api/elections/${elecId}/voted`),
 
     // Public voting (no auth)
     publicCandidates: (elecId) =>

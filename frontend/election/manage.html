@@ -191,6 +191,17 @@
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input class="voter-search" id="voterSearch" type="text" placeholder="Search voters…" oninput="filterVoters()"/>
         </div>
+        <div class="voter-filter-pills">
+          <button class="filter-pill active" id="fpAll"    onclick="setVoterFilter('all',this)">All <span id="fpAllCount">0</span></button>
+          <button class="filter-pill voted"  id="fpVoted"  onclick="setVoterFilter('voted',this)">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Voted <span id="fpVotedCount">0</span>
+          </button>
+          <button class="filter-pill pending" id="fpPending" onclick="setVoterFilter('pending',this)">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Not voted <span id="fpPendingCount">0</span>
+          </button>
+        </div>
       </div>
       <div class="section-lbl">Registered voters</div>
       <div class="voters-list" id="votersList"></div>
