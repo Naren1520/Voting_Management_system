@@ -17,11 +17,24 @@ const API = (() => {
   const req = async (method, path, body = null, auth = true) => {
     const opts = { method, headers: headers(auth) };
     if (body) opts.body = JSON.stringify(body);
+
+    // 35-second timeout — enough for Render free tier cold start (~30s).
+    // AbortController lets us cancel the fetch after the timeout.
+    const controller = new AbortController();
+    const timeoutId  = setTimeout(() => controller.abort(), 35000);
+    opts.signal = controller.signal;
+
     try {
       const res = await fetch(base() + path, opts);
+      clearTimeout(timeoutId);
       const data = await res.json();
       return data;
     } catch (e) {
+      clearTimeout(timeoutId);
+      // AbortError = our timeout fired = server still waking up
+      if (e.name === 'AbortError') {
+        return { success: false, message: 'Server is waking up — please try again in a moment.' };
+      }
       return { success: false, message: 'Network error — is the server running?' };
     }
   };
