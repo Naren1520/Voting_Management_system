@@ -2,9 +2,11 @@
 #include "../../include/core/Logger.h"
 
 #include <sys/socket.h>
+#include <sys/select.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <cerrno>
 #include <cstring>
@@ -101,13 +103,41 @@ bool RedisClient::connectSlot(int idx) {
     int fd = ::socket(res->ai_family, res->ai_socktype, res->ai_protocol);
     if (fd < 0) { ::freeaddrinfo(res); return false; }
 
-    struct timeval tv; tv.tv_sec = 0; tv.tv_usec = 200000; // 200ms timeout
-    ::setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
-    ::setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
+    // Non-blocking connect with 500ms timeout so startup doesn't stall
+    // when Redis is unavailable (blocking connect takes ~20s per slot).
+    int flags = ::fcntl(fd, F_GETFL, 0);
+    ::fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 
-    if (::connect(fd, res->ai_addr, res->ai_addrlen) < 0) {
+    int connRet = ::connect(fd, res->ai_addr, res->ai_addrlen);
+    if (connRet < 0 && errno != EINPROGRESS) {
         ::close(fd); ::freeaddrinfo(res); return false;
     }
+
+    if (connRet != 0) {
+        // Wait up to 500ms for connect to complete
+        fd_set wfds;
+        FD_ZERO(&wfds);
+        FD_SET(fd, &wfds);
+        struct timeval tv; tv.tv_sec = 0; tv.tv_usec = 500000;
+        int sel = ::select(fd + 1, nullptr, &wfds, nullptr, &tv);
+        if (sel <= 0) {
+            // Timeout or error — Redis not available
+            ::close(fd); ::freeaddrinfo(res); return false;
+        }
+        // Check if connect actually succeeded
+        int err = 0; socklen_t elen = sizeof(err);
+        ::getsockopt(fd, SOL_SOCKET, SO_ERROR, &err, &elen);
+        if (err != 0) {
+            ::close(fd); ::freeaddrinfo(res); return false;
+        }
+    }
+
+    // Restore blocking mode for normal read/write operations
+    ::fcntl(fd, F_SETFL, flags);
+    // Set read/write timeouts for normal operations
+    struct timeval tv2; tv2.tv_sec = 2; tv2.tv_usec = 0;
+    ::setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv2, sizeof(tv2));
+    ::setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &tv2, sizeof(tv2));
     ::freeaddrinfo(res);
     conns_[idx].socket = fd;
 
