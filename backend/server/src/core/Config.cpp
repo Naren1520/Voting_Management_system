@@ -12,16 +12,21 @@ void Config::load() {
     const char* key = std::getenv("SUPABASE_KEY");
 
     if (!url || std::string(url).empty()) {
-        std::cerr << "[FATAL] SUPABASE_URL environment variable is not set\n";
+        std::cout << "[FATAL] SUPABASE_URL environment variable is not set\n";
+        std::cout.flush();
         std::exit(1);
     }
     if (!key || std::string(key).empty()) {
-        std::cerr << "[FATAL] SUPABASE_KEY environment variable is not set\n";
+        std::cout << "[FATAL] SUPABASE_KEY environment variable is not set\n";
+        std::cout.flush();
         std::exit(1);
     }
 
     supabaseUrl_ = url;
     supabaseKey_ = key;
+
+    std::cout << "[Config] SUPABASE_URL loaded: " << supabaseUrl_.substr(0, 30) << "...\n";
+    std::cout.flush();
 
     const char* portEnv = std::getenv("PORT");
     if (portEnv && *portEnv) {
