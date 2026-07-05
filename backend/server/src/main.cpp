@@ -3,6 +3,7 @@
 #include "../include/db/SupabaseClient.h"
 #include "../include/cache/RedisClient.h"
 #include "../include/net/EpollServer.h"
+#include <iostream>
 #include <cstdlib>
 
 int main() {

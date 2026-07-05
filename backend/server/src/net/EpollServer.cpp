@@ -25,6 +25,7 @@
 #include <signal.h>
 #include <cerrno>
 #include <cstring>
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <thread>
