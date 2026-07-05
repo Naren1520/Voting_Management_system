@@ -60,4 +60,5 @@ WORKDIR /app
 COPY --from=builder /app/bin/voting_server .
 
 EXPOSE 8080
-CMD ["./voting_server"]
+# Redirect stderr to stdout so Render captures fatal startup errors in logs
+CMD ["/bin/sh", "-c", "echo 'Starting voting_server...' && ./voting_server 2>&1"]
