@@ -53,29 +53,61 @@ A production-grade online voting platform with a high-performance C++ backend, R
 ## Architecture
 
 ```
-                        Internet
-                           |
-                    [ Cloudflare ]
-                    CDN | DDoS | DNS
-                           |
-                      [ nginx :443 ]
-                  HTTPS | HTTP/2 | gzip
-                  least_conn upstream
-                 /    |         |    \
-           [C++] [C++]     [C++] [C++]
-            :8080  :8080   :8080  :8080
-           epoll + thread pool (cores x2)
-                 \    |         |    /
-                    [ Redis :6379 ]
-              sessions | cache | rate-limit
-                           |
-                    [ Supabase / PostgreSQL ]
-                     elections | votes | users
+                                                             Internet
+                                       │
+                                       ▼
+                              ┌─────────────────────┐
+                              │     Cloudflare      │
+                              │ CDN • DNS • DDoS    │
+                              └─────────┬───────────┘
+                                        │
+                                        ▼
+                              ┌─────────────────────┐
+                              │       nginx         │
+                              │ Reverse Proxy       │
+                              │ HTTPS • HTTP/2      │
+                              │ gzip • least_conn   │
+                              └─────────┬───────────┘
+                                        │
+                 ┌──────────────────────┼─────────────────────┐
+                 │                      │                     │
+                 ▼                      ▼                     ▼
+      ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+      │ VoteStack #1    │    │ VoteStack #2    │    │ VoteStack #3    │
+      │ C++ Backend     │    │ C++ Backend     │    │ C++ Backend     │
+      │ epoll           │    │ epoll           │    │ epoll           │
+      │ Thread Pool     │    │ Thread Pool     │    │ Thread Pool     │
+      └────────┬────────┘    └────────┬────────┘    └────────┬────────┘
+               │                       │                       │
+               └───────────────┬───────┴───────────────┬───────┘
+                               │
+                               ▼
+                     ┌─────────────────────┐
+                     │        Redis        │
+                     │ Session Cache       │
+                     │ Rate Limiting       │
+                     │ Application Cache   │
+                     └─────────┬───────────┘
+                               │
+                               ▼
+                  ┌────────────────────────────┐
+                  │  Supabase / PostgreSQL     │
+                  │ Users • Elections • Votes  │
+                  └────────────────────────────┘
+                               │
+                               ▼
 
-
-           [ Prometheus ] <-- /metrics (each instance)
-                  |
-           [ Grafana :3001 ]
+                   ┌───────────────────────┐
+                   │     Prometheus        │
+                   │ Scrapes /metrics      │
+                   │ from every instance   │
+                   └──────────┬────────────┘
+                              │
+                              ▼
+                   ┌───────────────────────┐
+                   │       Grafana         │
+                   │ Dashboards & Metrics  │
+                   └───────────────────────┘
 ```
 
 **Request flow** -- Cloudflare terminates TLS and absorbs DDoS, nginx handles HTTP/2 and routes to one of four C++ instances using `least_conn`. Each instance uses edge-triggered epoll with a thread pool. Redis handles session validation, candidate caching, and per-IP rate limiting. All vote writes go through a Postgres RPC that uses `INSERT ON CONFLICT DO NOTHING` in a single transaction, eliminating duplicate-vote races.
