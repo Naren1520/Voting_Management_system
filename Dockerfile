@@ -1,16 +1,13 @@
 # ============================================================
 # Dockerfile — VoteStack backend (Render.com deployment)
-# Multi-stage build: full Debian builder -> debian-slim runtime
 # ============================================================
 
 # ── Build stage ───────────────────────────────────────────────
 FROM debian:bookworm AS builder
 
-# Cache bust — increment this to force a full recompile
-ARG CACHE_BUST=2
-
 WORKDIR /app
 
+# Install build deps (cached — only re-runs if this layer changes)
 RUN apt-get update && \
     apt-get install -y \
         g++ \
@@ -20,10 +17,12 @@ RUN apt-get update && \
         ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
+# Copy source — Docker invalidates cache here when any source file changes
 COPY backend/server/include/     ./include/
 COPY backend/server/src/         ./src/
 COPY backend/server/third_party/ ./third_party/
 
+# Compile — runs whenever source files above change
 RUN mkdir -p bin && \
     g++ -std=c++17 -O2 -Wall -pthread \
         src/main.cpp \
@@ -60,8 +59,5 @@ RUN apt-get update && \
 WORKDIR /app
 COPY --from=builder /app/bin/voting_server .
 
-# Render injects PORT automatically — the server reads it from env.
-# Default is 8080 if PORT is not set.
 EXPOSE 8080
-
 CMD ["./voting_server"]

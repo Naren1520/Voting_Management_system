@@ -9,10 +9,15 @@ int main() {
     // Load env config (exits on missing SUPABASE_URL / SUPABASE_KEY)
     Config::instance().load();
 
-    // Fix #7: open log file for persistent logging.
-    // Set LOG_FILE env var to change path (default: server.log).
+    // Open log file. LOG_FILE env var overrides the path.
+    // On Render/cloud: set LOG_FILE to empty string to skip file logging
+    // (stdout is captured by the platform). Default to server.log locally.
     const char* logFile = std::getenv("LOG_FILE");
-    Logger::instance().openFile(logFile ? logFile : "server.log");
+    // Only open a file if LOG_FILE is explicitly set to a non-empty path
+    if (logFile && std::string(logFile).size() > 0) {
+        Logger::instance().openFile(logFile);
+    }
+    // Otherwise log to stdout only — safe on read-only filesystems
 
     // Init Redis connection (optional — graceful degradation if unavailable)
     RedisClient::instance().init();
