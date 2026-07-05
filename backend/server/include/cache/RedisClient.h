@@ -55,9 +55,10 @@ private:
 
     // Pool size must cover the thread-pool worker count (hardware_concurrency × 2,
     // min 4). 32 covers up to a 16-core box with headroom.
-    static constexpr int POOL_SIZE = 32;
+    // On Render free tier (1 CPU), 8 is enough and avoids 64s startup delay.
+    static constexpr int POOL_SIZE = 8;
 
-    std::array<Conn, POOL_SIZE> conns_{};  // fixed-size array matches constant
+    std::array<Conn, POOL_SIZE> conns_{};
 
     int  acquireConn();
     void releaseConn(int idx);
@@ -78,8 +79,7 @@ private:
 
     mutable std::mutex        poolMutex_;
     std::condition_variable   poolCv_;
-    // conns_ declared above with std::array<Conn, POOL_SIZE>
-    std::atomic<bool>         available_{false};   // Fix #6
+    std::atomic<bool>         available_{false};
     std::string               host_{"127.0.0.1"};
     int                       port_{6379};
     std::string               password_;

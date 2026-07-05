@@ -101,7 +101,7 @@ bool RedisClient::connectSlot(int idx) {
     int fd = ::socket(res->ai_family, res->ai_socktype, res->ai_protocol);
     if (fd < 0) { ::freeaddrinfo(res); return false; }
 
-    struct timeval tv; tv.tv_sec = 2; tv.tv_usec = 0;
+    struct timeval tv; tv.tv_sec = 0; tv.tv_usec = 200000; // 200ms timeout
     ::setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
     ::setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
 
