@@ -127,9 +127,12 @@ void EpollServer::startCleanupTimer() {
 bool EpollServer::start() {
     ::signal(SIGPIPE, SIG_IGN);
 
+    std::cout << "[EpollServer] start() called, port=" << port_ << "\n"; std::cout.flush();
+
     // Listen socket
     listenFd_ = ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
     if (listenFd_ < 0) { LOG_ERROR("socket() failed: " + std::string(strerror(errno))); return false; }
+    std::cout << "[EpollServer] socket() ok\n"; std::cout.flush();
     setSocketOptions(listenFd_);
 
     sockaddr_in addr{};
@@ -141,14 +144,18 @@ bool EpollServer::start() {
         LOG_ERROR("bind() failed: " + std::string(strerror(errno)));
         return false;
     }
+    std::cout << "[EpollServer] bind() ok\n"; std::cout.flush();
+
     if (::listen(listenFd_, SOMAXCONN) < 0) {
         LOG_ERROR("listen() failed: " + std::string(strerror(errno)));
         return false;
     }
+    std::cout << "[EpollServer] listen() ok\n"; std::cout.flush();
 
     // epoll
     epollFd_ = ::epoll_create1(EPOLL_CLOEXEC);
     if (epollFd_ < 0) { LOG_ERROR("epoll_create1() failed"); return false; }
+    std::cout << "[EpollServer] epoll_create1() ok\n"; std::cout.flush();
 
     epoll_event ev{};
     ev.events  = EPOLLIN | EPOLLET;
