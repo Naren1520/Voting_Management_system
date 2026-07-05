@@ -10,9 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
   loadSessions();
 });
 
-/* ----------------------------------------------------------
+/* 
    Load & render sessions
----------------------------------------------------------- */
+ */
 async function loadSessions() {
   showLoading(true);
   const res = await API.getSessions();
@@ -95,9 +95,9 @@ function buildCard(s) {
     </div>`;
 }
 
-/* ----------------------------------------------------------
+/* 
    Revoke single session
----------------------------------------------------------- */
+ */
 async function revokeOne(sessionId) {
   const btn = document.getElementById(`revoke-${sessionId}`);
   if (btn) { btn.disabled = true; btn.textContent = 'Signing out…'; }
@@ -120,9 +120,9 @@ async function revokeOne(sessionId) {
   }
 }
 
-/* ----------------------------------------------------------
+/* 
    Revoke all other sessions
----------------------------------------------------------- */
+ */
 async function revokeAll() {
   const btn = document.getElementById('revokeAllBtn');
   if (btn) { btn.disabled = true; btn.textContent = 'Signing out…'; }
@@ -138,9 +138,9 @@ async function revokeAll() {
   }
 }
 
-/* ----------------------------------------------------------
+/* 
    Check if list is now empty after removals
----------------------------------------------------------- */
+ */
 function checkEmpty() {
   const list  = document.getElementById('sessList');
   const cards = list?.querySelectorAll('.sess-card');
@@ -164,9 +164,9 @@ function checkEmpty() {
   if (revokeAllBtn) revokeAllBtn.style.display = others.length === 0 ? 'none' : '';
 }
 
-/* ----------------------------------------------------------
+/* 
    Device icon helper — picks desktop, mobile, or tablet SVG
----------------------------------------------------------- */
+ */
 function getDeviceIcon(device) {
   const d = device.toLowerCase();
   if (d.includes('android') || d.includes('iphone')) {
@@ -181,17 +181,17 @@ function getDeviceIcon(device) {
   return `<svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>`;
 }
 
-/* ----------------------------------------------------------
+/* 
    Loading
----------------------------------------------------------- */
+ */
 function showLoading(show) {
   const el = document.getElementById('sessLoading');
   if (el) el.style.display = show ? 'block' : 'none';
 }
 
-/* ----------------------------------------------------------
+/* 
    Toast
----------------------------------------------------------- */
+ */
 let toastTimer = null;
 function showToast(msg, type = 'success') {
   const t = document.getElementById('sessToast');
@@ -202,9 +202,9 @@ function showToast(msg, type = 'success') {
   toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
 }
 
-/* ----------------------------------------------------------
+/* 
    Helpers
----------------------------------------------------------- */
+ */
 function formatDate(d) {
   if (!d) return '—';
   return new Date(d).toLocaleString('en-GB', {

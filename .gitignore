@@ -1,9 +1,52 @@
-# Compiled binaries (Windows)
+
+#  Compiled binaries
 backend/voting_server.exe
+backend/voting_server*.exe
+backend/server/bin/
+
+# ── Obsolete monolith sources (superseded by backend/server/) ─
+# These are the original single-file Windows/Linux server builds.
+# The modular server under backend/server/ is the active codebase.
+backend/voting_server.cpp
+backend/voting_server_linux.cpp
+
+#  Duplicate third-party header 
+# Canonical copy is backend/server/third_party/json.hpp
+backend/json.hpp
+
+# ── Root Dockerfile — needed by Render.com for deployment ─────
+# Keep tracked. The docker/ folder has separate images for
+# local Docker Compose (Dockerfile.server, Dockerfile.nginx).
+# Dockerfile   <-- intentionally tracked, do NOT add here
+
+# ── render.yaml — needed by Render.com for deployment ─────────
+# Keep tracked. Defines the web service + managed Redis.
+# render.yaml   <-- intentionally tracked, do NOT add here
+
+#  Old Windows dev launcher (for the monolith)
+run.bat
+run.txt
+
+# editor files
+.vscode/
+.hintrc
+
+#Planning / documentation scratch files
+multihandling.md
+DEPLOYMENT.md
 
 # OS files
 .DS_Store
 Thumbs.db
 
-run.txt
-.vscode
+#  Environment secrets 
+.env
+
+#  Docker volume data (written at runtime, not source) 
+prometheus_data/
+grafana_data/
+
+#Load test output
+load-test/results.json
+load-test/*.csv
+load-test/*.json

@@ -2,6 +2,9 @@
 .git
 .gitignore
 
+# Environment secrets
+.env
+
 # Frontend (not needed in backend image)
 frontend/
 
@@ -23,3 +26,9 @@ run.txt
 # Render/deployment config (not needed inside image)
 render.yaml
 Dockerfile
+
+# Load test scripts (not needed in image)
+load-test/
+
+# Monitoring configs (not needed in image)
+monitoring/

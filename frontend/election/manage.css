@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap');
 
-/* ----------------------------------------------------------
+/* 
    TOKENS 
----------------------------------------------------------- */
+ */
 :root {
   --blue:        #0067b8;
   --blue-dark:   #005196;
@@ -38,9 +38,9 @@
   --font:        'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* ----------------------------------------------------------
+/* 
    RESET
----------------------------------------------------------- */
+ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; overscroll-behavior-y: none; }
 body {
@@ -69,9 +69,9 @@ a    { text-decoration: none; color: inherit; }
 ul   { list-style: none; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; }
 
-/* ----------------------------------------------------------
+/* 
    HEADER
----------------------------------------------------------- */
+ */
 .mn-header {
   position: sticky; top: 0; z-index: 200;
   height: 66px;
@@ -94,9 +94,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .mn-brand img { width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,.15); }
 .mn-header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
 
-/* ----------------------------------------------------------
+/* 
    HEADER BUTTONS
----------------------------------------------------------- */
+ */
 .btn-back {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 8px 14px;
@@ -117,17 +117,17 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .btn-logout svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .btn-logout:hover { border-color: var(--ink-3); color: var(--ink); background: var(--surface-2); }
 
-/* ----------------------------------------------------------
+/* 
    PAGE
----------------------------------------------------------- */
+ */
 .mn-page {
   max-width: 1280px; margin: 0 auto;
   padding: 36px 32px 64px;
 }
 
-/* ----------------------------------------------------------
+/* 
    ELECTION HERO BANNER
----------------------------------------------------------- */
+ */
 .election-hero {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -152,9 +152,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .election-hero-left p { font-size: .875rem; color: var(--ink-4); }
 .election-hero-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 
-/* ----------------------------------------------------------
+/* 
    STATUS BADGE
----------------------------------------------------------- */
+ */
 .status-badge {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 6px 14px; border-radius: 100px;
@@ -178,9 +178,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   border: 1px solid var(--border);
 }
 
-/* ----------------------------------------------------------
+/* 
    SHARE BANNER
----------------------------------------------------------- */
+ */
 .share-banner {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -214,9 +214,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .share-url-pill:hover { border-color: var(--blue-mid); background: var(--blue-light); }
 
-/* ----------------------------------------------------------
+/* 
    STATS STRIP
----------------------------------------------------------- */
+ */
 .mn-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -262,9 +262,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .mn-stat-num { font-size: 1.75rem; font-weight: 800; letter-spacing: -.04em; color: var(--ink); line-height: 1; }
 .mn-stat-lbl { font-size: .8rem; color: var(--ink-4); font-weight: 500; margin-top: 3px; }
 
-/* ----------------------------------------------------------
+/* 
    TABS
----------------------------------------------------------- */
+ */
 .mn-tabs {
   display: flex; gap: 4px;
   border-bottom: 1px solid var(--border);
@@ -296,9 +296,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .mn-panel { display: none; }
 .mn-panel.active { display: block; }
 
-/* ----------------------------------------------------------
+/* 
    PANEL SECTION HEADER
----------------------------------------------------------- */
+ */
 .panel-header {
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 20px; gap: 12px; flex-wrap: wrap;
@@ -306,9 +306,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .panel-header h2 { font-size: 1.1rem; font-weight: 700; color: var(--ink); }
 .panel-header p  { font-size: .85rem; color: var(--ink-4); margin-top: 2px; }
 
-/* ----------------------------------------------------------
+/* 
    ADD FORMS
----------------------------------------------------------- */
+ */
 .add-form-row {
   display: flex; gap: 10px; margin-bottom: 24px;
 }
@@ -342,9 +342,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .mn-input::placeholder { color: var(--ink-4); }
 .mn-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,103,184,.1); }
 
-/* ----------------------------------------------------------
+/* 
    BUTTONS
----------------------------------------------------------- */
+ */
 .btn-primary {
   display: inline-flex; align-items: center; justify-content: center; gap: 7px;
   padding: 10px 20px;
@@ -402,9 +402,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .btn-danger-icon svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .btn-danger-icon:hover { background: var(--danger-light); color: var(--danger); border-color: #fca5a5; }
 
-/* ----------------------------------------------------------
+/* 
    MESSAGE / ALERT
----------------------------------------------------------- */
+ */
 .mn-msg {
   display: none;
   padding: 10px 14px; border-radius: var(--radius-md);
@@ -416,9 +416,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .mn-msg.error   { background: var(--danger-light);  color: var(--danger);  border-color: #fca5a5; }
 .mn-msg.success { background: var(--success-light); color: var(--success); border-color: #86efac; }
 
-/* ----------------------------------------------------------
+/* 
    CANDIDATE CARDS LIST
----------------------------------------------------------- */
+ */
 .candidates-list { display: flex; flex-direction: column; gap: 8px; }
 .candidate-card {
   display: flex; align-items: center;
@@ -461,9 +461,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   min-width: 28px; text-align: right;
 }
 
-/* ----------------------------------------------------------
+/* 
    VOTER CARDS LIST
----------------------------------------------------------- */
+ */
 .voters-list { display: flex; flex-direction: column; gap: 8px; }
 .voter-card {
   display: flex; align-items: center;
@@ -517,9 +517,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   border: 1px solid #bbf7d0;
 }
 
-/* ----------------------------------------------------------
+/* 
    RESULTS PANEL
----------------------------------------------------------- */
+ */
 .results-grid {
   display: grid;
   grid-template-columns: 1fr 380px;
@@ -581,9 +581,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .results-total-left p  { font-size: .85rem; color: var(--ink-4); margin-top: 4px; }
 .results-total-right { display: flex; align-items: center; }
 
-/* ----------------------------------------------------------
+/* 
    EMPTY STATE
----------------------------------------------------------- */
+ */
 .mn-empty {
   background: var(--surface);
   border: 1.5px dashed var(--border);
@@ -600,9 +600,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .mn-empty h3 { font-size: 1.05rem; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
 .mn-empty p  { font-size: .875rem; color: var(--ink-3); }
 
-/* ----------------------------------------------------------
+/* 
    TOAST
----------------------------------------------------------- */
+ */
 .mn-toast {
   position: fixed; bottom: 28px; right: 28px; z-index: 600;
   display: flex; align-items: center; gap: 10px;
@@ -618,18 +618,18 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .mn-toast.show { transform: translateY(0); opacity: 1; }
 .mn-toast svg { width: 15px; height: 15px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 
-/* ----------------------------------------------------------
+/* 
    SECTION DIVIDER LABEL
----------------------------------------------------------- */
+ */
 .section-lbl {
   font-size: 11px; font-weight: 700;
   text-transform: uppercase; letter-spacing: .08em;
   color: var(--ink-4); margin-bottom: 14px;
 }
 
-/* ----------------------------------------------------------
+/* 
    VOTER SEARCH BAR
----------------------------------------------------------- */
+ */
 .voter-search-row {
   display: flex; gap: 10px; align-items: center;
   margin-bottom: 20px;
@@ -653,9 +653,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .voter-search::placeholder { color: var(--ink-4); }
 .voter-search:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,103,184,.1); }
 
-/* ----------------------------------------------------------
+/* 
    VOTER FILTER PILLS
----------------------------------------------------------- */
+ */
 .voter-filter-pills {
   display: flex; gap: 6px; flex-wrap: wrap;
 }
@@ -706,9 +706,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .filter-pill.pending:not(.active):hover { border-color: var(--warning); color: var(--warning); background: var(--warning-light); }
 .filter-pill.pending.active span { background: rgba(255,255,255,.25); color: #fff; }
 
-/* ----------------------------------------------------------
+/* 
    PENDING CHIP (mirrors voted-chip style)
----------------------------------------------------------- */
+ */
 .pending-chip {
   display: inline-flex; align-items: center; gap: 4px;
   font-size: 11px; font-weight: 700;
@@ -723,9 +723,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   background: var(--success-light); color: var(--success);
 }
 
-/* ----------------------------------------------------------
+/* 
    RESPONSIVE
----------------------------------------------------------- */
+ */
 @media (max-width: 900px) {
   .mn-stats { grid-template-columns: repeat(2, 1fr); }
   .mn-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; flex-wrap: nowrap; }

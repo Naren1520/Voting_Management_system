@@ -17015,7 +17015,7 @@ boundaries compute_boundaries(FloatType value)
     // between m- and m+ round to v, regardless of how the input rounding
     // algorithm breaks ties.
     //
-    //      ---+-------------+-------------+-------------+-------------+---  (A)
+    //      ---+-------------+-----------+-------------+-------------+---  (A)
     //         v-            m-            v             m+            v+
     //
     //      -----------------+------+------+-------------+-------------+---  (B)

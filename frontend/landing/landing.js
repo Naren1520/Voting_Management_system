@@ -1,6 +1,6 @@
-/* ==========================================================
+/* 
    VoteStack Landing — Premium Scroll Effects
-   ========================================================== */
+    */
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -26,9 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
-/* ----------------------------------------------------------
+/* 
    HEADER — scroll shadow + colour swap
----------------------------------------------------------- */
+ */
 function initHeader() {
   const header = document.getElementById('header');
   if (!header) return;
@@ -51,9 +51,9 @@ function initHeader() {
   });
 }
 
-/* ----------------------------------------------------------
+/* 
    MOBILE MENU
----------------------------------------------------------- */
+ */
 function initMobileMenu() {
   const burger = document.getElementById('burger');
   const drawer = document.getElementById('mobileDrawer');
@@ -84,9 +84,9 @@ function closeMobileMenu() {
   drawer.setAttribute('aria-hidden', 'true');
 }
 
-/* ----------------------------------------------------------
+/* 
    SCROLL PROGRESS BAR
----------------------------------------------------------- */
+ */
 function initScrollProgress() {
   const bar = document.createElement('div');
   bar.className = 'scroll-progress';
@@ -101,9 +101,9 @@ function initScrollProgress() {
   update();
 }
 
-/* ----------------------------------------------------------
+/* 
    AOS — base fade-up + variant support
----------------------------------------------------------- */
+ */
 function initAOS() {
   const els = document.querySelectorAll('[data-aos]');
   if (!els.length) return;
@@ -125,10 +125,10 @@ function initAOS() {
   els.forEach(el => io.observe(el));
 }
 
-/* ----------------------------------------------------------
+/* 
    STAGGER — [data-stagger] containers
    Children animate in with cascading delays
----------------------------------------------------------- */
+ */
 function initStagger() {
   const groups = document.querySelectorAll('[data-stagger]');
   if (!groups.length) return;
@@ -145,10 +145,10 @@ function initStagger() {
   groups.forEach(g => io.observe(g));
 }
 
-/* ----------------------------------------------------------
+/* 
    SPOTLIGHT SLIDE — content in from left, image from right
    (and reverse for the alternating spotlight)
----------------------------------------------------------- */
+ */
 function initSpotlightSlide() {
   const spotlights = document.querySelectorAll('.spotlight');
   if (!spotlights.length) return;
@@ -180,9 +180,9 @@ function initSpotlightSlide() {
   });
 }
 
-/* ----------------------------------------------------------
+/* 
    STEP REVEAL — left border line draws down
----------------------------------------------------------- */
+ */
 function initStepReveal() {
   const steps = document.querySelectorAll('.step');
   if (!steps.length) return;
@@ -199,9 +199,9 @@ function initStepReveal() {
   steps.forEach(s => io.observe(s));
 }
 
-/* ----------------------------------------------------------
+/* 
    SECTION LABELS — wipe reveal effect
----------------------------------------------------------- */
+ */
 function initSectionLabels() {
   const labels = document.querySelectorAll('.section-label');
   if (!labels.length) return;
@@ -218,9 +218,9 @@ function initSectionLabels() {
   labels.forEach(l => io.observe(l));
 }
 
-/* ----------------------------------------------------------
+/* 
    SECTION TITLE LINES — underline expands on scroll
----------------------------------------------------------- */
+ */
 function initSectionTitleLines() {
   document.querySelectorAll('.section-title').forEach(title => {
     // Insert a line element after the title
@@ -241,9 +241,9 @@ function initSectionTitleLines() {
   });
 }
 
-/* ----------------------------------------------------------
+/* 
    VIDEO FRAME — scale + fade reveal
----------------------------------------------------------- */
+ */
 function initVideoReveal() {
   const frame = document.querySelector('.video-frame');
   if (!frame) return;
@@ -260,9 +260,9 @@ function initVideoReveal() {
   io.observe(frame);
 }
 
-/* ----------------------------------------------------------
+/* 
    COMPLIANCE BADGES — staggered pop in
----------------------------------------------------------- */
+ */
 function initComplianceBadges() {
   const row = document.querySelector('.compliance-row');
   if (!row) return;
@@ -283,9 +283,9 @@ function initComplianceBadges() {
   io.observe(row);
 }
 
-/* ----------------------------------------------------------
+/* 
    FEAT CARDS — 3D tilt on mouse move (desktop only)
----------------------------------------------------------- */
+ */
 function initFeatCards3D() {
   if (window.matchMedia('(hover: none)').matches) return; // skip touch
 
@@ -310,9 +310,9 @@ function initFeatCards3D() {
   });
 }
 
-/* ----------------------------------------------------------
+/* 
    PARALLAX — [data-parallax] elements
----------------------------------------------------------- */
+ */
 function initParallax() {
   const els = document.querySelectorAll('[data-parallax]');
   if (!els.length) return;
@@ -339,9 +339,9 @@ function initParallax() {
   update();
 }
 
-/* ----------------------------------------------------------
+/* 
    COUNTERS — animate stat numbers when they scroll into view
----------------------------------------------------------- */
+ */
 function initCounters() {
   // Map display text → target number + suffix
   const STATS = [
@@ -388,9 +388,9 @@ function animateCounter(el, { end, decimals = 0, prefix = '', suffix = '' }) {
   requestAnimationFrame(tick);
 }
 
-/* ----------------------------------------------------------
+/* 
    FAQ — native <details>, refresh icons
----------------------------------------------------------- */
+ */
 function initFAQ() {
   document.querySelectorAll('.faq-item').forEach(item => {
     item.addEventListener('toggle', () => {
@@ -399,9 +399,9 @@ function initFAQ() {
   });
 }
 
-/* ----------------------------------------------------------
+/* 
    VIDEO — play/pause toggle
----------------------------------------------------------- */
+ */
 function initVideo() {
   const video   = document.querySelector('.video-frame video');
   const overlay = document.getElementById('videoOverlay');
@@ -432,9 +432,9 @@ function initVideo() {
   video.addEventListener('play',  updateIcon);
 }
 
-/* ----------------------------------------------------------
+/* 
    AUTH STATE — swap CTA if already logged in
----------------------------------------------------------- */
+ */
 function initAuthState() {
   if (typeof Auth === 'undefined' || !Auth.isLoggedIn()) return;
   const user  = Auth.user();

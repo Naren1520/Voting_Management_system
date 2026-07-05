@@ -1,9 +1,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&display=swap');
 
-/* ----------------------------------------------------------
-   TOKENS
----------------------------------------------------------- */
 :root {
   --blue:       #0067b8;
   --blue-dark:  #005196;
@@ -26,9 +23,9 @@
   --font:       'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* ----------------------------------------------------------
-   RESET
----------------------------------------------------------- */
+
+   /* RESET */
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body {
   height: 100%;
@@ -46,9 +43,7 @@ img     { display: block; max-width: 100%; }
 a       { text-decoration: none; color: inherit; }
 button  { font-family: inherit; cursor: pointer; border: none; background: none; }
 
-/* ----------------------------------------------------------
-   ROOT LAYOUT — full viewport, two equal columns
----------------------------------------------------------- */
+/* ROOT LAYOUT — full viewport, two equal columns */
 .auth-layout {
   height: 100vh;
   display: grid;
@@ -56,9 +51,7 @@ button  { font-family: inherit; cursor: pointer; border: none; background: none;
   overflow: hidden;
 }
 
-/* ----------------------------------------------------------
-   LEFT PANEL
----------------------------------------------------------- */
+/*  LEFT PANEL */
 .auth-panel-left {
   position: relative;
   background: #111;
@@ -178,9 +171,9 @@ button  { font-family: inherit; cursor: pointer; border: none; background: none;
 .auth-quote-name  { font-size: .8125rem; font-weight: 700; color: #fff; }
 .auth-quote-role  { font-size: .75rem;   color: rgba(255,255,255,.4); }
 
-/* ----------------------------------------------------------
+/* 
    RIGHT PANEL
----------------------------------------------------------- */
+ */
 .auth-panel-right {
   display: flex; align-items: center; justify-content: center;
   padding: 32px 40px;
@@ -205,9 +198,9 @@ button  { font-family: inherit; cursor: pointer; border: none; background: none;
   position: relative; z-index: 1;
 }
 
-/* ----------------------------------------------------------
+/* 
    FORM HEADER  (compact — inside the wrap, above glass card)
----------------------------------------------------------- */
+ */
 .auth-form-header {
   margin-bottom: 16px;
   text-align: center;
@@ -254,9 +247,9 @@ button  { font-family: inherit; cursor: pointer; border: none; background: none;
   pointer-events: none;
 }
 
-/* ----------------------------------------------------------
+/* 
    FORM
----------------------------------------------------------- */
+ */
 .auth-form {
   display: flex; flex-direction: column; gap: 16px;
   position: relative;
@@ -321,9 +314,9 @@ button  { font-family: inherit; cursor: pointer; border: none; background: none;
 .strength-label.medium { color: #f59f00; }
 .strength-label.strong { color: #1b9e5e; }
 
-/* ----------------------------------------------------------
+/* 
    SUBMIT BUTTON
----------------------------------------------------------- */
+ */
 .auth-submit-btn {
   width: 100%;
   display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -359,9 +352,9 @@ button  { font-family: inherit; cursor: pointer; border: none; background: none;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ----------------------------------------------------------
+/* 
    DIVIDER + SWITCH
----------------------------------------------------------- */
+ */
 .auth-divider {
   display: flex; align-items: center; gap: 12px;
   color: var(--ink-4); font-size: 12px; font-weight: 500;
@@ -378,9 +371,9 @@ button  { font-family: inherit; cursor: pointer; border: none; background: none;
 .auth-switch a { color: var(--blue); font-weight: 700; transition: color .15s; }
 .auth-switch a:hover { color: var(--blue-dark); text-decoration: underline; }
 
-/* ----------------------------------------------------------
+/* 
    STATUS MESSAGE  (hidden until triggered)
----------------------------------------------------------- */
+ */
 .auth-msg {
   display: none;
   padding: 10px 14px;
@@ -397,9 +390,9 @@ button  { font-family: inherit; cursor: pointer; border: none; background: none;
 .auth-msg.success { background: #f0faf4; color: #1b6e3e; border-color: #a8d5bc; }
 .auth-msg.error   { background: #fdf2f2; color: #b91c1c; border-color: #f5c2c2; }
 
-/* ----------------------------------------------------------
+/* 
    BACK LINK  (below the glass card)
----------------------------------------------------------- */
+ */
 .auth-back-link {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   width: 100%;
@@ -417,10 +410,10 @@ button  { font-family: inherit; cursor: pointer; border: none; background: none;
 .auth-legal a { color: var(--blue); font-weight: 600; }
 .auth-legal a:hover { text-decoration: underline; }
 
-/* ----------------------------------------------------------
+/* 
    RESPONSIVE — single column below 860 px
    Compact dark hero header + card slides up over it
----------------------------------------------------------- */
+ */
 @media (max-width: 860px) {
   html, body { overflow: auto; height: auto; }
 

@@ -1,0 +1,107 @@
+# ============================================================
+# alert_rules.yml — Prometheus alerting rules for VoteStack
+# ============================================================
+
+groups:
+  - name: votestack_backend
+    interval: 30s
+    rules:
+
+      # Backend instance down
+      - alert: BackendInstanceDown
+        expr: up{job="votestack_backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Backend instance {{ $labels.instance }} is down"
+          description: "C++ server {{ $labels.instance }} has been unreachable for > 1 minute."
+
+      # High error rate (5xx > 5%)
+      - alert: HighErrorRate
+        expr: |
+          rate(http_requests_total{job="votestack_backend", status=~"5.."}[5m])
+          /
+          rate(http_requests_total{job="votestack_backend"}[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High 5xx error rate on {{ $labels.instance }}"
+          description: "Error rate is {{ $value | humanizePercentage }} over the last 5 minutes."
+
+      # P99 latency > 2s
+      - alert: HighLatency
+        expr: |
+          histogram_quantile(0.99,
+            rate(http_request_duration_seconds_bucket{job="votestack_backend"}[5m])
+          ) > 2.0
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "P99 latency is high on {{ $labels.instance }}"
+          description: "P99 latency is {{ $value }}s (threshold: 2s)."
+
+  - name: redis
+    rules:
+
+      # Redis down
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis is down"
+          description: "Redis has been unreachable for > 1 minute."
+
+      # Redis memory > 80%
+      - alert: RedisHighMemory
+        expr: |
+          redis_memory_used_bytes / redis_memory_max_bytes > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis memory usage is high"
+          description: "Redis is using {{ $value | humanizePercentage }} of max memory."
+
+  - name: nginx
+    rules:
+
+      # nginx down
+      - alert: NginxDown
+        expr: up{job="nginx"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "nginx is down"
+          description: "nginx exporter has been unreachable for > 1 minute."
+
+  - name: host
+    rules:
+
+      # Host CPU > 85%
+      - alert: HighCPU
+        expr: |
+          100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU usage is high on {{ $labels.instance }}"
+          description: "CPU is at {{ $value }}% for the last 5 minutes."
+
+      # Host memory > 90%
+      - alert: HighMemory
+        expr: |
+          (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes)
+          / node_memory_MemTotal_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Memory usage is high on {{ $labels.instance }}"
+          description: "Memory is at {{ $value | humanizePercentage }}."

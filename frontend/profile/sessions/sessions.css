@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap');
 
-/* ----------------------------------------------------------
+/* 
    TOKENS
----------------------------------------------------------- */
+ */
 :root {
   --blue:         #0067b8;
   --blue-dark:    #005196;
@@ -37,9 +37,9 @@
   --font: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* ----------------------------------------------------------
+/* 
    RESET
----------------------------------------------------------- */
+ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; overscroll-behavior-y: none; }
 body {
@@ -67,9 +67,9 @@ img    { display: block; max-width: 100%; }
 a      { text-decoration: none; color: inherit; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; }
 
-/* ----------------------------------------------------------
+/* 
    HEADER
----------------------------------------------------------- */
+ */
 .sess-header {
   position: sticky; top: 0; z-index: 200;
   height: 66px;
@@ -106,17 +106,17 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .btn-back svg { width: 14px; height: 14px; }
 .btn-back:hover { border-color: var(--ink-3); color: var(--ink); background: var(--surface-2); transform: translateX(-2px); }
 
-/* ----------------------------------------------------------
+/* 
    PAGE
----------------------------------------------------------- */
+ */
 .sess-page {
   max-width: 860px; margin: 0 auto;
   padding: 40px 32px 80px;
 }
 
-/* ----------------------------------------------------------
+/* 
    TITLE ROW
----------------------------------------------------------- */
+ */
 .sess-title-row {
   display: flex; align-items: center; gap: 18px;
   margin-bottom: 32px; flex-wrap: wrap;
@@ -151,9 +151,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .btn-revoke-all:hover { background: #fee2e2; border-color: var(--danger); transform: translateY(-1px); }
 .btn-revoke-all:disabled { opacity: .5; cursor: not-allowed; transform: none; }
 
-/* ----------------------------------------------------------
+/* 
    LOADING
----------------------------------------------------------- */
+ */
 .sess-loading {
   text-align: center; padding: 80px 24px;
   color: var(--ink-4);
@@ -167,16 +167,16 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ----------------------------------------------------------
+/* 
    SESSION LIST
----------------------------------------------------------- */
+ */
 .sess-list {
   display: flex; flex-direction: column; gap: 12px;
 }
 
-/* ----------------------------------------------------------
+/* 
    SESSION CARD
----------------------------------------------------------- */
+ */
 .sess-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -293,9 +293,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .btn-revoke:hover { background: var(--danger-light); color: var(--danger); border-color: #fca5a5; }
 .btn-revoke:disabled { opacity: .4; cursor: not-allowed; }
 
-/* ----------------------------------------------------------
+/* 
    EMPTY STATE
----------------------------------------------------------- */
+ */
 .sess-empty {
   background: var(--surface);
   border: 1.5px dashed var(--border);
@@ -312,9 +312,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .sess-empty h3 { font-size: 1.1rem; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
 .sess-empty p  { font-size: .9rem; color: var(--ink-3); }
 
-/* ----------------------------------------------------------
+/* 
    TOAST
----------------------------------------------------------- */
+ */
 .sess-toast {
   position: fixed; bottom: 28px; right: 28px; z-index: 600;
   display: flex; align-items: center; gap: 10px;
@@ -331,9 +331,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .sess-toast.error { background: var(--danger); }
 .sess-toast svg { width: 15px; height: 15px; flex-shrink: 0; }
 
-/* ----------------------------------------------------------
+/* 
    RESPONSIVE
----------------------------------------------------------- */
+ */
 @media (max-width: 640px) {
   .sess-page { padding: 24px 16px 60px; }
   .sess-header-inner { padding: 0 16px; }

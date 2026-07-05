@@ -1,0 +1,396 @@
+# ============================================================
+# docker-compose.yml — VoteStack full-stack orchestration
+# Step 10: Containerize C++ server, Redis, nginx
+# Step 11: Multiple backend instances (4 replicas)
+# Step 11: Prometheus + node_exporter + redis_exporter + nginx-exporter
+# ============================================================
+
+version: "3.9"
+
+# ── Shared env for all backend instances ────────────────────────────────────
+x-server-env: &server-env
+  SUPABASE_URL:          ${SUPABASE_URL}
+  SUPABASE_KEY:          ${SUPABASE_KEY}
+  REDIS_URL:             redis://redis:6379
+  PORT:                  "8080"
+  RATE_LIMIT_REQUESTS:   "100"
+  RATE_LIMIT_WINDOW_SEC: "60"
+  LOG_FILE:              "/app/logs/server.log"
+  # Restrict CORS to your actual frontend origin(s).
+  # Override in .env: ALLOWED_ORIGINS=https://your-app.netlify.app
+  ALLOWED_ORIGINS:       ${ALLOWED_ORIGINS:-https://votestack.netlify.app,http://localhost:3000}
+
+services:
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Step 10: Redis — session cache, candidate cache, rate limiting
+  # ──────────────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7.2-alpine
+    container_name: votestack_redis
+    restart: unless-stopped
+    command: >
+      redis-server
+        --maxmemory 256mb
+        --maxmemory-policy allkeys-lru
+        --save ""
+        --appendonly no
+        --tcp-keepalive 60
+        --timeout 300
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Step 11: C++ voting server instances (scale with least_conn upstream)
+  # Run 4 replicas — nginx distributes with least_conn.
+  # Each instance uses SO_REUSEPORT so they can all bind port 8080 internally.
+  # ──────────────────────────────────────────────────────────────────────────
+  voting_server_1:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.server
+    container_name: votestack_server_1
+    restart: unless-stopped
+    environment:
+      <<: *server-env
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - backend
+    volumes:
+      - server_logs:/app/logs
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 512M
+        reservations:
+          cpus: "0.5"
+          memory: 128M
+
+  voting_server_2:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.server
+    container_name: votestack_server_2
+    restart: unless-stopped
+    environment:
+      <<: *server-env
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - backend
+    volumes:
+      - server_logs:/app/logs
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 512M
+        reservations:
+          cpus: "0.5"
+          memory: 128M
+
+  voting_server_3:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.server
+    container_name: votestack_server_3
+    restart: unless-stopped
+    environment:
+      <<: *server-env
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - backend
+    volumes:
+      - server_logs:/app/logs
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 512M
+        reservations:
+          cpus: "0.5"
+          memory: 128M
+
+  voting_server_4:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.server
+    container_name: votestack_server_4
+    restart: unless-stopped
+    environment:
+      <<: *server-env
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - backend
+    volumes:
+      - server_logs:/app/logs
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 512M
+        reservations:
+          cpus: "0.5"
+          memory: 128M
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Step 7 / Step 10: nginx reverse proxy
+  # HTTPS termination, HTTP/2, compression, keep-alive, least_conn upstream
+  # ──────────────────────────────────────────────────────────────────────────
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.nginx
+    container_name: votestack_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      voting_server_1:
+        condition: service_healthy
+      voting_server_2:
+        condition: service_healthy
+      voting_server_3:
+        condition: service_healthy
+      voting_server_4:
+        condition: service_healthy
+    networks:
+      - backend
+      - frontend
+    volumes:
+      # Mount Let's Encrypt certs (managed by Certbot on host or certbot service)
+      - letsencrypt:/etc/letsencrypt:ro
+      - certbot_webroot:/var/www/certbot:ro
+      - nginx_logs:/var/log/nginx
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:80/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Step 9 (Cloudflare): Certbot for TLS cert auto-renewal
+  # Run once, then renew every 12h. Cloudflare DNS plugin supported.
+  # ──────────────────────────────────────────────────────────────────────────
+  certbot:
+    image: certbot/certbot:latest
+    container_name: votestack_certbot
+    restart: unless-stopped
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+      - certbot_webroot:/var/www/certbot
+    entrypoint: >
+      /bin/sh -c "trap exit TERM;
+        while :; do
+          certbot renew --webroot --webroot-path=/var/www/certbot --quiet;
+          sleep 12h & wait $${!};
+        done"
+    networks:
+      - frontend
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Step 11-12: Prometheus
+  # ──────────────────────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    container_name: votestack_prometheus
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=15d"
+      - "--web.enable-lifecycle"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - backend
+      - monitoring
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Step 12: Grafana dashboard
+  # ──────────────────────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:10.4.3
+    container_name: votestack_grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"    # host:container (3000 may conflict with frontend dev server)
+    environment:
+      GF_SECURITY_ADMIN_USER:     ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-changeme}
+      GF_SERVER_ROOT_URL:         "%(protocol)s://%(domain)s:%(http_port)s/grafana/"
+      GF_INSTALL_PLUGINS:         "grafana-clock-panel,grafana-piechart-panel"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - monitoring
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Exporters for Prometheus
+  # ──────────────────────────────────────────────────────────────────────────
+
+  # Redis metrics exporter
+  redis_exporter:
+    image: oliver006/redis_exporter:v1.62.0-alpine
+    container_name: votestack_redis_exporter
+    restart: unless-stopped
+    environment:
+      REDIS_ADDR: "redis://redis:6379"
+    depends_on:
+      - redis
+    networks:
+      - backend
+      - monitoring
+
+  # nginx metrics exporter
+  nginx_exporter:
+    image: nginx/nginx-prometheus-exporter:1.1.0
+    container_name: votestack_nginx_exporter
+    restart: unless-stopped
+    command:
+      - "-nginx.scrape-uri=http://nginx/nginx_status"
+    depends_on:
+      - nginx
+    networks:
+      - backend
+      - monitoring
+
+  # Host system metrics exporter
+  node_exporter:
+    image: prom/node-exporter:v1.8.0
+    container_name: votestack_node_exporter
+    restart: unless-stopped
+    command:
+      - "--path.rootfs=/host"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host:ro,rslave
+    networks:
+      - monitoring
+    pid: host
+
+  # Docker container metrics
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: votestack_cadvisor
+    restart: unless-stopped
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    devices:
+      - /dev/kmsg
+    networks:
+      - monitoring
+
+# ── Networks ────────────────────────────────────────────────────────────────
+networks:
+  backend:
+    driver: bridge
+  frontend:
+    driver: bridge
+  monitoring:
+    driver: bridge
+
+# ── Volumes ─────────────────────────────────────────────────────────────────
+volumes:
+  server_logs:
+  nginx_logs:
+  letsencrypt:
+  certbot_webroot:
+  prometheus_data:
+  grafana_data:

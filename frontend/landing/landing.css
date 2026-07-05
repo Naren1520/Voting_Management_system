@@ -1131,16 +1131,16 @@ details[open] .faq-q i { transform: rotate(45deg); }
   .spotlight--reverse { direction: ltr; }
 }
 
-/* ----------------------------------------------------------
+/* 
    PARALLAX â€” controlled via JS
----------------------------------------------------------- */
+ */
 [data-parallax] {
   transition: transform .15s ease-out;
 }
 
-/* ----------------------------------------------------------
+/* 
    MICRO-INTERACTIONS & SMOOTH TRANSITIONS
----------------------------------------------------------- */
+ */
 
 /* Smooth page reveal on load */
 body {
@@ -1601,15 +1601,15 @@ img {
 .hero-scroll-cue { display: none; }
 
 
-/* ==========================================================
+/* 
    PREMIUM SCROLL EFFECTS — VoteStack
    Luxury reveal, parallax, stagger, counters, shimmer
-   ========================================================== */
+    */
 
-/* ----------------------------------------------------------
+/* 
    REVEAL VARIANTS — override base [data-aos]
    Each variant starts from a different position/state
----------------------------------------------------------- */
+ */
 
 /* Fade + rise (default — already defined, enhanced here) */
 [data-aos] {
@@ -1676,10 +1676,10 @@ img {
   transform: translateY(0);
 }
 
-/* ----------------------------------------------------------
+/* 
    STAGGER CHILDREN
    Wrap a group in [data-stagger] — children get auto delays
----------------------------------------------------------- */
+ */
 [data-stagger] > * {
   opacity: 0;
   transform: translateY(28px);
@@ -1698,10 +1698,10 @@ img {
   transform: translateY(0);
 }
 
-/* ----------------------------------------------------------
+/* 
    SECTION TITLE LINE REVEAL
    Wrap words in .reveal-line spans for a premium wipe effect
----------------------------------------------------------- */
+ */
 .reveal-line {
   display: inline-block;
   overflow: hidden;
@@ -1716,10 +1716,10 @@ img {
   transform: translateY(0);
 }
 
-/* ----------------------------------------------------------
+/* 
    SHIMMER / SKELETON LOADING LINE
    Add to any element for a luxury shimmer as it enters
----------------------------------------------------------- */
+ */
 @keyframes shimmerSlide {
   0%   { background-position: -400px 0; }
   100% { background-position: 400px 0; }
@@ -1736,9 +1736,9 @@ img {
   animation: shimmerSlide 1.2s ease-in-out;
 }
 
-/* ----------------------------------------------------------
+/* 
    SCROLL PROGRESS BAR — top of page
----------------------------------------------------------- */
+ */
 .scroll-progress {
   position: fixed;
   top: 0; left: 0;
@@ -1750,10 +1750,10 @@ img {
   border-radius: 0 2px 2px 0;
 }
 
-/* ----------------------------------------------------------
+/* 
    FLOATING ORBS — ambient depth in sections
    These are purely decorative blurred circles
----------------------------------------------------------- */
+ */
 .orb {
   position: absolute;
   border-radius: 50%;
@@ -1767,9 +1767,9 @@ img {
 .orb--light  { background: rgba(56,189,248,.08); }
 .orb.orb-visible { opacity: 1; }
 
-/* ----------------------------------------------------------
+/* 
    STAT ITEMS — counter pop
----------------------------------------------------------- */
+ */
 .stat-item[data-counted] .stat-num {
   transition: transform .3s var(--ease);
 }
@@ -1781,9 +1781,9 @@ img {
   100% { transform: scale(1); }
 }
 
-/* ----------------------------------------------------------
+/* 
    FEATURE CARDS — scroll-in with stagger + 3D tilt on hover
----------------------------------------------------------- */
+ */
 .feat-card {
   transform-style: preserve-3d;
   will-change: transform, box-shadow;
@@ -1798,9 +1798,9 @@ img {
     opacity .7s cubic-bezier(.16,1,.3,1);
 }
 
-/* ----------------------------------------------------------
+/* 
    SECURITY CARDS — slide-in from sides alternately
----------------------------------------------------------- */
+ */
 .sec-card {
   transition:
     background .25s var(--ease),
@@ -1808,9 +1808,9 @@ img {
     transform .65s cubic-bezier(.16,1,.3,1);
 }
 
-/* ----------------------------------------------------------
+/* 
    STEPS — left border reveal animation
----------------------------------------------------------- */
+ */
 .step {
   position: relative;
   overflow: hidden;
@@ -1829,9 +1829,9 @@ img {
   transform: scaleY(1);
 }
 
-/* ----------------------------------------------------------
+/* 
    SPOTLIGHT SECTIONS — slide in from opposite sides
----------------------------------------------------------- */
+ */
 .spotlight-content {
   transition:
     opacity .8s cubic-bezier(.16,1,.3,1),
@@ -1867,9 +1867,9 @@ img {
   transform: translateX(0);
 }
 
-/* ----------------------------------------------------------
+/* 
    SECTION LABEL — expand width reveal
----------------------------------------------------------- */
+ */
 .section-label {
   position: relative;
   overflow: hidden;
@@ -1887,16 +1887,16 @@ img {
   transform: translateX(101%);
 }
 
-/* ----------------------------------------------------------
+/* 
    FAQ ITEMS — cascade open reveal
----------------------------------------------------------- */
+ */
 .faq-item {
   transition: opacity .5s, transform .5s;
 }
 
-/* ----------------------------------------------------------
+/* 
    CTA — subtle breathing pulse on the card
----------------------------------------------------------- */
+ */
 .cta-inner {
   animation: ctaBreathe 5s ease-in-out infinite;
 }
@@ -1911,9 +1911,9 @@ img {
     0 32px 80px rgba(0,0,0,.18); }
 }
 
-/* ----------------------------------------------------------
+/* 
    COMPLIANCE BADGES — pop in one by one
----------------------------------------------------------- */
+ */
 .compliance-badge {
   opacity: 0;
   transform: scale(.8) translateY(10px);
@@ -1926,9 +1926,9 @@ img {
   transform: scale(1) translateY(0);
 }
 
-/* ----------------------------------------------------------
+/* 
    HERO TEXT — individual word reveal (applied in JS)
----------------------------------------------------------- */
+ */
 .hero-word {
   display: inline-block;
   opacity: 0;
@@ -1942,9 +1942,9 @@ img {
   transform: translateY(0) rotate(0deg);
 }
 
-/* ----------------------------------------------------------
+/* 
    VIDEO FRAME — scroll-in reveal with scale
----------------------------------------------------------- */
+ */
 .video-frame {
   opacity: 0;
   transform: scale(.96) translateY(30px);
@@ -1958,9 +1958,9 @@ img {
   transform: scale(1) translateY(0);
 }
 
-/* ----------------------------------------------------------
+/* 
    HORIZONTAL SCROLL INDICATOR LINE UNDER SECTION TITLES
----------------------------------------------------------- */
+ */
 .section-title-line {
   display: block;
   width: 0;
@@ -1974,9 +1974,9 @@ img {
   width: 60px;
 }
 
-/* ----------------------------------------------------------
+/* 
    REDUCED MOTION — all scroll effects off
----------------------------------------------------------- */
+ */
 @media (prefers-reduced-motion: reduce) {
   [data-aos],
   [data-stagger] > *,

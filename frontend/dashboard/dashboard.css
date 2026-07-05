@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap');
 
-/* ----------------------------------------------------------
+/* 
    TOKENS
----------------------------------------------------------- */
+ */
 :root {
   --blue:        #0067b8;
   --blue-dark:   #005196;
@@ -36,9 +36,9 @@
   --font:        'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* ----------------------------------------------------------
+/* 
    RESET
----------------------------------------------------------- */
+ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; overscroll-behavior-y: none; }
 body {
@@ -67,9 +67,9 @@ a      { text-decoration: none; color: inherit; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; }
 ul     { list-style: none; }
 
-/* ----------------------------------------------------------
+/* 
    HEADER / NAV
----------------------------------------------------------- */
+ */
 .dash-header {
   position: sticky; top: 0; z-index: 200;
   height: 66px;
@@ -272,17 +272,17 @@ ul     { list-style: none; }
 .btn-logout svg { width: 14px; height: 14px; }
 .btn-logout:hover { border-color: var(--ink-3); color: var(--ink); background: var(--surface-2); }
 
-/* ----------------------------------------------------------
+/* 
    PAGE WRAPPER
----------------------------------------------------------- */
+ */
 .dash-page {
   max-width: 1280px; margin: 0 auto;
   padding: 36px 32px 64px;
 }
 
-/* ----------------------------------------------------------
+/* 
    PAGE TITLE ROW
----------------------------------------------------------- */
+ */
 .dash-title-row {
   display: flex; align-items: flex-end; justify-content: space-between;
   margin-bottom: 32px; gap: 16px; flex-wrap: wrap;
@@ -296,9 +296,9 @@ ul     { list-style: none; }
   font-size: .9rem; color: var(--ink-3); margin-top: 4px;
 }
 
-/* ----------------------------------------------------------
+/* 
    STATS STRIP
----------------------------------------------------------- */
+ */
 .dash-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -349,9 +349,9 @@ ul     { list-style: none; }
   font-weight: 500; margin-top: 3px;
 }
 
-/* ----------------------------------------------------------
+/* 
    ELECTIONS GRID
----------------------------------------------------------- */
+ */
 .dash-section-label {
   font-size: 11.5px; font-weight: 700;
   text-transform: uppercase; letter-spacing: .08em;
@@ -374,9 +374,9 @@ ul     { list-style: none; }
   gap: 16px;
 }
 
-/* ----------------------------------------------------------
+/* 
    ELECTION CARD
----------------------------------------------------------- */
+ */
 .election-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -510,9 +510,9 @@ ul     { list-style: none; }
 .ec-btn-delete svg { width: 13px; height: 13px; }
 .ec-btn-delete:hover { background: var(--danger-light); color: var(--danger); border-color: #fca5a5; }
 
-/* ----------------------------------------------------------
+/* 
    LOADING STATE
----------------------------------------------------------- */
+ */
 .dash-loading {
   text-align: center; padding: 80px 24px;
   color: var(--ink-4);
@@ -526,9 +526,9 @@ ul     { list-style: none; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ----------------------------------------------------------
+/* 
    EMPTY STATE
----------------------------------------------------------- */
+ */
 .dash-empty {
   grid-column: 1 / -1;
   background: var(--surface);
@@ -547,9 +547,9 @@ ul     { list-style: none; }
 .dash-empty h3 { font-size: 1.15rem; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
 .dash-empty p  { font-size: .9rem; color: var(--ink-3); margin-bottom: 24px; }
 
-/* ----------------------------------------------------------
+/* 
    MODAL OVERLAY
----------------------------------------------------------- */
+ */
 .modal-overlay {
   position: fixed; inset: 0;
   background: rgba(0,0,0,.45);
@@ -673,9 +673,9 @@ ul     { list-style: none; }
   animation: spin .6s linear infinite; flex-shrink: 0;
 }
 
-/* ----------------------------------------------------------
+/* 
    TOAST
----------------------------------------------------------- */
+ */
 .dash-toast {
   position: fixed; bottom: 28px; right: 28px; z-index: 600;
   display: flex; align-items: center; gap: 10px;
@@ -691,9 +691,9 @@ ul     { list-style: none; }
 .dash-toast.show { transform: translateY(0); opacity: 1; }
 .dash-toast svg { width: 15px; height: 15px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 
-/* ----------------------------------------------------------
+/* 
    RESPONSIVE
----------------------------------------------------------- */
+ */
 @media (max-width: 900px) {
   .dash-stats { grid-template-columns: repeat(2, 1fr); }
 }

@@ -1,7 +1,7 @@
-/* ==========================================================
+/* 
    VoteStack Auth — Shared JS
    login.html + signup.html
-   ========================================================== */
+    */
 
 document.addEventListener('DOMContentLoaded', () => {
   if (typeof Auth !== 'undefined') Auth.requireGuest();
@@ -10,9 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (typeof initStrength === 'function') initStrength();
 });
 
-/* ----------------------------------------------------------
+/* 
    Password visibility toggle
----------------------------------------------------------- */
+ */
 function initEyeToggles() {
   document.querySelectorAll('.eye-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -27,9 +27,9 @@ function initEyeToggles() {
   });
 }
 
-/* ----------------------------------------------------------
+/* 
    Subtle label float + border colour on focus
----------------------------------------------------------- */
+ */
 function initInputAnimations() {
   document.querySelectorAll('.input-field').forEach(input => {
     const group = input.closest('.input-group');
@@ -46,9 +46,9 @@ function initInputAnimations() {
   });
 }
 
-/* ----------------------------------------------------------
+/* 
    Status message
----------------------------------------------------------- */
+ */
 function showMsg(text, type, id = 'authMsg') {
   const el = document.getElementById(id);
   if (!el) return;
@@ -64,9 +64,9 @@ function hideMsg(id = 'authMsg') {
   if (el) el.style.display = 'none';
 }
 
-/* ----------------------------------------------------------
+/* 
    Button loading state
----------------------------------------------------------- */
+ */
 function setLoading(btn, loading, defaultLabel) {
   if (loading) {
     btn.disabled = true;
@@ -77,9 +77,9 @@ function setLoading(btn, loading, defaultLabel) {
   }
 }
 
-/* ----------------------------------------------------------
+/* 
    LOGIN handler  (called from login.html)
----------------------------------------------------------- */
+ */
 async function handleLogin(e) {
   e.preventDefault();
   hideMsg();
@@ -109,9 +109,9 @@ async function handleLogin(e) {
   }
 }
 
-/* ----------------------------------------------------------
+/* 
    SIGNUP handler  (called from signup.html)
----------------------------------------------------------- */
+ */
 async function handleSignup(e) {
   e.preventDefault();
   hideMsg();
@@ -145,9 +145,9 @@ async function handleSignup(e) {
   }
 }
 
-/* ----------------------------------------------------------
+/* 
    Password strength meter  (signup only)
----------------------------------------------------------- */
+ */
 function initStrength() {
   const input = document.getElementById('password');
   if (!input) return;
@@ -183,9 +183,9 @@ function getScore(v) {
   return Math.min(s, 3);
 }
 
-/* ----------------------------------------------------------
+/* 
    Inline SVG icons (avoids external dependency on auth pages)
----------------------------------------------------------- */
+ */
 function iconEye() {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
     fill="none" stroke="currentColor" stroke-width="2"

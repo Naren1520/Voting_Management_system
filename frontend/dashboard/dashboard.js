@@ -11,15 +11,15 @@ document.addEventListener('DOMContentLoaded', () => {
   loadElections();
 });
 
-/* ----------------------------------------------------------
+/* 
    State
----------------------------------------------------------- */
+ */
 let elections = [];
 let pendingDeleteId = null;
 
-/* ----------------------------------------------------------
+/* 
    Load + render elections
----------------------------------------------------------- */
+ */
 async function loadElections() {
   showLoading(true);
   const res = await API.getElections();
@@ -106,9 +106,9 @@ function renderElections() {
   `}).join('');
 }
 
-/* ----------------------------------------------------------
+/* 
    Navigation
----------------------------------------------------------- */
+ */
 function goManage(id, type) {
   if (type === 'multi') {
     window.location.href = `/election/manage-multi.html?id=${id}`;
@@ -123,9 +123,9 @@ function copyLink(id, type) {
   navigator.clipboard.writeText(link).then(() => showToast('Voting link copied!'));
 }
 
-/* ----------------------------------------------------------
+/* 
    Create election modal
----------------------------------------------------------- */
+ */
 let _createType = 'standard';
 
 function openCreateModal(type = 'standard') {
@@ -179,9 +179,9 @@ async function createElection() {
   }
 }
 
-/* ----------------------------------------------------------
+/* 
    New election dropdown menu
----------------------------------------------------------- */
+ */
 function toggleNewMenu() {
   const menu = document.getElementById('newMenu');
   menu.classList.toggle('open');
@@ -197,9 +197,9 @@ document.addEventListener('click', e => {
   if (wrap && !wrap.contains(e.target)) closeNewMenu();
 });
 
-/* ----------------------------------------------------------
+/* 
    Multi-position modal
----------------------------------------------------------- */
+ */
 let _positionCount = 0;
 
 function openMultiModal() {
@@ -279,9 +279,9 @@ async function createMultiElection() {
   loadElections();
 }
 
-/* ----------------------------------------------------------
+/* 
    Delete modal
----------------------------------------------------------- */
+ */
 function confirmDelete(id, title) {
   pendingDeleteId = id;
   const el = document.getElementById('deleteTitle');
@@ -306,18 +306,18 @@ async function doDelete() {
   loadElections();
 }
 
-/* ----------------------------------------------------------
+/* 
    Logout
----------------------------------------------------------- */
+ */
 async function handleLogout() {
   await API.logout();
   Auth.clear();
   window.location.href = '/landing/index.html';
 }
 
-/* ----------------------------------------------------------
+/* 
    Toast
----------------------------------------------------------- */
+ */
 let toastTimer = null;
 function showToast(msg, type = 'success') {
   const t = document.getElementById('dashToast');
@@ -328,9 +328,9 @@ function showToast(msg, type = 'success') {
   toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-/* ----------------------------------------------------------
+/* 
    Modal message
----------------------------------------------------------- */
+ */
 function showModalMsg(id, text, type) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -343,9 +343,9 @@ function hideModalMsg(id) {
   if (el) el.style.display = 'none';
 }
 
-/* ----------------------------------------------------------
+/* 
    Helpers
----------------------------------------------------------- */
+ */
 function showLoading(show) {
   const el = document.getElementById('loadingState');
   if (el) el.style.display = show ? 'block' : 'none';

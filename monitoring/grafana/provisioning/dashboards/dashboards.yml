@@ -1,0 +1,16 @@
+# ============================================================
+# Grafana dashboard provisioning — loads dashboards from disk
+# ============================================================
+
+apiVersion: 1
+
+providers:
+  - name:            "VoteStack Dashboards"
+    orgId:           1
+    folder:          "VoteStack"
+    type:            file
+    disableDeletion: false
+    editable:        true
+    updateIntervalSeconds: 30
+    options:
+      path: /var/lib/grafana/dashboards

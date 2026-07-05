@@ -1,13 +1,64 @@
+# ============================================================
+# render.yaml — Render.com deployment config
+#
+# Defines two services:
+#   1. voting-backend  — C++ server (Docker)
+#   2. voting-redis    — Redis (Render managed Redis)
+#
+# Deploy: connect your GitHub repo in the Render dashboard,
+# point it at this file, and set the secret env vars marked
+# sync: false in the Render environment settings UI.
+# ============================================================
+
 services:
+
+  # ── C++ Backend ─────────────────────────────────────────────
   - type: web
-    name: voting-system-backend
+    name: voting-backend
     env: docker
     dockerfilePath: ./Dockerfile
     branch: main
     plan: free
-    healthCheckPath: /api/elections
+
+    # Render sets PORT automatically — the server reads it.
+    # Health check uses /health (lightweight, no DB hit).
+    healthCheckPath: /health
+
     envVars:
+
+      # -- Required: fill these in the Render dashboard ---------
       - key: SUPABASE_URL
-        sync: false
+        sync: false          # set manually in Render env settings
+
       - key: SUPABASE_KEY
-        sync: false
+        sync: false          # set manually in Render env settings
+
+      # -- Redis: auto-populated from the redis service below ---
+      - key: REDIS_URL
+        fromService:
+          name: voting-redis
+          type: redis
+          property: connectionString
+
+      # -- CORS: set to your Netlify frontend URL ---------------
+      # Example: https://votestack.netlify.app
+      - key: ALLOWED_ORIGINS
+        sync: false          # set manually in Render env settings
+
+      # -- Optional tuning (defaults are fine to start) ---------
+      - key: RATE_LIMIT_REQUESTS
+        value: "100"
+
+      - key: RATE_LIMIT_WINDOW_SEC
+        value: "60"
+
+      # Render streams stdout — LOG_FILE writes a copy to disk.
+      # Leave empty to log to stdout only (fine for free tier).
+      - key: LOG_FILE
+        value: ""
+
+  # ── Managed Redis ────────────────────────────────────────────
+  - type: redis
+    name: voting-redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru

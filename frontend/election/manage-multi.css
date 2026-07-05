@@ -1,7 +1,7 @@
-/* ============================================================
+/* ==
    manage-multi.css — additional styles for multi-position page
    Builds on top of manage.css
-============================================================ */
+== */
 
 /* Multi badge in hero */
 .multi-badge-hero {
@@ -138,10 +138,10 @@
 }
 .btn-cancel-mn:hover { background: var(--surface-2); }
 
-/* ============================================================
+/* ==
    RESPONSIVE — manage-multi.css
    Breakpoints: 900px (tablet), 640px (large phone), 480px (small phone)
-============================================================ */
+== */
 
 /* ── 900px ── */
 @media (max-width: 900px) {

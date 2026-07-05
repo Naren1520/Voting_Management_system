@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap');
 
-/* ============================================================
+/* ==
    TOKENS  (mirrors shared palette)
-============================================================ */
+== */
 :root {
   --purple:        #9333ea;
   --purple-dark:   #7e22ce;
@@ -35,9 +35,9 @@
   --font: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* ============================================================
+/* ==
    RESET
-============================================================ */
+== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html  { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
 body  {
@@ -54,9 +54,9 @@ img    { display: block; max-width: 100%; }
 a      { text-decoration: none; color: inherit; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; }
 
-/* ============================================================
+/* ==
    PAGE SHELL
-============================================================ */
+== */
 .vote-page {
   min-height: 100vh;
   display: flex;
@@ -75,9 +75,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   max-width: 540px;
 }
 
-/* ============================================================
+/* ==
    HEADER
-============================================================ */
+== */
 .vote-header {
   text-align: center;
   margin-bottom: 28px;
@@ -100,9 +100,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   color: var(--ink-4);
 }
 
-/* ============================================================
+/* ==
    CARD
-============================================================ */
+== */
 .vote-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -111,9 +111,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   box-shadow: var(--shadow-sm);
 }
 
-/* ============================================================
+/* ==
    PROGRESS BAR
-============================================================ */
+== */
 .progress-wrap {
   margin-bottom: 28px;
 }
@@ -139,9 +139,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   min-width: 0;
 }
 
-/* ============================================================
+/* ==
    POSITION HEADER (inside vote step)
-============================================================ */
+== */
 .pos-vote-header {
   display: flex;
   align-items: center;
@@ -180,9 +180,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   font-weight: 700;
 }
 
-/* ============================================================
+/* ==
    CANDIDATE OPTIONS
-============================================================ */
+== */
 .candidates-wrap {
   display: flex;
   flex-direction: column;
@@ -229,9 +229,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   color: var(--ink);
 }
 
-/* ============================================================
+/* ==
    NAVIGATION BUTTONS
-============================================================ */
+== */
 .vote-nav {
   display: flex;
   gap: 10px;
@@ -277,9 +277,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   transform: none;
 }
 
-/* ============================================================
+/* ==
    REVIEW STEP
-============================================================ */
+== */
 .review-title {
   font-size: 1.05rem; font-weight: 800;
   color: var(--ink); margin-bottom: 4px;
@@ -317,9 +317,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   font-size: .8125rem; color: var(--ink-4); font-style: italic;
 }
 
-/* ============================================================
+/* ==
    DONE STEP
-============================================================ */
+== */
 .done-content { text-align: center; padding: 20px 0; }
 
 .done-icon-wrap {
@@ -362,9 +362,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   font-size: .8125rem; font-weight: 700; color: var(--purple);
 }
 
-/* ============================================================
+/* ==
    FORM ELEMENTS (voter ID step)
-============================================================ */
+== */
 .input-group {
   display: flex; flex-direction: column; gap: 6px;
   margin-bottom: 20px;
@@ -412,9 +412,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .btn-primary-full:disabled { opacity: .45; cursor: not-allowed; transform: none; }
 
-/* ============================================================
+/* ==
    MESSAGES
-============================================================ */
+== */
 .msg-box {
   display: none;
   padding: 10px 14px;
@@ -431,9 +431,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .msg-box.error   { background: var(--danger-light);  color: var(--danger);  border-color: #fca5a5; }
 .msg-box.success { background: var(--success-light); color: var(--success); border-color: #86efac; }
 
-/* ============================================================
+/* ==
    LOADING SPINNER
-============================================================ */
+== */
 .loading-wrap {
   text-align: center;
   padding: 32px;
@@ -449,9 +449,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ============================================================
+/* ==
    FOOTER LINK
-============================================================ */
+== */
 .vote-footer {
   text-align: center;
   margin-top: 20px;
@@ -463,9 +463,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .vote-footer a:hover { color: var(--ink-3); }
 
-/* ============================================================
+/* ==
    RESPONSIVE
-============================================================ */
+== */
 @media (max-width: 540px) {
   .vote-page  { padding: 24px 16px; }
   .vote-card  { padding: 24px 20px; }

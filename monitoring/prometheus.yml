@@ -1,0 +1,75 @@
+# ============================================================
+# prometheus.yml — Step 11: Prometheus scrape configuration
+# Tracks: requests/sec, active connections, latency, errors,
+#         Redis metrics, memory usage, nginx metrics
+# ============================================================
+
+global:
+  scrape_interval:     15s   # default scrape every 15 seconds
+  evaluation_interval: 15s   # evaluate alerting rules every 15 seconds
+  scrape_timeout:      10s
+
+  external_labels:
+    environment: "production"
+    project:     "votestack"
+
+# ── Alerting (optional — point to Alertmanager if configured) ────────────────
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets: ["alertmanager:9093"]
+
+# ── Alerting rules ─────────────────────────────────────────────────────────
+rule_files:
+  - "alert_rules.yml"
+
+# ── Scrape configs ─────────────────────────────────────────────────────────
+scrape_configs:
+
+  # ── Prometheus self-monitoring ───────────────────────────────────────────
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # ── C++ voting server instances ─────────────────────────────────────────
+  # Each instance exposes GET /metrics (Prometheus text format).
+  # Docker Compose service names used as hosts.
+  - job_name: "votestack_backend"
+    metrics_path: "/metrics"
+    scrape_interval: 10s
+    static_configs:
+      - targets:
+          - "voting_server_1:8080"
+          - "voting_server_2:8080"
+          - "voting_server_3:8080"
+          - "voting_server_4:8080"
+        labels:
+          service: "cpp_backend"
+
+  # ── nginx (via nginx-prometheus-exporter) ───────────────────────────────
+  - job_name: "nginx"
+    static_configs:
+      - targets: ["nginx_exporter:9113"]
+        labels:
+          service: "nginx"
+
+  # ── Redis (via redis_exporter) ───────────────────────────────────────────
+  - job_name: "redis"
+    static_configs:
+      - targets: ["redis_exporter:9121"]
+        labels:
+          service: "redis"
+
+  # ── Node (host metrics via node_exporter) ──────────────────────────────
+  - job_name: "node"
+    static_configs:
+      - targets: ["node_exporter:9100"]
+        labels:
+          service: "host"
+
+  # ── cAdvisor (Docker container metrics) ────────────────────────────────
+  - job_name: "cadvisor"
+    static_configs:
+      - targets: ["cadvisor:8080"]
+        labels:
+          service: "docker"
