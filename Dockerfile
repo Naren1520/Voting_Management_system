@@ -6,6 +6,9 @@
 # ── Build stage ───────────────────────────────────────────────
 FROM debian:bookworm AS builder
 
+# Cache bust — increment this to force a full recompile
+ARG CACHE_BUST=2
+
 WORKDIR /app
 
 RUN apt-get update && \
