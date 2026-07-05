@@ -18,7 +18,10 @@
     location.hostname === '127.0.0.1' ||
     location.hostname === '';
 
-  var PRODUCTION_URL = 'https://voting-backend.onrender.com';
+  // Replace this with your actual Render service URL.
+  // Find it in: Render dashboard -> your service -> the URL at the top.
+  // Example: 'https://voting-system-backend-ab12.onrender.com'
+  var PRODUCTION_URL = 'https://voting-management-system-1-zh39.onrender.com';
 
   window.API_BASE = isLocal ? 'http://localhost:8080' : PRODUCTION_URL;
 })();
