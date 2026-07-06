@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   ]);
 
   hide('loadingMsg');
+  hidePageLoader();
 
   if (!infoRes.success)   { showError(infoRes.message  || 'Election not found.'); return; }
   if (!ballotRes.success) { showError(ballotRes.message || 'Could not load ballot.'); return; }

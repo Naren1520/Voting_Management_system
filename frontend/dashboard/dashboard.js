@@ -24,6 +24,7 @@ async function loadElections() {
   showLoading(true);
   const res = await API.getElections();
   showLoading(false);
+  hidePageLoader();
 
   if (!res.success) {
     showToast('Failed to load elections', 'error');
