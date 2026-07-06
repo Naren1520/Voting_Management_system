@@ -168,16 +168,24 @@ bool EpollServer::start() {
 
     // Thread pool — handler set in constructor (Fix #3).
     // Pool size also passed to SupabaseClient so curl handles match workers.
-    size_t numThreads = std::thread::hardware_concurrency() * 2;
-    if (numThreads < 4) numThreads = 4;
+    // Cap at 4 threads on free-tier hosts (limited memory/CPU).
+    // Override with WORKER_THREADS env var if needed.
+    size_t numThreads = 4;
+    const char* wtEnv = std::getenv("WORKER_THREADS");
+    if (wtEnv && *wtEnv) {
+        int wt = std::atoi(wtEnv);
+        if (wt >= 1 && wt <= 32) numThreads = static_cast<size_t>(wt);
+    }
     std::cout << "[EpollServer] Initialising libcurl handle pool (" << numThreads << " handles)...\n"; std::cout.flush();
     SupabaseClient::instance().init(static_cast<int>(numThreads));
     std::cout << "[EpollServer] libcurl init done\n"; std::cout.flush();
+    std::cout << "[EpollServer] Creating ThreadPool (" << numThreads << " workers)...\n"; std::cout.flush();
     pool_ = std::make_unique<ThreadPool>(
         numThreads,
         [this](int fd) { handleClient(fd); }
         /* maxQueue defaults to numThreads*8 */
     );
+    std::cout << "[EpollServer] ThreadPool created\n"; std::cout.flush();
 
     LOG_INFO("====================================");
     LOG_INFO("VoteStack API Server (Phase 2)");
@@ -188,6 +196,8 @@ bool EpollServer::start() {
     LOG_INFO("Rate-limit: Redis INCR/EXPIRE");
     LOG_INFO("Cleanup: expired sessions every 10 min");
     LOG_INFO("====================================");
+    std::cout.flush();
+    std::cout << "[EpollServer] Entering epoll loop\n"; std::cout.flush();
 
     // Fix #1: start background session cleanup timer
     startCleanupTimer();
