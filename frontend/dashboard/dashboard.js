@@ -57,10 +57,16 @@ function renderElections() {
         </div>
         <h3>No elections yet</h3>
         <p>Create your first election to get started.</p>
-        <button class="btn-new" onclick="toggleNewMenu()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          New Election
-        </button>
+        <div class="dash-empty-actions">
+          <button class="btn-new" onclick="closeNewMenu(); openCreateModal('standard')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12h6M12 9v6"/></svg>
+            Standard Election
+          </button>
+          <button class="btn-new btn-new--multi" onclick="closeNewMenu(); openCreateModal('multi')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            Multi-Position Election
+          </button>
+        </div>
       </div>`;
     return;
   }
