@@ -31,18 +31,15 @@ scrape_configs:
     static_configs:
       - targets: ["localhost:9090"]
 
-  # ── C++ voting server instances ─────────────────────────────────────────
-  # Each instance exposes GET /metrics (Prometheus text format).
-  # Docker Compose service names used as hosts.
+  # ── C++ voting server (Render deployment) ──────────────────────────────
+  # Scrapes the live Render backend's /metrics endpoint.
   - job_name: "votestack_backend"
     metrics_path: "/metrics"
     scrape_interval: 10s
+    scheme: https
     static_configs:
       - targets:
-          - "voting_server_1:8080"
-          - "voting_server_2:8080"
-          - "voting_server_3:8080"
-          - "voting_server_4:8080"
+          - "votestack-cjom.onrender.com"
         labels:
           service: "cpp_backend"
 
