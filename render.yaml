@@ -22,7 +22,7 @@ services:
         sync: false
 
       - key: ALLOWED_ORIGINS
-        sync: false
+        value: "*"
 
       - key: REDIS_URL
         sync: false

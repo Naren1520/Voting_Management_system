@@ -17,8 +17,8 @@ static std::string resolveOrigin(const std::string& requestOrigin) {
     static const std::string allowed = []() -> std::string {
         const char* env = std::getenv("ALLOWED_ORIGINS");
         if (env && *env) return std::string(env);
-        // Default: Netlify frontend + localhost dev
-        return "https://votestack.netlify.app,http://localhost:3000,http://localhost:5173";
+        // Default: allow all origins (ALLOWED_ORIGINS not set)
+        return "*";
     }();
 
     if (allowed == "*") return "*";
