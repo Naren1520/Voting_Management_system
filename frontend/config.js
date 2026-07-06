@@ -23,5 +23,7 @@
   // Example: 'https://voting-system-backend-ab12.onrender.com'
   var PRODUCTION_URL = 'https://votestack-cjom.onrender.com';
 
-  window.API_BASE = isLocal ? 'http://localhost:8080' : PRODUCTION_URL;
+  window.API_BASE = isLocal ? 'https://votestack-cjom.onrender.com' : PRODUCTION_URL;
+
+  //http://localhost:8080
 })();
