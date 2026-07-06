@@ -45,7 +45,11 @@ void SupabaseClient::init(int poolSize) {
     handlePool_.reserve(static_cast<size_t>(poolSize));
     for (int i = 0; i < poolSize; ++i) {
         CURL* h = curl_easy_init();
-        if (!h) throw std::runtime_error("curl_easy_init failed");
+        if (!h) {
+            std::cerr << "[FATAL] curl_easy_init() returned null — libcurl init failed\n";
+            std::cerr.flush();
+            throw std::runtime_error("curl_easy_init failed");
+        }
         curl_easy_setopt(h, CURLOPT_TCP_KEEPALIVE, 1L);
         curl_easy_setopt(h, CURLOPT_TCP_KEEPIDLE,  60L);
         curl_easy_setopt(h, CURLOPT_TCP_KEEPINTVL, 30L);

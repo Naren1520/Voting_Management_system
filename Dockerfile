@@ -59,6 +59,9 @@ RUN apt-get update && \
 WORKDIR /app
 COPY --from=builder /app/bin/voting_server .
 
+# Ensure curl can find CA certificates
+ENV CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+
 EXPOSE 8080
 # Redirect stderr to stdout so Render captures fatal startup errors in logs
 CMD ["/bin/sh", "-c", "echo 'Starting voting_server...' && ./voting_server 2>&1"]

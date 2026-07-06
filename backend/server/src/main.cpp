@@ -5,8 +5,10 @@
 #include "../include/net/EpollServer.h"
 #include <iostream>
 #include <cstdlib>
+#include <stdexcept>
 
 int main() {
+  try {
     // Load env config (exits on missing SUPABASE_URL / SUPABASE_KEY)
     Config::instance().load();
 
@@ -30,5 +32,15 @@ int main() {
     std::cout << "[main] Calling server.start()\n"; std::cout.flush();
     server.start();
 
-    return 0;
+  } catch (const std::exception& e) {
+    std::cerr << "[FATAL] Uncaught exception: " << e.what() << "\n";
+    std::cerr.flush();
+    return 1;
+  } catch (...) {
+    std::cerr << "[FATAL] Unknown uncaught exception\n";
+    std::cerr.flush();
+    return 1;
+  }
+
+  return 0;
 }

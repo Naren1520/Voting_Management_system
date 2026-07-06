@@ -170,7 +170,9 @@ bool EpollServer::start() {
     // Pool size also passed to SupabaseClient so curl handles match workers.
     size_t numThreads = std::thread::hardware_concurrency() * 2;
     if (numThreads < 4) numThreads = 4;
+    std::cout << "[EpollServer] Initialising libcurl handle pool (" << numThreads << " handles)...\n"; std::cout.flush();
     SupabaseClient::instance().init(static_cast<int>(numThreads));
+    std::cout << "[EpollServer] libcurl init done\n"; std::cout.flush();
     pool_ = std::make_unique<ThreadPool>(
         numThreads,
         [this](int fd) { handleClient(fd); }
