@@ -20,19 +20,15 @@
 
 using json = nlohmann::json;
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Singleton
-// ─────────────────────────────────────────────────────────────────────────────
 
 SupabaseClient& SupabaseClient::instance() {
     static SupabaseClient client;
     return client;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // init — build handle pool sized to match the thread pool.
 // Fix #6: pool size matches thread count so workers never spin-wait.
-// ─────────────────────────────────────────────────────────────────────────────
 
 void SupabaseClient::init(int poolSize) {
     curl_global_init(CURL_GLOBAL_ALL);
@@ -61,10 +57,8 @@ void SupabaseClient::init(int poolSize) {
     LOG_INFO("[Supabase] curl handle pool: " + std::to_string(poolSize) + " handles");
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // acquireHandle / releaseHandle
 // Fix #5: condition variable replaces the old busy-wait spin loop.
-// ─────────────────────────────────────────────────────────────────────────────
 
 CURL* SupabaseClient::acquireHandle() {
     std::unique_lock<std::mutex> lock(poolMutex_);
@@ -89,9 +83,7 @@ void SupabaseClient::releaseHandle(CURL* handle) {
     poolCv_.notify_one();   // Fix #5: wake a waiting acquireHandle()
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // writeCallback
-// ─────────────────────────────────────────────────────────────────────────────
 
 size_t SupabaseClient::writeCallback(char* ptr, size_t size,
                                      size_t nmemb, void* userdata) {
@@ -100,9 +92,7 @@ size_t SupabaseClient::writeCallback(char* ptr, size_t size,
     return size * nmemb;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // request — main entry point
-// ─────────────────────────────────────────────────────────────────────────────
 
 HttpResult SupabaseClient::request(const std::string& method,
                                    const std::string& endpoint,
@@ -172,7 +162,6 @@ HttpResult SupabaseClient::request(const std::string& method,
     return {static_cast<int>(httpCode), responseBody};
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // hashPassword — PBKDF2-SHA256 via OpenSSL.
 //
 // Fix #3: SHA-256 is a fast hash — trivially brute-forced with a GPU.
@@ -186,7 +175,6 @@ HttpResult SupabaseClient::request(const std::string& method,
 //   NOTE: existing SHA-256 hashes in the DB will stop matching.
 //   Migration path: on next successful login, re-hash and update the DB.
 //   See the login() migration block in AuthController.cpp.
-// ─────────────────────────────────────────────────────────────────────────────
 
 static constexpr int    PBKDF2_ITERATIONS = 100000;
 static constexpr int    PBKDF2_KEYLEN     = 32;   // 256-bit derived key
@@ -221,15 +209,13 @@ std::string SupabaseClient::hashPassword(const std::string& password) {
            "$"       + toHex(key,  PBKDF2_KEYLEN);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // verifyPassword — re-derive the key from the stored salt and compare.
 // Returns true if the password matches the stored hash.
 // Also handles legacy SHA-256 hashes (plain 64-char hex) for migration.
-// ─────────────────────────────────────────────────────────────────────────────
 
 bool SupabaseClient::verifyPassword(const std::string& password,
                                     const std::string& stored) {
-    // ── Legacy SHA-256 hash (plain 64-char hex, no prefix) ────────────────
+    // ─ Legacy SHA-256 hash (plain 64-char hex, no prefix) 
     if (stored.rfind("pbkdf2$", 0) != 0) {
         // Old format — just compare SHA-256 directly for migration
         unsigned char digest[SHA256_DIGEST_LENGTH];
@@ -247,14 +233,15 @@ bool SupabaseClient::verifyPassword(const std::string& password,
         return oss.str() == stored;
     }
 
-    // ── PBKDF2 hash: "pbkdf2$<salt_hex>$<key_hex>" ───────────────────────
+    //  PBKDF2 hash: "pbkdf2$<salt_hex>$<key_hex>" 
     // Parse salt and expected key from stored string
-    auto first  = stored.find('$', 7);   // after "pbkdf2$"
-    auto second = stored.find('$', first + 1);
+    // "pbkdf2" = 6 chars, '$' is at index 6, salt starts at index 7
+    auto first  = stored.find('$');          // index 6
+    auto second = stored.find('$', first + 1); // index after salt
     if (first == std::string::npos || second == std::string::npos) return false;
 
-    std::string saltHex = stored.substr(7, first - 7);
-    std::string keyHex  = stored.substr(first + 1);
+    std::string saltHex = stored.substr(first + 1, second - first - 1);
+    std::string keyHex  = stored.substr(second + 1);
 
     // Decode hex → bytes
     auto fromHex = [](const std::string& hex, unsigned char* out, int maxLen) -> int {
@@ -287,9 +274,7 @@ bool SupabaseClient::verifyPassword(const std::string& password,
     return CRYPTO_memcmp(derivedKey, expectedKey, PBKDF2_KEYLEN) == 0;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // generateToken — 32 random bytes as hex via RAND_bytes
-// ─────────────────────────────────────────────────────────────────────────────
 
 std::string SupabaseClient::generateToken() {
     unsigned char buf[32];
@@ -302,9 +287,7 @@ std::string SupabaseClient::generateToken() {
     return oss.str();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // urlEncode
-// ─────────────────────────────────────────────────────────────────────────────
 
 std::string SupabaseClient::urlEncode(const std::string& s) {
     std::string r;
@@ -321,10 +304,8 @@ std::string SupabaseClient::urlEncode(const std::string& s) {
     return r;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // getLocation — uses a handle from the shared pool.
 // Fix #10: no longer creates/destroys a fresh handle on every call.
-// ─────────────────────────────────────────────────────────────────────────────
 
 std::string SupabaseClient::getLocation(const std::string& ip) {
     // Fix #9: guard all substr calls with size checks
@@ -358,9 +339,7 @@ std::string SupabaseClient::getLocation(const std::string& ip) {
     return "Unknown";
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Timestamp helpers
-// ─────────────────────────────────────────────────────────────────────────────
 
 std::string SupabaseClient::currentTimestamp() {
     std::time_t now = std::time(nullptr);
