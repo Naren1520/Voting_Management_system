@@ -3,6 +3,7 @@
 #include "../../include/core/Logger.h"
 #include "../../third_party/json.hpp"
 
+#include <iostream>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 #include <openssl/sha.h>
