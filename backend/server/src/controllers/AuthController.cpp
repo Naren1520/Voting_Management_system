@@ -3,9 +3,7 @@
 #include "../../include/db/SupabaseClient.h"
 #include "../../include/core/Logger.h"
 
-// ─────────────────────────────────────────────────────────────────────────────
 // signup
-// ─────────────────────────────────────────────────────────────────────────────
 
 json AuthController::signup(const std::string& name, const std::string& email,
                             const std::string& password,
@@ -40,6 +38,8 @@ json AuthController::signup(const std::string& name, const std::string& email,
         res["message"] = "Server error during signup";
         return res;
     }
+    LOG_INFO("[SIGNUP] hash prefix=" + hash.substr(0, 20) +
+             " len=" + std::to_string(hash.size()));
 
     json body;
     body["name"]          = name;
@@ -74,9 +74,7 @@ json AuthController::signup(const std::string& name, const std::string& email,
     return res;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // login
-// ─────────────────────────────────────────────────────────────────────────────
 
 json AuthController::login(const std::string& email, const std::string& password,
                            const std::string& userAgent,
@@ -99,10 +97,13 @@ json AuthController::login(const std::string& email, const std::string& password
             return res;
         }
         std::string storedHash = arr[0]["password_hash"].get<std::string>();
+        LOG_INFO("[LOGIN] hash prefix=" + storedHash.substr(0, 20) +
+                 " len=" + std::to_string(storedHash.size()));
         // Fix #3: use verifyPassword() which handles both PBKDF2 (new) and
         // legacy SHA-256 hashes. If a legacy hash matches, re-hash with PBKDF2
         // and update the DB transparently (automatic migration on login).
         if (!SupabaseClient::verifyPassword(password, storedHash)) {
+            LOG_INFO("[LOGIN] verifyPassword returned false for " + email);
             res["success"] = false;
             res["message"] = "Invalid email or password";
             return res;
@@ -134,10 +135,8 @@ json AuthController::login(const std::string& email, const std::string& password
     return res;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // validateToken — returns user_id or empty string
 // Checks Redis first; falls back to Supabase on cache miss.
-// ─────────────────────────────────────────────────────────────────────────────
 
 std::string AuthController::validateToken(const std::string& token) {
     if (token.empty()) return "";
@@ -176,9 +175,7 @@ std::string AuthController::validateToken(const std::string& token) {
     return "";
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // logout
-// ─────────────────────────────────────────────────────────────────────────────
 
 json AuthController::logout(const std::string& token) {
     // Invalidate Redis session cache entry first
@@ -190,9 +187,7 @@ json AuthController::logout(const std::string& token) {
     return res;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // changePassword
-// ─────────────────────────────────────────────────────────────────────────────
 
 json AuthController::changePassword(const std::string& token,
                                     const std::string& currentPassword,
@@ -249,9 +244,7 @@ json AuthController::changePassword(const std::string& token,
     return res;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // ping
-// ─────────────────────────────────────────────────────────────────────────────
 
 json AuthController::ping(const std::string& token) {
     json res;
@@ -263,9 +256,7 @@ json AuthController::ping(const std::string& token) {
     return res;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // getSessions
-// ─────────────────────────────────────────────────────────────────────────────
 
 json AuthController::getSessions(const std::string& token) {
     json res;
@@ -295,9 +286,7 @@ json AuthController::getSessions(const std::string& token) {
     return res;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // revokeSession
-// ─────────────────────────────────────────────────────────────────────────────
 
 json AuthController::revokeSession(const std::string& token, const std::string& sessionId) {
     json res;
@@ -330,9 +319,7 @@ json AuthController::revokeSession(const std::string& token, const std::string& 
     return res;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // revokeAllOtherSessions
-// ─────────────────────────────────────────────────────────────────────────────
 
 json AuthController::revokeAllOtherSessions(const std::string& token) {
     json res;
@@ -363,9 +350,7 @@ json AuthController::revokeAllOtherSessions(const std::string& token) {
     return res;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Private helpers
-// ─────────────────────────────────────────────────────────────────────────────
 
 std::string AuthController::parseDevice(const std::string& ua) {
     if (ua.empty()) return "Unknown Device";
@@ -412,9 +397,7 @@ std::string AuthController::createSession(const std::string& userId,
     return token;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // cacheSession — store token → userId in Redis
-// ─────────────────────────────────────────────────────────────────────────────
 
 void AuthController::cacheSession(const std::string& token,
                                   const std::string& userId,
@@ -424,9 +407,7 @@ void AuthController::cacheSession(const std::string& token,
     redis.set("session:" + token, userId, ttlSeconds);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // invalidateSession — remove token from Redis cache
-// ─────────────────────────────────────────────────────────────────────────────
 
 void AuthController::invalidateSession(const std::string& token) {
     auto& redis = RedisClient::instance();
