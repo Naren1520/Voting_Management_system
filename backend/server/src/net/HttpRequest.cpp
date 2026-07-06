@@ -2,6 +2,7 @@
 #include "../../include/core/Logger.h"
 
 #include <sys/socket.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <cerrno>
 #include <algorithm>
@@ -22,6 +23,11 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 bool HttpRequest::parse(int fd) {
+    // Switch fd to blocking mode — it was accepted as SOCK_NONBLOCK for the
+    // epoll accept loop, but worker threads need blocking recv() with a timeout.
+    int flags = ::fcntl(fd, F_GETFL, 0);
+    if (flags >= 0) ::fcntl(fd, F_SETFL, flags & ~O_NONBLOCK);
+
     // Set a 5-second receive timeout on the client fd.
     struct timeval tv;
     tv.tv_sec  = 5;
