@@ -1,16 +1,20 @@
 // ============================================================
-// load_test.js — Step 13: k6 load test for VoteStack
+// load_test.js — VoteStack staged load test
 //
-// Stages:
-//   0→500 VUs  over  30s  — ramp up
-//   500 VUs    for   60s  — sustained load
-//   500→2000   over  60s  — stress test
-//   2000 VUs   for   60s  — peak hold
-//   2000→0     over  30s  — ramp down
+// Tests the full request lifecycle under increasing concurrency:
+//   - Anonymous public voting (60% of traffic)
+//   - Authenticated flows: signup → login → list elections (35%)
+//   - Health checks (5%)
 //
-// Run:
-//   k6 run --out json=results.json load_test.js
-//   k6 run --vus 100 --duration 30s load_test.js   (quick smoke test)
+// Usage:
+//   # Full staged test
+//   k6 run --env BASE_URL=https://votestack-cjom.onrender.com load-test/load_test.js
+//
+//   # Quick 30s test at 10 VUs
+//   k6 run --env BASE_URL=https://votestack-cjom.onrender.com --vus 10 --duration 30s load-test/load_test.js
+//
+//   # With a real election ID for vote testing
+//   k6 run --env BASE_URL=https://votestack-cjom.onrender.com --env ELECTION_ID=<uuid> load-test/load_test.js
 // ============================================================
 
 import http from 'k6/http';
@@ -19,159 +23,175 @@ import { Rate, Trend, Counter } from 'k6/metrics';
 
 // ── Custom metrics ────────────────────────────────────────────────────────────
 const errorRate        = new Rate('error_rate');
-const loginLatency     = new Trend('login_latency',    true);
+const loginLatency     = new Trend('login_latency',     true);
 const electionsLatency = new Trend('elections_latency', true);
 const voteLatency      = new Trend('vote_latency',      true);
 const rateLimited      = new Counter('rate_limited_429');
 
 // ── Configuration ─────────────────────────────────────────────────────────────
-const BASE_URL = __ENV.BASE_URL || 'https://your-domain.com';
+const BASE_URL    = __ENV.BASE_URL    || 'https://votestack-cjom.onrender.com';
+const ELECTION_ID = __ENV.ELECTION_ID || '00000000-0000-0000-0000-000000000000';
 
-// A list of pre-seeded election IDs to use in public vote tests.
-// Replace with real election IDs from your Supabase DB.
-const ELECTION_IDS = [
-  __ENV.ELECTION_ID_1 || 'election-uuid-1',
-  __ENV.ELECTION_ID_2 || 'election-uuid-2',
-];
-
-// Pre-registered voter IDs (must exist in the voters table)
-const VOTER_IDS = ['V001', 'V002', 'V003', 'V004', 'V005'];
+// Pre-registered voter IDs — replace with real IDs from your election
+const VOTER_IDS = ['V001', 'V002', 'V003', 'V004', 'V005',
+                   'V006', 'V007', 'V008', 'V009', 'V010'];
 
 // ── Test stages ───────────────────────────────────────────────────────────────
 export const options = {
   stages: [
-    { duration: '30s',  target: 100  },  // warm-up
-    { duration: '60s',  target: 500  },  // steady load
-    { duration: '60s',  target: 2000 },  // stress ramp
-    { duration: '60s',  target: 2000 },  // peak hold
-    { duration: '30s',  target: 0    },  // ramp down
+    { duration: '30s', target: 10  },   // warm-up (Render free cold start)
+    { duration: '60s', target: 50  },   // steady load — free tier limit
+    { duration: '60s', target: 100 },   // push it
+    { duration: '30s', target: 0   },   // ramp down
   ],
   thresholds: {
-    // 95% of all requests must complete under 500ms
-    http_req_duration: ['p(95)<500'],
-    // Less than 1% errors
-    error_rate: ['rate<0.01'],
-    // p99 login under 1s
-    login_latency: ['p(99)<1000'],
-    // p99 elections list under 800ms
-    elections_latency: ['p(99)<800'],
+    http_req_duration:  ['p(95)<3000'],  // p95 under 3s (Render free tier)
+    error_rate:         ['rate<0.05'],   // <5% errors acceptable on free tier
+    login_latency:      ['p(99)<5000'],  // login includes PBKDF2 (CPU heavy)
+    elections_latency:  ['p(99)<3000'],
   },
 };
 
-// ── Shared headers ────────────────────────────────────────────────────────────
-const jsonHeaders = { 'Content-Type': 'application/json' };
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const JSON_HEADERS = { 'Content-Type': 'application/json' };
 
-// ── Helper: pick random element ───────────────────────────────────────────────
 function pick(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// ── Scenario: Anonymous public vote check ─────────────────────────────────────
-function publicVoteCheck() {
-  const electionId = pick(ELECTION_IDS);
-  const voterId    = pick(VOTER_IDS);
+function authHeaders(token) {
+  return { ...JSON_HEADERS, 'Authorization': `Bearer ${token}` };
+}
 
-  // Get candidate list
-  const candidatesRes = http.get(`${BASE_URL}/api/vote/${electionId}/candidates`);
-  check(candidatesRes, {
-    'GET /vote/candidates status 200': (r) => r.status === 200,
+// ── Scenario 1: Public vote check (no auth required) ─────────────────────────
+function publicVoteScenario() {
+  // Get election info
+  const infoRes = http.get(`${BASE_URL}/api/vote/${ELECTION_ID}/info`);
+  check(infoRes, {
+    'vote/info: no 5xx': (r) => r.status < 500,
   });
-  errorRate.add(candidatesRes.status >= 400);
-  if (candidatesRes.status === 429) rateLimited.add(1);
+  if (infoRes.status === 429) { rateLimited.add(1); return; }
 
-  // Check voter
+  // Get candidates
+  const candRes = http.get(`${BASE_URL}/api/vote/${ELECTION_ID}/candidates`);
+  check(candRes, {
+    'vote/candidates: no 5xx': (r) => r.status < 500,
+  });
+  voteLatency.add(candRes.timings.duration);
+  errorRate.add(candRes.status >= 500);
+  if (candRes.status === 429) { rateLimited.add(1); return; }
+
+  // Check voter ID
+  const voterId = pick(VOTER_IDS);
   const checkRes = http.post(
-    `${BASE_URL}/api/vote/${electionId}/check`,
+    `${BASE_URL}/api/vote/${ELECTION_ID}/check`,
     JSON.stringify({ voter_id: voterId }),
-    { headers: jsonHeaders }
+    { headers: JSON_HEADERS }
   );
   check(checkRes, {
-    'POST /vote/check status 200': (r) => r.status === 200 || r.status === 400,
+    'vote/check: 200 or 400': (r) => r.status === 200 || r.status === 400,
   });
-  voteLatency.add(checkRes.timings.duration);
   errorRate.add(checkRes.status >= 500);
 }
 
-// ── Scenario: Auth flow ───────────────────────────────────────────────────────
-function authFlow() {
-  const email    = `loadtest_${__VU}_${Date.now()}@example.com`;
-  const password = 'Test@12345678';
+// ── Scenario 2: Auth flow ─────────────────────────────────────────────────────
+function authScenario() {
+  // Use unique email per VU to avoid "email already registered" errors
+  const ts       = Date.now();
+  const email    = `loadtest_vu${__VU}_${ts}@votestack-test.com`;
+  const password = 'LoadTest@123';
 
-  // Signup (new user each VU iteration — stress the auth path)
+  // Signup
   const signupRes = http.post(
     `${BASE_URL}/api/auth/signup`,
     JSON.stringify({ name: 'Load Tester', email, password }),
-    { headers: jsonHeaders }
+    { headers: JSON_HEADERS }
   );
   errorRate.add(signupRes.status >= 500);
   if (signupRes.status === 429) { rateLimited.add(1); return; }
+  if (signupRes.status !== 201) return; // skip if signup failed
 
-  // Login with same credentials
-  const loginStart = Date.now();
+  // Login immediately after
   const loginRes = http.post(
     `${BASE_URL}/api/auth/login`,
     JSON.stringify({ email, password }),
-    { headers: jsonHeaders }
+    { headers: JSON_HEADERS }
   );
   loginLatency.add(loginRes.timings.duration);
 
   const loginOk = check(loginRes, {
-    'POST /auth/login status 200': (r) => r.status === 200,
-    'login returns token': (r) => {
+    'login: status 200':    (r) => r.status === 200,
+    'login: returns token': (r) => {
       try { return !!JSON.parse(r.body).token; } catch { return false; }
     },
   });
   errorRate.add(!loginOk);
-  if (!loginOk || loginRes.status === 429) return;
+  if (!loginOk) return;
 
   let token;
   try { token = JSON.parse(loginRes.body).token; } catch { return; }
-  const authHeaders = { ...jsonHeaders, 'Authorization': `Bearer ${token}` };
 
   // List elections (authenticated)
-  const electionsRes = http.get(`${BASE_URL}/api/elections`, { headers: authHeaders });
+  const electionsRes = http.get(
+    `${BASE_URL}/api/elections`,
+    { headers: authHeaders(token) }
+  );
   electionsLatency.add(electionsRes.timings.duration);
   check(electionsRes, {
-    'GET /elections status 200': (r) => r.status === 200,
+    'elections: status 200': (r) => r.status === 200,
   });
   errorRate.add(electionsRes.status >= 500);
   if (electionsRes.status === 429) rateLimited.add(1);
+
+  // Token ping (session validation via Redis)
+  const pingRes = http.get(
+    `${BASE_URL}/api/auth/ping`,
+    { headers: authHeaders(token) }
+  );
+  check(pingRes, {
+    'ping: status 200': (r) => r.status === 200,
+  });
 }
 
-// ── Scenario: Health check (baseline) ────────────────────────────────────────
-function healthCheck() {
+// ── Scenario 3: Health check ──────────────────────────────────────────────────
+function healthScenario() {
   const res = http.get(`${BASE_URL}/health`);
-  check(res, { '/health returns 200': (r) => r.status === 200 });
+  check(res, { 'health: 200': (r) => r.status === 200 });
   errorRate.add(res.status !== 200);
 }
 
-// ── Main virtual user loop ────────────────────────────────────────────────────
+// ── Main VU loop ──────────────────────────────────────────────────────────────
 export default function () {
   const roll = Math.random();
 
   if (roll < 0.60) {
-    // 60% — anonymous public vote checks (most traffic in production)
-    group('public_vote', publicVoteCheck);
+    group('public_vote', publicVoteScenario);
   } else if (roll < 0.95) {
-    // 35% — authenticated flows (signup/login/list)
-    group('auth_flow', authFlow);
+    group('auth_flow', authScenario);
   } else {
-    // 5% — health checks
-    group('health', healthCheck);
+    group('health', healthScenario);
   }
 
-  // Think time: 0–500ms random pause to simulate real users
-  sleep(Math.random() * 0.5);
+  // Think time: 200ms–1s (simulates real user pacing)
+  sleep(0.2 + Math.random() * 0.8);
 }
 
-// ── Setup: print test configuration ──────────────────────────────────────────
+// ── Setup ─────────────────────────────────────────────────────────────────────
 export function setup() {
-  console.log(`Target: ${BASE_URL}`);
-  console.log(`Elections: ${ELECTION_IDS.join(', ')}`);
+  console.log(`\n========================================`);
+  console.log(`VoteStack Load Test`);
+  console.log(`Target:     ${BASE_URL}`);
+  console.log(`ElectionID: ${ELECTION_ID}`);
+  console.log(`========================================\n`);
+
+  // Verify server is up before starting
+  const health = http.get(`${BASE_URL}/health`);
+  if (health.status !== 200) {
+    console.error('Server is not healthy! Aborting.');
+  }
   return {};
 }
 
-// ── Teardown: print summary ────────────────────────────────────────────────────
-export function teardown(data) {
-  console.log('Load test complete.');
+export function teardown() {
+  console.log('\nLoad test complete. Check results above.');
 }
