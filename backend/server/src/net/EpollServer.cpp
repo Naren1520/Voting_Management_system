@@ -32,9 +32,7 @@
 
 using json = nlohmann::json;
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Controller instances (stateless — safe to share across threads)
-// ─────────────────────────────────────────────────────────────────────────────
 static AuthController            g_auth;
 static ElectionController        g_election;
 static CandidateController       g_candidate;
@@ -43,9 +41,7 @@ static PositionController        g_position;
 static PublicVoteController      g_vote;
 static PublicMultiVoteController g_multiVote;
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Constructor / Destructor
-// ─────────────────────────────────────────────────────────────────────────────
 
 EpollServer::EpollServer(int port) : port_(port) {}
 
@@ -57,9 +53,7 @@ EpollServer::~EpollServer() {
     if (epollFd_  >= 0) ::close(epollFd_);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Helpers
-// ─────────────────────────────────────────────────────────────────────────────
 
 int EpollServer::makeNonBlocking(int fd) {
     int flags = ::fcntl(fd, F_GETFL, 0);
@@ -89,11 +83,9 @@ std::vector<std::string> EpollServer::splitPath(const std::string& path) {
     return segs;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // cleanupLoop / startCleanupTimer
 // Fix #1: runs every 10 minutes to DELETE expired sessions from Supabase.
 // Keeps the sessions table small without polluting the auth hot path.
-// ─────────────────────────────────────────────────────────────────────────────
 
 void EpollServer::cleanupLoop() {
     constexpr int INTERVAL_SEC = 600;  // 10 minutes
@@ -121,9 +113,7 @@ void EpollServer::startCleanupTimer() {
     cleanupThread_ = std::thread([this] { cleanupLoop(); });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // start — epoll loop
-// ─────────────────────────────────────────────────────────────────────────────
 
 bool EpollServer::start() {
     ::signal(SIGPIPE, SIG_IGN);
@@ -243,9 +233,7 @@ bool EpollServer::start() {
     return true;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // handleClient — called by thread-pool workers
-// ─────────────────────────────────────────────────────────────────────────────
 
 void EpollServer::handleClient(int fd) {
     LatencyTimer timer;   // Step 11: starts clock + increments active_connections
@@ -285,9 +273,7 @@ void EpollServer::handleClient(int fd) {
     ::close(fd);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // route — full request router (all original routes preserved)
-// ─────────────────────────────────────────────────────────────────────────────
 
 std::string EpollServer::route(const HttpRequest& req) {
     const std::string& method = req.method;

@@ -3,9 +3,7 @@
 #include "../../include/db/SupabaseClient.h"
 #include "../../include/core/Logger.h"
 
-// ─────────────────────────────────────────────────────────────────────────────
 // getCandidates — with candidate cache
-// ─────────────────────────────────────────────────────────────────────────────
 
 json PublicVoteController::getCandidates(const std::string& electionId) {
     auto elec = supabaseRequest("GET",
@@ -42,9 +40,7 @@ json PublicVoteController::getCandidates(const std::string& electionId) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // checkVoter — read-only eligibility check (does NOT cast a vote)
-// ─────────────────────────────────────────────────────────────────────────────
 
 json PublicVoteController::checkVoter(const std::string& electionId,
                                       const std::string& voterId) {
@@ -83,7 +79,6 @@ json PublicVoteController::checkVoter(const std::string& electionId,
     return res;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // castVote — atomic via Supabase RPC to eliminate the TOCTOU race.
 //
 // Fix #14: The old flow was three separate HTTP calls:
@@ -141,7 +136,6 @@ json PublicVoteController::checkVoter(const std::string& electionId,
 //   ALTER TABLE votes_cast
 //       ADD CONSTRAINT votes_cast_unique_voter
 //       UNIQUE (election_id, voter_id);
-// ─────────────────────────────────────────────────────────────────────────────
 
 json PublicVoteController::castVote(const std::string& electionId,
                                     const std::string& voterId,
@@ -274,9 +268,7 @@ json PublicVoteController::castVote(const std::string& electionId,
     return res;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // getResults
-// ─────────────────────────────────────────────────────────────────────────────
 
 json PublicVoteController::getResults(const std::string& electionId) {
     // Candidates (already ordered by votes desc)

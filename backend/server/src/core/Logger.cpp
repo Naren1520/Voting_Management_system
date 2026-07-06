@@ -4,9 +4,7 @@
 #include <iomanip>
 #include <sstream>
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Singleton
-// ─────────────────────────────────────────────────────────────────────────────
 
 Logger& Logger::instance() {
     static Logger logger;
@@ -17,10 +15,8 @@ Logger::~Logger() {
     if (fileStream_.is_open()) fileStream_.close();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // openFile — Fix #7: open log file for persistent logging.
 // Called once from main() using LOG_FILE env var (default: server.log).
-// ─────────────────────────────────────────────────────────────────────────────
 
 void Logger::openFile(const std::string& path) {
     std::lock_guard<std::mutex> lock(mutex_);
@@ -34,9 +30,7 @@ void Logger::openFile(const std::string& path) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // levelStr / timestamp helpers
-// ─────────────────────────────────────────────────────────────────────────────
 
 const char* Logger::levelStr(LogLevel l) {
     switch (l) {
@@ -60,11 +54,9 @@ std::string Logger::timestamp() {
     return std::string(buf);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // log — write to stdout AND file (if open).
 // Flush is done every ~100ms in the background (not on every line) to avoid
 // serializing all worker threads on I/O during heavy load.
-// ─────────────────────────────────────────────────────────────────────────────
 
 void Logger::log(LogLevel level, const std::string& msg) {
     std::lock_guard<std::mutex> lock(mutex_);

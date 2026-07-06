@@ -44,29 +44,33 @@ scrape_configs:
           service: "cpp_backend"
 
   # ── nginx (via nginx-prometheus-exporter) ───────────────────────────────
-  - job_name: "nginx"
-    static_configs:
-      - targets: ["nginx_exporter:9113"]
-        labels:
-          service: "nginx"
+  # Uncomment when running the full docker-compose stack with nginx
+  # - job_name: "nginx"
+  #   static_configs:
+  #     - targets: ["nginx_exporter:9113"]
+  #       labels:
+  #         service: "nginx"
 
   # ── Redis (via redis_exporter) ───────────────────────────────────────────
-  - job_name: "redis"
-    static_configs:
-      - targets: ["redis_exporter:9121"]
-        labels:
-          service: "redis"
+  # Uncomment when running the full docker-compose stack with Redis
+  # - job_name: "redis"
+  #   static_configs:
+  #     - targets: ["redis_exporter:9121"]
+  #       labels:
+  #         service: "redis"
 
   # ── Node (host metrics via node_exporter) ──────────────────────────────
-  - job_name: "node"
-    static_configs:
-      - targets: ["node_exporter:9100"]
-        labels:
-          service: "host"
+  # Uncomment when running node_exporter locally
+  # - job_name: "node"
+  #   static_configs:
+  #     - targets: ["node_exporter:9100"]
+  #       labels:
+  #         service: "host"
 
   # ── cAdvisor (Docker container metrics) ────────────────────────────────
-  - job_name: "cadvisor"
-    static_configs:
-      - targets: ["cadvisor:8080"]
-        labels:
-          service: "docker"
+  # Uncomment when running the full docker-compose stack
+  # - job_name: "cadvisor"
+  #   static_configs:
+  #     - targets: ["cadvisor:8080"]
+  #       labels:
+  #         service: "docker"

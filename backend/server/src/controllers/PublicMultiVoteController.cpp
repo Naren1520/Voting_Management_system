@@ -4,9 +4,7 @@
 #include <algorithm>
 #include <set>
 
-// ─────────────────────────────────────────────────────────────────────────────
 // getBallot
-// ─────────────────────────────────────────────────────────────────────────────
 
 json PublicMultiVoteController::getBallot(const std::string& electionId) {
     auto elec = supabaseRequest("GET",
@@ -54,9 +52,7 @@ json PublicMultiVoteController::getBallot(const std::string& electionId) {
     return res;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // checkVoter
-// ─────────────────────────────────────────────────────────────────────────────
 
 json PublicMultiVoteController::checkVoter(const std::string& electionId,
                                            const std::string& voterId) {
@@ -108,7 +104,6 @@ json PublicMultiVoteController::checkVoter(const std::string& electionId,
     return res;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // castVotes — atomic via Supabase RPC to eliminate the TOCTOU race.
 //
 // Fix #14 (multi-vote): Same race as single-vote — two concurrent requests
@@ -171,7 +166,6 @@ json PublicMultiVoteController::checkVoter(const std::string& electionId,
 //   ALTER TABLE votes_cast
 //       ADD CONSTRAINT votes_cast_unique_voter_position
 //       UNIQUE (election_id, voter_id, position_id);
-// ─────────────────────────────────────────────────────────────────────────────
 
 json PublicMultiVoteController::castVotes(const std::string& electionId,
                                           const std::string& voterId,
@@ -215,7 +209,7 @@ json PublicMultiVoteController::castVotes(const std::string& electionId,
         res["success"]=false; res["message"]="Database error"; return res;
     }
 
-    // ── Atomic multi-position vote via RPC ────────────────────────────────
+    //  Atomic multi-position vote via RPC 
     json rpcBody;
     rpcBody["p_election_id"] = electionId;
     rpcBody["p_voter_id"]    = voterId;
@@ -285,9 +279,7 @@ json PublicMultiVoteController::castVotes(const std::string& electionId,
     return res;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // getResults
-// ─────────────────────────────────────────────────────────────────────────────
 
 json PublicMultiVoteController::getResults(const std::string& electionId) {
     // One round-trip: positions with nested candidates via resource embedding.

@@ -2,10 +2,8 @@
 #include "../../include/core/Logger.h"
 #include <unistd.h>
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Constructor — starts worker threads immediately with the handler already set.
 // Fix #3: handler is set before any thread can wake and dequeue.
-// ─────────────────────────────────────────────────────────────────────────────
 
 ThreadPool::ThreadPool(size_t numThreads,
                        std::function<void(int)> handler,
@@ -21,9 +19,7 @@ ThreadPool::ThreadPool(size_t numThreads,
              " workers, max queue " + std::to_string(maxQueue_));
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Destructor — drain stop signal, join all threads
-// ─────────────────────────────────────────────────────────────────────────────
 
 ThreadPool::~ThreadPool() {
     {
@@ -36,10 +32,8 @@ ThreadPool::~ThreadPool() {
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // enqueue — returns false if queue is full (caller must close the fd).
 // Fix #2: bounded queue prevents OOM under spike load.
-// ─────────────────────────────────────────────────────────────────────────────
 
 bool ThreadPool::enqueue(int fd) {
     std::unique_lock<std::mutex> lock(mutex_);
@@ -52,9 +46,7 @@ bool ThreadPool::enqueue(int fd) {
     return true;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // workerLoop
-// ─────────────────────────────────────────────────────────────────────────────
 
 void ThreadPool::workerLoop() {
     while (true) {

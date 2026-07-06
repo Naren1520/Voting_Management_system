@@ -9,7 +9,6 @@
 #include <cctype>
 #include <sstream>
 
-// ─────────────────────────────────────────────────────────────────────────
 // parse — reads the full HTTP request from a client fd.
 //
 // Fix #1: The client fd is accepted with SOCK_NONBLOCK from accept4(), but we
@@ -20,7 +19,6 @@
 // Fix #7: The 5-second SO_RCVTIMEO also prevents worker threads from hanging
 //   forever on slow/idle connections. A timeout returns EAGAIN/EWOULDBLOCK
 //   which we treat as an error → connection dropped, thread freed.
-// ─────────────────────────────────────────────────────────────────────────────
 
 bool HttpRequest::parse(int fd) {
     // Switch fd to blocking mode — it was accepted as SOCK_NONBLOCK for the
@@ -102,7 +100,7 @@ bool HttpRequest::parse(int fd) {
     if (raw.empty()) return false;
     if (!headersComplete && raw.find("\r\n\r\n") == std::string::npos) return false;
 
-    // ── Parse request line ────────────────────────────────────────────────
+    // Parse request line 
     std::size_t lineEnd = raw.find("\r\n");
     if (lineEnd == std::string::npos) return false;
 
@@ -131,7 +129,7 @@ bool HttpRequest::parse(int fd) {
         queryString = "";
     }
 
-    // ── Parse headers ─────────────────────────────────────────────────────
+    //  Parse headers 
     std::size_t pos = lineEnd + 2;
     while (pos < raw.size()) {
         std::size_t end = raw.find("\r\n", pos);
@@ -150,7 +148,7 @@ bool HttpRequest::parse(int fd) {
         pos = end + 2;
     }
 
-    // ── Extract body ─────────────────────────────────────────────────────
+    //  Extract body 
     std::size_t bodyStart = raw.find("\r\n\r\n");
     if (bodyStart != std::string::npos) {
         body = raw.substr(bodyStart + 4);
@@ -162,9 +160,7 @@ bool HttpRequest::parse(int fd) {
     return true;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // getHeader — case-insensitive (keys stored lowercase)
-// ─────────────────────────────────────────────────────────────────────────────
 
 std::string HttpRequest::getHeader(const std::string& name) const {
     std::string lower = name;
@@ -173,9 +169,7 @@ std::string HttpRequest::getHeader(const std::string& name) const {
     return (it != headers.end()) ? it->second : "";
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // getToken — Bearer token from Authorization header
-// ─────────────────────────────────────────────────────────────────────────────
 
 std::string HttpRequest::getToken() const {
     std::string auth = getHeader("authorization");
@@ -185,11 +179,9 @@ std::string HttpRequest::getToken() const {
     return "";
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // getClientIP — X-Forwarded-For or X-Real-IP
 // Fix #16: normalize the IP; fall back to empty string (never "unknown")
 //          so rate limiting keys are always distinct per-IP.
-// ─────────────────────────────────────────────────────────────────────────────
 
 std::string HttpRequest::getClientIP() const {
     std::string ip = getHeader("x-forwarded-for");
@@ -212,18 +204,14 @@ std::string HttpRequest::getClientIP() const {
     return ip;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // getUserAgent
-// ─────────────────────────────────────────────────────────────────────────────
 
 std::string HttpRequest::getUserAgent() const {
     return getHeader("user-agent");
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // getQueryParam — parse a single key from the query string
 // Fix #9: query params are now stored and accessible.
-// ─────────────────────────────────────────────────────────────────────────────
 
 std::string HttpRequest::getQueryParam(const std::string& key) const {
     if (queryString.empty()) return "";

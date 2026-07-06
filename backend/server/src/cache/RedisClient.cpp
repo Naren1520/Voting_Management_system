@@ -15,18 +15,14 @@
 #include <sstream>
 #include <vector>
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Singleton
-// ─────────────────────────────────────────────────────────────────────────────
 
 RedisClient& RedisClient::instance() {
     static RedisClient inst;
     return inst;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // init — parse REDIS_URL, open POOL_SIZE connections (called single-threaded)
-// ─────────────────────────────────────────────────────────────────────────────
 
 void RedisClient::init() {
     const char* envUrl = std::getenv("REDIS_URL");
@@ -72,18 +68,14 @@ void RedisClient::init() {
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // isAvailable — Fix #6: lock-free atomic read
-// ─────────────────────────────────────────────────────────────────────────────
 
 bool RedisClient::isAvailable() const {
     return available_.load();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // connectSlot — Fix #5: MUST be called while poolMutex_ is held (or during
 // single-threaded init).  Opens a new TCP connection for slot idx.
-// ─────────────────────────────────────────────────────────────────────────────
 
 bool RedisClient::connectSlot(int idx) {
     // Close any existing socket first (caller holds lock or is in init)
@@ -154,9 +146,7 @@ bool RedisClient::connectSlot(int idx) {
     return true;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // disconnectSlot — Fix #5: caller must hold poolMutex_
-// ─────────────────────────────────────────────────────────────────────────────
 
 void RedisClient::disconnectSlot(int idx) {
     if (conns_[idx].socket >= 0) {
@@ -165,11 +155,9 @@ void RedisClient::disconnectSlot(int idx) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // reconnectSlot — Fix #5: acquires poolMutex_ internally so two threads can
 // never race to reconnect the same slot simultaneously.
 // Fix #6: sets available_ atomically on recovery.
-// ─────────────────────────────────────────────────────────────────────────────
 
 bool RedisClient::reconnectSlot(int idx) {
     std::lock_guard<std::mutex> lock(poolMutex_);
@@ -185,9 +173,7 @@ bool RedisClient::reconnectSlot(int idx) {
     return false;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // acquireConn / releaseConn — condition variable, no busy-wait
-// ─────────────────────────────────────────────────────────────────────────────
 
 int RedisClient::acquireConn() {
     std::unique_lock<std::mutex> lock(poolMutex_);
@@ -213,9 +199,7 @@ void RedisClient::releaseConn(int idx) {
     poolCv_.notify_one();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // RESP builder
-// ─────────────────────────────────────────────────────────────────────────────
 
 std::string RedisClient::buildCommand(const std::vector<std::string>& args) {
     std::ostringstream oss;
@@ -225,9 +209,7 @@ std::string RedisClient::buildCommand(const std::vector<std::string>& args) {
     return oss.str();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // sendAll
-// ─────────────────────────────────────────────────────────────────────────────
 
 bool RedisClient::sendAll(int idx, const std::string& data) {
     const char* ptr = data.c_str();
@@ -246,10 +228,8 @@ bool RedisClient::sendAll(int idx, const std::string& data) {
     return true;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // readLine — reads until \r\n into `line`, stripping the CRLF.
 // Uses a per-slot 4KB read buffer to avoid one-byte-at-a-time recv() calls.
-// ─────────────────────────────────────────────────────────────────────────────
 
 static constexpr int RBUF_SIZE = 4096;
 
@@ -348,10 +328,8 @@ std::string RedisClient::readResponse(int idx) {
     return firstLine;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // sendCommand — slot must be acquired (inUse=true) by the caller.
 // If the socket is dead, calls reconnectSlot() which acquires the mutex.
-// ─────────────────────────────────────────────────────────────────────────────
 
 std::string RedisClient::sendCommand(int idx, const std::vector<std::string>& args) {
     if (conns_[idx].socket < 0) {
@@ -365,9 +343,7 @@ std::string RedisClient::sendCommand(int idx, const std::vector<std::string>& ar
     return readResponse(idx);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // RESP parsers
-// ─────────────────────────────────────────────────────────────────────────────
 
 std::string RedisClient::parseSimpleString(const std::string& resp) {
     if (resp.size() >= 3 && resp[0] == '+')
@@ -391,9 +367,7 @@ long long RedisClient::parseInteger(const std::string& resp) {
     catch (...) { return -1; }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Public API
-// ─────────────────────────────────────────────────────────────────────────────
 
 bool RedisClient::set(const std::string& key, const std::string& value, int ttlSeconds) {
     if (!available_.load()) return false;

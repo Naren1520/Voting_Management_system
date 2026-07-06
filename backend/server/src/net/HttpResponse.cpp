@@ -5,12 +5,10 @@
 
 using json = nlohmann::json;
 
-// ─────────────────────────────────────────────────────────────────────────────
 // allowedOrigin — returns the CORS origin header value for the request origin.
 // Restricts to ALLOWED_ORIGINS env var (comma-separated) or falls back to
 // a wildcard only if the env var is explicitly set to "*".
 // Default (no env var) allows the known production origins only.
-// ─────────────────────────────────────────────────────────────────────────────
 
 static std::string resolveOrigin(const std::string& requestOrigin) {
     // Read once and cache
@@ -43,9 +41,7 @@ static std::string resolveOrigin(const std::string& requestOrigin) {
     return first == std::string::npos ? allowed : allowed.substr(0, first);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // statusText
-// ─────────────────────────────────────────────────────────────────────────────
 
 const char* HttpResponse::statusText(int code) {
     switch (code) {
@@ -65,9 +61,7 @@ const char* HttpResponse::statusText(int code) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // build
-// ─────────────────────────────────────────────────────────────────────────────
 
 std::string HttpResponse::build(int statusCode, const std::string& jsonBody,
                                 const std::string& requestOrigin) {
