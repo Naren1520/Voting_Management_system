@@ -197,10 +197,8 @@ services:
           cpus: "0.5"
           memory: 128M
 
-  # ──────────────────────────────────────────────────────────────────────────
   # Step 7 / Step 10: nginx reverse proxy
   # HTTPS termination, HTTP/2, compression, keep-alive, least_conn upstream
-  # ──────────────────────────────────────────────────────────────────────────
   nginx:
     build:
       context: .
@@ -238,10 +236,8 @@ services:
         max-size: "20m"
         max-file: "5"
 
-  # ──────────────────────────────────────────────────────────────────────────
   # Step 9 (Cloudflare): Certbot for TLS cert auto-renewal
   # Run once, then renew every 12h. Cloudflare DNS plugin supported.
-  # ──────────────────────────────────────────────────────────────────────────
   certbot:
     image: certbot/certbot:latest
     container_name: votestack_certbot
@@ -258,9 +254,7 @@ services:
     networks:
       - frontend
 
-  # ──────────────────────────────────────────────────────────────────────────
   # Step 11-12: Prometheus
-  # ──────────────────────────────────────────────────────────────────────────
   prometheus:
     image: prom/prometheus:v2.52.0
     container_name: votestack_prometheus
@@ -287,9 +281,7 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  # ──────────────────────────────────────────────────────────────────────────
   # Step 12: Grafana dashboard
-  # ──────────────────────────────────────────────────────────────────────────
   grafana:
     image: grafana/grafana:10.4.3
     container_name: votestack_grafana
@@ -315,9 +307,7 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  # ──────────────────────────────────────────────────────────────────────────
   # Exporters for Prometheus
-  # ──────────────────────────────────────────────────────────────────────────
 
   # Redis metrics exporter
   redis_exporter:
@@ -377,7 +367,7 @@ services:
     networks:
       - monitoring
 
-# ── Networks ────────────────────────────────────────────────────────────────
+# ── Networks 
 networks:
   backend:
     driver: bridge
@@ -386,7 +376,7 @@ networks:
   monitoring:
     driver: bridge
 
-# ── Volumes ─────────────────────────────────────────────────────────────────
+# ── Volumes 
 volumes:
   server_logs:
   nginx_logs:

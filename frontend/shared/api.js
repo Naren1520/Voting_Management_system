@@ -270,17 +270,3 @@ const SessionGuard = (() => {
 
   return { start, stop, goLogin };
 })();
-
-/**
- * Page loader helpers
- * Call hidePageLoader() once the page has finished loading data.
- */
-function hidePageLoader() {
-  const el = document.getElementById('pageLoader');
-  if (el) el.classList.add('hidden');
-}
-
-function showPageLoader() {
-  const el = document.getElementById('pageLoader');
-  if (el) el.classList.remove('hidden');
-}

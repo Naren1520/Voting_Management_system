@@ -1,8 +1,6 @@
-# ============================================================
 # Dockerfile — VoteStack backend (Render.com deployment)
-# ============================================================
 
-# ── Build stage ───────────────────────────────────────────────
+#  Build stage 
 FROM debian:bookworm AS builder
 
 WORKDIR /app
@@ -46,7 +44,7 @@ RUN mkdir -p bin && \
         -lcurl -lssl -lcrypto \
         -o bin/voting_server
 
-# ── Runtime stage ─────────────────────────────────────────────
+#  Runtime stage 
 FROM debian:bookworm-slim
 
 RUN apt-get update && \

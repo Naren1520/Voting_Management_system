@@ -46,7 +46,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadAll() {
   await Promise.all([loadPositions(), loadVoters(), loadResults()]);
-  hidePageLoader();
 }
 
 /* ─────────────────────────────────────────────────────

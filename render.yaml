@@ -1,10 +1,9 @@
-# ============================================================
+#
 # render.yaml — Render.com deployment config
-# ============================================================
 
 services:
 
-  # ── C++ Backend ─────────────────────────────────────────────
+  #  C++ Backend 
   - type: web
     name: voting-system-backend
     env: docker

@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Cast Your Vote — VoteStack</title>
   <link rel="stylesheet" href="/shared/styles.css"/>
-  <link rel="stylesheet" href="/shared/schedule.css"/>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
     .vote-page {
@@ -179,7 +178,6 @@
     </div>
   </div>
 
-  <div id="pageLoader" class="page-loader"><div class="loader"></div></div>
   <script src="/config.js"></script>
   <script src="/shared/api.js"></script>
   <script src="/shared/schedule.js"></script>
@@ -199,7 +197,6 @@
         API.publicCandidates(electionId)
       ]);
       document.getElementById('loadingMsg').style.display = 'none';
-      hidePageLoader();
 
       if (!infoRes.success) { showError(infoRes.message || 'Election not found'); return; }
 

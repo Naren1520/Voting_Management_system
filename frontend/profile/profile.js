@@ -23,7 +23,6 @@ function populateProfile() {
   setEl('profHeroAvatar', initials);
   setEl('profHeroName',   name);
   setEl('profNameVal',    name);
-  hidePageLoader();
   setEl('profEmailVal',   email);
 }
 
