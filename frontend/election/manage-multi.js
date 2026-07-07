@@ -162,7 +162,7 @@ function renderCandidateList(candidates, posId) {
       <div class="candidate-avatar">${esc(c.name).charAt(0).toUpperCase()}</div>
       <div class="candidate-info">
         <strong>${esc(c.name)}</strong>
-        <span>${c.votes} vote${c.votes !== 1 ? 's' : ''}</span>
+        <span>${c.votes ?? 0} vote${(c.votes ?? 0) !== 1 ? 's' : ''}</span>
       </div>
       <div class="candidate-rank">#${i + 1}</div>
       <button class="btn-danger-icon" onclick="deleteCandidate('${esc(posId)}','${esc(c.name)}')" title="Remove">

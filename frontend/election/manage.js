@@ -106,13 +106,13 @@ async function loadCandidates() {
     return;
   }
 
-  const sorted = [...cands].sort((a, b) => b.votes - a.votes);
+  const sorted = [...cands].sort((a, b) => (b.votes||0) - (a.votes||0));
   list.innerHTML = sorted.map((c, i) => `
     <div class="candidate-card">
       <div class="candidate-avatar">${esc(c.name).charAt(0).toUpperCase()}</div>
       <div class="candidate-info">
         <strong>${esc(c.name)}</strong>
-        <span>${c.votes} vote${c.votes !== 1 ? 's' : ''}</span>
+        <span>${c.votes ?? 0} vote${(c.votes ?? 0) !== 1 ? 's' : ''}</span>
       </div>
       <div class="candidate-rank">#${i + 1}</div>
       <button class="btn-danger-icon" onclick="deleteCandidate('${esc(c.name)}')" title="Remove candidate">
@@ -142,9 +142,9 @@ async function deleteCandidate(name) {
   toast('Candidate removed.');
 }
 
-/* ─────────────────────────────────────────────────────
+/* 
    VOTERS
-───────────────────────────────────────────────────── */
+ */
 async function loadVoters() {
   // Fetch registered voters and voted IDs in parallel
   const [voterRes, votedRes] = await Promise.all([
@@ -261,9 +261,9 @@ async function deleteVoter(voterId) {
   toast('Voter removed.');
 }
 
-/* ─────────────────────────────────────────────────────
+/* 
    RESULTS & CHARTS
-───────────────────────────────────────────────────── */
+ */
 const CHART_COLORS = [
   '#0067b8', '#60a5fa', '#16a34a', '#4ade80',
   '#d97706', '#fb923c', '#9333ea', '#f472b6',
@@ -387,9 +387,9 @@ function renderCharts(labels, data) {
   });
 }
 
-/* ─────────────────────────────────────────────────────
+/* 
    HELPERS
-───────────────────────────────────────────────────── */
+ */
 function copyLink() {
   const el   = document.getElementById('shareUrl');
   const link = el._link || el.textContent;
