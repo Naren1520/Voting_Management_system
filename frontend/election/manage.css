@@ -522,11 +522,21 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
  */
 .results-grid {
   display: grid;
-  grid-template-columns: 1fr 380px;
+  grid-template-columns: 1fr 1fr;
   gap: 24px;
   align-items: start;
 }
 @media (max-width: 960px) { .results-grid { grid-template-columns: 1fr; } }
+
+/* Charts sit side by side — each takes full column */
+.charts-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+  grid-column: 1 / -1;   /* span full width of results-grid */
+}
+@media (max-width: 960px) { .charts-col { grid-template-columns: 1fr; } }
 
 .results-bars { display: flex; flex-direction: column; gap: 16px; }
 .result-row { margin-bottom: 16px; }
@@ -563,10 +573,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   padding: 24px;
-  position: sticky; top: 80px;
 }
 .chart-card h3 { font-size: .9375rem; font-weight: 700; color: var(--ink); margin-bottom: 20px; }
-.chart-container { position: relative; height: 280px; }
+.chart-container { position: relative; height: 260px; }
 
 /* Results total card */
 .results-total-card {

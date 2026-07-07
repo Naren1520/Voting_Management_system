@@ -74,11 +74,18 @@
 }
 
 /* ── Results per position ── */
+#multiResultsList {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 860px) { #multiResultsList { grid-template-columns: 1fr; } }
+
 .pos-result-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
-  margin-bottom: 16px;
   overflow: hidden;
 }
 .pos-result-header {
