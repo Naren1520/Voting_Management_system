@@ -200,7 +200,50 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .share-banner-icon svg { width: 18px; height: 18px; stroke: var(--blue); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .share-banner-text { flex: 1; min-width: 160px; }
 .share-banner-text h3 { font-size: .9375rem; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
-.share-banner-text p  { font-size: .8125rem; color: var(--ink-4); }
+.share-banner-text p  { font-size: .8125rem; color: var(--ink-4); margin-bottom: 8px; }
+
+/* Election ID row inside share banner */
+.election-id-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.election-id-label {
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--ink-4);
+  white-space: nowrap;
+}
+.election-id-value {
+  font-size: .75rem;
+  font-family: 'ui-monospace', 'SFMono-Regular', monospace;
+  color: var(--ink-3);
+  background: var(--surface-2);
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  letter-spacing: .02em;
+  user-select: all;
+}
+.election-id-copy {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 3px;
+  color: var(--ink-4);
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: color .15s, background .15s;
+}
+.election-id-copy:hover { color: var(--blue); background: var(--blue-light); }
+.election-id-copy svg {
+  width: 13px; height: 13px;
+  stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
 .share-url-pill {
   flex: 1; min-width: 200px; max-width: 480px;
   padding: 10px 16px;

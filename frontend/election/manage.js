@@ -39,6 +39,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('shareUrl').textContent = link;
   document.getElementById('shareUrl')._link = link;
 
+  // Show election ID
+  document.getElementById('electionIdDisplay').textContent = electionId;
+
   // Build schedule widget with saved values
   Schedule.buildWidget('manageSchedWidget');
   Schedule.setValue('manageSchedWidget', e);
@@ -402,6 +405,10 @@ function copyLink() {
   const el   = document.getElementById('shareUrl');
   const link = el._link || el.textContent;
   navigator.clipboard.writeText(link).then(() => toast('Voting link copied!'));
+}
+
+function copyElectionId() {
+  navigator.clipboard.writeText(electionId).then(() => toast('Election ID copied!'));
 }
 
 function showMsg(id, text, type) {

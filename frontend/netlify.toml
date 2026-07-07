@@ -35,6 +35,11 @@
   status = 301
 
 [[redirects]]
+  from   = "/join"
+  to     = "/join/index.html"
+  status = 301
+
+[[redirects]]
   from   = "/vote/:id"
   to     = "/vote/index.html"
   status = 200

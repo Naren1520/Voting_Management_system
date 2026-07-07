@@ -1,0 +1,222 @@
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #f8faff 0%, #eef2ff 100%);
+}
+
+.join-wrap {
+  width: 100%;
+  max-width: 460px;
+}
+
+/*  Brand  */
+.join-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 40px;
+  text-decoration: none;
+}
+.join-brand img {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+}
+.join-brand span {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: -.02em;
+}
+
+/*  Card  */
+.join-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 40px 36px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.06);
+}
+
+.join-icon {
+  width: 56px;
+  height: 56px;
+  background: #eff6ff;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+.join-icon svg {
+  width: 26px;
+  height: 26px;
+  stroke: #2563eb;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.join-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: -.02em;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.join-sub {
+  font-size: .875rem;
+  color: #6b7280;
+  text-align: center;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+/*  Input  */
+.field-label {
+  display: block;
+  font-size: .8125rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 7px;
+}
+.field-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  font-size: .9375rem;
+  color: #1a1a1a;
+  background: #fff;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  box-sizing: border-box;
+  font-family: 'ui-monospace', 'SFMono-Regular', monospace;
+  letter-spacing: .02em;
+}
+.field-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+}
+.field-input::placeholder {
+  color: #9ca3af;
+  letter-spacing: normal;
+  font-family: inherit;
+}
+.field-hint {
+  font-size: .75rem;
+  color: #9ca3af;
+  margin-top: 6px;
+}
+
+/*  Button  */
+.join-btn {
+  width: 100%;
+  margin-top: 24px;
+  padding: 13px 20px;
+  background: #1a1a1a;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: .9375rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background .2s, transform .15s;
+}
+.join-btn:hover    { background: #2e2e2e; transform: translateY(-1px); }
+.join-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+.join-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/*  Error  */
+.join-error {
+  display: none;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: .8125rem;
+  color: #dc2626;
+  margin-top: 16px;
+  text-align: center;
+}
+
+/*  Divider  */
+.join-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 28px 0;
+}
+.join-divider::before,
+.join-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e5e7eb;
+}
+.join-divider span {
+  font-size: .75rem;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+/*  Login link  */
+.join-login-link {
+  text-align: center;
+  font-size: .875rem;
+  color: #6b7280;
+}
+.join-login-link a {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+}
+.join-login-link a:hover { text-decoration: underline; }
+
+/*  Footer  */
+.join-footer {
+  text-align: center;
+  margin-top: 28px;
+  font-size: .75rem;
+  color: #9ca3af;
+}
+.join-footer a         { color: #9ca3af; text-decoration: none; }
+.join-footer a:hover   { color: #6b7280; }
+
+/*  Spinner  */
+.btn-spinner {
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(255,255,255,.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  display: inline-block;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/*  Responsive  */
+@media (max-width: 480px) {
+  .join-card { padding: 28px 20px; }
+}

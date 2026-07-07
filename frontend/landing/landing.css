@@ -1445,6 +1445,30 @@ img {
 }
 
 /* Ghost — liquid glass */
+.btn-cinema-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 28px;
+  background: rgba(255,255,255,.1);
+  color: rgba(255,255,255,.9);
+  font-size: 14.5px;
+  font-weight: 600;
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 100px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .2s, transform .15s, box-shadow .2s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.btn-cinema-secondary:hover {
+  background: rgba(255,255,255,.18);
+  border-color: rgba(255,255,255,.4);
+  transform: translateY(-1px);
+}
+
+/* Ghost — liquid glass */
 .btn-cinema-ghost {
   display: inline-flex;
   align-items: center;
