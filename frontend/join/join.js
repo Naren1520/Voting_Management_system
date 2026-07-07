@@ -1,3 +1,6 @@
+/* ============================================================
+   join.js — VoteStack election entry page
+   ============================================================ */
 
 async function joinElection() {
   const raw = document.getElementById('electionIdInput').value.trim();
@@ -22,22 +25,12 @@ async function joinElection() {
 
   setLoading(btn, true);
 
-  // Try standard election info first
+  // Single call — backend now returns election_type in the response
   let infoRes;
   try {
     infoRes = await API.getElectionInfo(raw);
   } catch (_) {
     infoRes = { success: false };
-  }
-
-  // If not found as standard, try multi-position
-  if (!infoRes.success) {
-    try {
-      infoRes = await API.getMultiInfo(raw);
-      infoRes._type = 'multi';
-    } catch (_) {
-      infoRes = { success: false };
-    }
   }
 
   setLoading(btn, false);
@@ -52,8 +45,8 @@ async function joinElection() {
     return;
   }
 
-  // Redirect to the correct ballot page
-  const type = infoRes._type || infoRes.election_type || 'standard';
+  // Route to correct ballot based on election_type from server
+  const type = infoRes.election_type || 'standard';
   const dest = type === 'multi'
     ? '/vote-multi/index.html?election=' + encodeURIComponent(raw)
     : '/vote/index.html?election='       + encodeURIComponent(raw);
@@ -61,13 +54,12 @@ async function joinElection() {
   window.location.href = dest;
 }
 
-/*  Helpers  */
+/* ── Helpers ──────────────────────────────────────────────── */
 
 function setLoading(btn, loading) {
   if (loading) {
     btn.disabled  = true;
-    btn.innerHTML =
-      '<span class="btn-spinner"></span> Checking…';
+    btn.innerHTML = '<span class="btn-spinner"></span> Checking…';
   } else {
     btn.disabled  = false;
     btn.innerHTML =

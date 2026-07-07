@@ -628,7 +628,7 @@ std::string EpollServer::route(const HttpRequest& req) {
         // GET /api/vote/:id/info
         if (segs.size()==4 && segs[1]=="vote" && segs[3]=="info") {
             auto r = supabaseRequest("GET",
-                "elections?select=title,is_active,schedule_type,starts_at,ends_at,"
+                "elections?select=title,is_active,election_type,schedule_type,starts_at,ends_at,"
                 "schedule_json,timezone&id=eq."+segs[2]+"&limit=1");
             try {
                 auto arr = json::parse(r.body);
@@ -636,6 +636,7 @@ std::string EpollServer::route(const HttpRequest& req) {
                     json res; res["success"] = true;
                     res["title"]         = arr[0]["title"];
                     res["is_active"]     = arr[0]["is_active"];
+                    res["election_type"] = arr[0].value("election_type","standard");
                     res["schedule_type"] = arr[0].value("schedule_type","always_on");
                     res["timezone"]      = arr[0].value("timezone","UTC");
                     if (arr[0].contains("starts_at") && !arr[0]["starts_at"].is_null())
