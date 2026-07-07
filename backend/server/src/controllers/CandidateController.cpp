@@ -18,8 +18,8 @@ json CandidateController::getCandidates(const std::string& userId,
         json r; r["success"]=false; r["message"]="Unauthorized"; return r;
     }
     auto res = supabaseRequest("GET",
-        "candidates?select=id,name,votes&election_id=eq."+electionId+
-        "&order=votes.desc");
+        "candidates?select=id,name&election_id=eq."+electionId+
+        "&order=name.asc");
     try {
         json r; r["success"]=true; r["candidates"]=json::parse(res.body); return r;
     } catch (...) {
@@ -47,7 +47,7 @@ json CandidateController::addCandidate(const std::string& userId,
         }
     } catch (...) {}
 
-    json body; body["election_id"]=electionId; body["name"]=name; body["votes"]=0;
+    json body; body["election_id"]=electionId; body["name"]=name;
     auto r = supabaseRequest("POST","candidates",body.dump());
     try {
         auto arr = json::parse(r.body);

@@ -16,8 +16,8 @@ json PositionController::getPositions(const std::string& userId,
         json r; r["success"]=false; r["message"]="Unauthorized"; return r;
     }
     auto r = supabaseRequest("GET",
-        "positions?select=id,title,order_index&election_id=eq."+electionId+
-        "&order=order_index.asc");
+        "positions?select=id,title&election_id=eq."+electionId+
+        "&order=created_at.asc");
     try {
         json res; res["success"]=true; res["positions"]=json::parse(r.body); return res;
     } catch (...) {
@@ -35,16 +35,10 @@ json PositionController::addPosition(const std::string& userId,
     if (title.empty()) {
         res["success"]=false; res["message"]="Position title required"; return res;
     }
-    auto cnt = supabaseRequest("GET",
-        "positions?select=id&election_id=eq."+electionId);
-    int idx = 0;
-    try { auto a = json::parse(cnt.body); if (a.is_array()) idx=(int)a.size(); }
-    catch (...) {}
 
     json body;
     body["election_id"] = electionId;
     body["title"]       = title;
-    body["order_index"] = idx;
     auto r = supabaseRequest("POST","positions",body.dump());
     try {
         auto arr = json::parse(r.body);
@@ -54,9 +48,7 @@ json PositionController::addPosition(const std::string& userId,
         } else {
             LOG_ERROR("[addPosition] Supabase error. Status: " +
                       std::to_string(r.statusCode) + " Body: " + r.body);
-            res["success"]=false;
-            res["message"]="Failed to add position (DB error: " +
-                            std::to_string(r.statusCode) + ")";
+            res["success"]=false; res["message"]="Failed to add position";
         }
     } catch (...) { res["success"]=false; res["message"]="Server error"; }
     return res;
@@ -82,8 +74,8 @@ json PositionController::getCandidates(const std::string& userId,
         json r; r["success"]=false; r["message"]="Unauthorized"; return r;
     }
     auto r = supabaseRequest("GET",
-        "candidates?select=id,name,votes&election_id=eq."+electionId+
-        "&position_id=eq."+positionId+"&order=votes.desc");
+        "position_candidates?select=id,name&position_id=eq."+positionId+
+        "&order=name.asc");
     try {
         json res; res["success"]=true; res["candidates"]=json::parse(r.body); return res;
     } catch (...) {
@@ -103,8 +95,7 @@ json PositionController::addCandidate(const std::string& userId,
         res["success"]=false; res["message"]="Candidate name required"; return res;
     }
     auto check = supabaseRequest("GET",
-        "candidates?select=id&election_id=eq."+electionId+
-        "&position_id=eq."+positionId+
+        "position_candidates?select=id&position_id=eq."+positionId+
         "&name=eq."+SupabaseClient::urlEncode(name)+"&limit=1");
     try {
         auto a = json::parse(check.body);
@@ -119,8 +110,7 @@ json PositionController::addCandidate(const std::string& userId,
     body["election_id"] = electionId;
     body["position_id"] = positionId;
     body["name"]        = name;
-    body["votes"]       = 0;
-    auto r = supabaseRequest("POST","candidates",body.dump());
+    auto r = supabaseRequest("POST","position_candidates",body.dump());
     try {
         auto arr = json::parse(r.body);
         if ((r.statusCode==200||r.statusCode==201) && arr.is_array() && !arr.empty()) {
@@ -141,8 +131,7 @@ json PositionController::deleteCandidate(const std::string& userId,
         json r; r["success"]=false; r["message"]="Unauthorized"; return r;
     }
     supabaseRequest("DELETE",
-        "candidates?election_id=eq."+electionId+
-        "&position_id=eq."+positionId+
+        "position_candidates?position_id=eq."+positionId+
         "&name=eq."+SupabaseClient::urlEncode(name));
     json res; res["success"]=true; res["message"]="Candidate removed";
     res["candidates"] = getCandidates(userId,electionId,positionId)["candidates"];

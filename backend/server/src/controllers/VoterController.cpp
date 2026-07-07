@@ -17,7 +17,7 @@ json VoterController::getVoters(const std::string& userId,
         json r; r["success"]=false; r["message"]="Unauthorized"; return r;
     }
     auto res = supabaseRequest("GET",
-        "registered_voters?select=id,voter_id,name,email,phone"
+        "voters?select=id,voter_id,name,email,phone"
         "&election_id=eq."+electionId+"&order=name.asc");
     try {
         json r; r["success"]=true; r["voters"]=json::parse(res.body); return r;
@@ -40,7 +40,7 @@ json VoterController::addVoter(const std::string& userId,
         res["success"]=false; res["message"]="Voter ID and name are required"; return res;
     }
     auto check = supabaseRequest("GET",
-        "registered_voters?select=id&election_id=eq."+electionId+
+        "voters?select=id&election_id=eq."+electionId+
         "&voter_id=eq."+SupabaseClient::urlEncode(voterId)+"&limit=1");
     try {
         auto arr = json::parse(check.body);
@@ -55,7 +55,7 @@ json VoterController::addVoter(const std::string& userId,
     body["name"]        = name;
     body["email"]       = email;
     body["phone"]       = phone;
-    supabaseRequest("POST","registered_voters",body.dump());
+    supabaseRequest("POST","voters",body.dump());
     res["success"]=true; res["message"]="Voter added";
     res["voters"] = getVoters(userId,electionId)["voters"];
     return res;
@@ -73,10 +73,9 @@ json VoterController::syncVoters(const std::string& userId,
     }
 
     // Delete existing voters first
-    supabaseRequest("DELETE","registered_voters?election_id=eq."+electionId);
+    supabaseRequest("DELETE","voters?election_id=eq."+electionId);
 
-    // Batch-insert all voters in a single POST (Supabase accepts a JSON array).
-    // This reduces N serial round-trips to exactly 1.
+    // Batch-insert all voters in a single POST
     if (!voterList.empty()) {
         json batch = json::array();
         for (const auto& v : voterList) {
@@ -86,12 +85,11 @@ json VoterController::syncVoters(const std::string& userId,
             row["name"]        = v.value("name","");
             row["email"]       = v.value("email","");
             row["phone"]       = v.value("phone","");
-            // Skip rows with no voter_id
             if (!row["voter_id"].get<std::string>().empty())
                 batch.push_back(row);
         }
         if (!batch.empty())
-            supabaseRequest("POST","registered_voters",batch.dump());
+            supabaseRequest("POST","voters",batch.dump());
     }
 
     res["success"]=true; res["message"]="Voters synced";
@@ -106,7 +104,7 @@ json VoterController::deleteVoter(const std::string& userId,
         json r; r["success"]=false; r["message"]="Unauthorized"; return r;
     }
     supabaseRequest("DELETE",
-        "registered_voters?election_id=eq."+electionId+
+        "voters?election_id=eq."+electionId+
         "&voter_id=eq."+SupabaseClient::urlEncode(voterId));
     json res; res["success"]=true; res["message"]="Voter removed";
     return res;

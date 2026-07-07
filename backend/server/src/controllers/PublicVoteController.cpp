@@ -30,7 +30,7 @@ json PublicVoteController::getCandidates(const std::string& electionId) {
     }
 
     auto res = supabaseRequest("GET",
-        "candidates?select=name,votes&election_id=eq."+electionId+"&order=name.asc");
+        "candidates?select=name&election_id=eq."+electionId+"&order=name.asc");
     try {
         auto candidatesJson = json::parse(res.body);
         cache.set(electionId, candidatesJson.dump());
@@ -49,7 +49,7 @@ json PublicVoteController::checkVoter(const std::string& electionId,
         res["success"]=false; res["message"]="Voter ID required"; return res;
     }
     auto reg = supabaseRequest("GET",
-        "registered_voters?select=voter_id,name&election_id=eq."+electionId+
+        "voters?select=voter_id,name&election_id=eq."+electionId+
         "&voter_id=eq."+SupabaseClient::urlEncode(voterId)+"&limit=1");
     try {
         auto arr = json::parse(reg.body);
@@ -165,7 +165,7 @@ json PublicVoteController::castVote(const std::string& electionId,
 
     // Verify voter is registered
     auto reg = supabaseRequest("GET",
-        "registered_voters?select=voter_id&election_id=eq."+electionId+
+        "voters?select=voter_id&election_id=eq."+electionId+
         "&voter_id=eq."+SupabaseClient::urlEncode(voterId)+"&limit=1");
     try {
         auto arr = json::parse(reg.body);
@@ -221,8 +221,8 @@ json PublicVoteController::castVote(const std::string& electionId,
                  "falling back to two-step write. "
                  "Create the SQL function to fix the TOCTOU race!");
 
-        // Legacy fallback (still better than nothing for existing deployments)
-        // Check again immediately before writing to narrow the race window
+        // Legacy fallback — direct insert into votes_cast
+        // Check again immediately before writing
         auto voted = supabaseRequest("GET",
             "votes_cast?select=voter_id&election_id=eq."+electionId+
             "&voter_id=eq."+SupabaseClient::urlEncode(voterId)+"&limit=1");
@@ -232,22 +232,6 @@ json PublicVoteController::castVote(const std::string& electionId,
                 res["success"]=false;
                 res["message"]="You have already voted in this election";
                 return res;
-            }
-        } catch (...) {}
-
-        // Fetch current vote count for PATCH
-        auto candFull = supabaseRequest("GET",
-            "candidates?select=name,votes&election_id=eq."+electionId+
-            "&name=eq."+SupabaseClient::urlEncode(candidateName)+"&limit=1");
-        try {
-            auto arr = json::parse(candFull.body);
-            if (arr.is_array() && !arr.empty()) {
-                int newVotes = arr[0]["votes"].get<int>() + 1;
-                json upd; upd["votes"] = newVotes;
-                supabaseRequest("PATCH",
-                    "candidates?election_id=eq."+electionId+
-                    "&name=eq."+SupabaseClient::urlEncode(candidateName),
-                    upd.dump());
             }
         } catch (...) {}
 
@@ -268,30 +252,46 @@ json PublicVoteController::castVote(const std::string& electionId,
     return res;
 }
 
-// getResults
-
 json PublicVoteController::getResults(const std::string& electionId) {
-    // Candidates (already ordered by votes desc)
+    // Get candidate names
     auto cands = supabaseRequest("GET",
-        "candidates?select=name,votes&election_id=eq."+electionId+"&order=votes.desc");
+        "candidates?select=name&election_id=eq."+electionId+"&order=name.asc");
 
-    // Use PostgREST aggregate count instead of fetching all rows.
-    // "Prefer: count=exact" makes Supabase return Content-Range: 0-0/N
-    // where N is the total. We parse it from the response body by requesting
-    // a minimal 1-row slice with count embedded.
-    // Simpler: use the RPC or just sum votes from candidates (already fetched).
-    int totalVotes = 0;
+    // Get all votes for this election
+    auto votes = supabaseRequest("GET",
+        "votes_cast?select=candidate_name&election_id=eq."+electionId);
+
     try {
-        auto candArr = json::parse(cands.body);
-        json res;
-        res["success"]    = true;
-        res["candidates"] = candArr;
-        // Sum votes from the candidates array — no extra DB round-trip needed
+        auto candArr  = json::parse(cands.body);
+        auto votesArr = json::parse(votes.body);
+
+        // Count votes per candidate
+        std::map<std::string, int> counts;
         if (candArr.is_array()) {
-            for (auto& c : candArr) {
-                totalVotes += c.value("votes", 0);
+            for (auto& c : candArr) counts[c["name"].get<std::string>()] = 0;
+        }
+        int totalVotes = 0;
+        if (votesArr.is_array()) {
+            for (auto& v : votesArr) {
+                std::string cn = v.value("candidate_name","");
+                if (!cn.empty()) { counts[cn]++; totalVotes++; }
             }
         }
+
+        // Build result array sorted by votes descending
+        json resultArr = json::array();
+        for (auto& [name, cnt] : counts) {
+            json c; c["name"]=name; c["votes"]=cnt;
+            resultArr.push_back(c);
+        }
+        std::sort(resultArr.begin(), resultArr.end(),
+            [](const json& a, const json& b){
+                return a["votes"].get<int>() > b["votes"].get<int>();
+            });
+
+        json res;
+        res["success"]     = true;
+        res["candidates"]  = resultArr;
         res["total_votes"] = totalVotes;
         return res;
     } catch (...) {
