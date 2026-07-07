@@ -86,18 +86,31 @@ async function saveSchedule() {
    POSITIONS & CANDIDATES
 ───────────────────────────────────────────────────── */
 async function loadPositions() {
-  const [posRes] = await Promise.all([API.getPositions(electionId)]);
+  const [posRes, resultsRes] = await Promise.all([
+    API.getPositions(electionId),
+    API.getMultiResults(electionId)
+  ]);
   allPositions = posRes.positions || [];
 
   document.getElementById('statPositions').textContent = allPositions.length;
   document.getElementById('tcPos').textContent         = allPositions.length;
+
+  // Build vote count map: positionId -> { candidateName -> votes }
+  const voteMap = {};
+  (resultsRes.positions || []).forEach(pos => {
+    voteMap[pos.id] = {};
+    (pos.candidates || []).forEach(c => { voteMap[pos.id][c.name] = c.votes || 0; });
+  });
 
   // Load candidates for each position in parallel
   const candResults = await Promise.all(
     allPositions.map(p => API.getPosCandidates(electionId, p.id))
   );
   allPositions.forEach((p, i) => {
-    p.candidates = candResults[i].candidates || [];
+    p.candidates = (candResults[i].candidates || []).map(c => ({
+      ...c,
+      votes: (voteMap[p.id] && voteMap[p.id][c.name]) || 0
+    }));
   });
 
   const totalCands = allPositions.reduce((s, p) => s + p.candidates.length, 0);

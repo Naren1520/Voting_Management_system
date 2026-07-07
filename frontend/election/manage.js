@@ -90,9 +90,17 @@ async function saveSchedule() {
    CANDIDATES
 ───────────────────────────────────────────────────── */
 async function loadCandidates() {
-  const res   = await API.getCandidates(electionId);
+  const [res, resultsRes] = await Promise.all([
+    API.getCandidates(electionId),
+    API.getResults(electionId)
+  ]);
   const list  = document.getElementById('candidatesList');
   const cands = res.candidates || [];
+
+  // Merge vote counts from results into candidate list
+  const voteCounts = {};
+  (resultsRes.candidates || []).forEach(c => { voteCounts[c.name] = c.votes || 0; });
+  cands.forEach(c => { c.votes = voteCounts[c.name] || 0; });
 
   document.getElementById('statCandidates').textContent = cands.length;
   document.getElementById('tcCand').textContent         = cands.length;
