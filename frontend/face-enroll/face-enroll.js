@@ -1,6 +1,5 @@
 /**
- * face-enroll.js
- * Admin face enrollment page.
+ * face-enroll.js — Admin face enrollment
  *
  * Change 3: Embeddings generated at upload time, not at verification.
  * Change 4: Supports 3 photos (front/left/right).
@@ -10,8 +9,7 @@
 const params     = new URLSearchParams(location.search);
 const electionId = params.get('election');
 const voterId    = params.get('voter');
-
-const photoData  = [null, null, null];  // base64 per slot
+const photoData  = [null, null, null];
 
 document.addEventListener('DOMContentLoaded', () => {
   if (!Auth.requireAuth()) return;
@@ -20,32 +18,26 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
   document.getElementById('voterLabel').textContent =
-    `Voter: ${voterId} · Election: ${electionId}`;
+    `Voter: ${decodeURIComponent(voterId)} · Election: ${electionId}`;
 });
 
-/* ── Photo preview ───────────────────────────────────────────────────────── */
+/* ── Photo preview ───────────────────────────────────────────── */
 
 function previewPhoto(idx, input) {
   const file = input.files[0];
   if (!file) return;
-
   const reader = new FileReader();
   reader.onload = e => {
-    const b64 = e.target.result.split(',')[1];  // strip data URI prefix
-    photoData[idx] = b64;
-
-    // Show thumbnail
+    photoData[idx] = e.target.result.split(',')[1];
     const preview = document.getElementById(`preview${idx}`);
-    preview.innerHTML = `<img src="${e.target.result}" alt="Photo ${idx+1}"/>`;
+    preview.innerHTML = `<img src="${e.target.result}" alt="Photo ${idx + 1}"/>`;
     preview.classList.add('filled');
-
-    // Enable button if at least photo 0 (front) is loaded
     document.getElementById('enrollBtn').disabled = !photoData[0];
   };
   reader.readAsDataURL(file);
 }
 
-/* ── Enroll ──────────────────────────────────────────────────────────────── */
+/* ── Enroll ──────────────────────────────────────────────────── */
 
 async function enrollFace() {
   const photos = photoData.filter(Boolean);
@@ -58,12 +50,13 @@ async function enrollFace() {
   btn.disabled  = true;
   btn.innerHTML = '<span class="btn-spinner"></span> Generating embeddings…';
 
-  // Change 6: send base64 photos to backend — they are NOT stored
-  // Backend calls Python service → gets embeddings → stores encrypted embedding
-  const res = await API.enrollFace(electionId, voterId, photos);
+  const res = await API.enrollFace(electionId, decodeURIComponent(voterId), photos);
 
   btn.disabled  = false;
-  btn.innerHTML = 'Generate &amp; Save Embeddings <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+  btn.innerHTML =
+    'Generate &amp; Save Embeddings ' +
+    '<svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/>' +
+    '<polyline points="12 5 19 12 12 19"/></svg>';
 
   if (res.success) {
     document.getElementById('stepUpload').style.display = 'none';
@@ -75,11 +68,11 @@ async function enrollFace() {
   }
 }
 
-/* ── Helpers ─────────────────────────────────────────────────────────────── */
+/* ── Helpers ─────────────────────────────────────────────────── */
 
 function showMsg(text, type) {
   const el = document.getElementById('msgBox');
   el.textContent   = text;
-  el.className     = 'mn-msg ' + type;
+  el.className     = 'enroll-msg ' + type;
   el.style.display = 'block';
 }

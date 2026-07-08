@@ -5,20 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Enroll Face — VoteStack</title>
   <link rel="icon" href="/assets/Logo.png" type="image/png"/>
-  <link rel="stylesheet" href="/shared/styles.css"/>
-  <link rel="stylesheet" href="manage.css"/>
   <link rel="stylesheet" href="face-enroll.css"/>
-  <!-- MediaPipe FaceMesh for liveness -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
-  <header class="dash-header">
-    <div class="dash-header-inner">
-      <a class="dash-brand" href="/landing/index.html">
-        <img src="/assets/Logo.png" alt="VoteStack"/> VoteStack
+  <header class="fe-header">
+    <div class="fe-header-inner">
+      <a class="fe-brand" href="/landing/index.html">
+        <img src="/assets/Logo.png" alt="VoteStack"/>
+        <span>VoteStack</span>
       </a>
-      <button class="btn-logout" onclick="history.back()">← Back</button>
+      <button class="fe-back-btn" onclick="history.back()">
+        <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back
+      </button>
     </div>
   </header>
 
@@ -30,9 +30,9 @@
         <p id="voterLabel">Loading voter…</p>
       </div>
 
-      <div id="msgBox" class="mn-msg" style="display:none;margin-bottom:16px;"></div>
+      <div id="msgBox" class="enroll-msg" style="display:none;margin-bottom:16px;"></div>
 
-      <!-- Step 1: Upload photos -->
+      <!-- Upload photos -->
       <div id="stepUpload" class="enroll-card">
         <div class="enroll-step-title">
           <span class="step-num">1</span>
@@ -44,9 +44,8 @@
           Photos are processed immediately and never stored.
         </p>
 
-        <div class="photo-slots" id="photoSlots">
-          <!-- Front -->
-          <div class="photo-slot" id="slot0">
+        <div class="photo-slots">
+          <div class="photo-slot">
             <label class="slot-label" for="photo0">
               <div class="slot-preview" id="preview0">
                 <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
@@ -55,8 +54,7 @@
             </label>
             <input type="file" id="photo0" accept="image/*" style="display:none" onchange="previewPhoto(0, this)"/>
           </div>
-          <!-- Left -->
-          <div class="photo-slot" id="slot1">
+          <div class="photo-slot">
             <label class="slot-label" for="photo1">
               <div class="slot-preview" id="preview1">
                 <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
@@ -65,8 +63,7 @@
             </label>
             <input type="file" id="photo1" accept="image/*" style="display:none" onchange="previewPhoto(1, this)"/>
           </div>
-          <!-- Right -->
-          <div class="photo-slot" id="slot2">
+          <div class="photo-slot">
             <label class="slot-label" for="photo2">
               <div class="slot-preview" id="preview2">
                 <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
@@ -88,16 +85,16 @@
         </button>
       </div>
 
-      <!-- Step 2: Success -->
-      <div id="stepDone" class="enroll-card" style="display:none;text-align:center;">
-        <div class="done-icon-wrap" style="margin:0 auto 20px;width:64px;height:64px;background:#f0fdf4;border-radius:50%;display:flex;align-items:center;justify-content:center;">
-          <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Success -->
+      <div id="stepDone" class="enroll-card enroll-card--done" style="display:none;">
+        <div class="done-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
           </svg>
         </div>
-        <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:8px;">Face Enrolled</h2>
-        <p style="color:#6b7280;font-size:.9rem;" id="doneMsg">Embeddings saved. Photos were not stored.</p>
-        <button class="enroll-btn" style="margin-top:24px;" onclick="history.back()">
+        <h2>Face Enrolled</h2>
+        <p id="doneMsg">Embeddings saved. Photos were not stored.</p>
+        <button class="enroll-btn enroll-btn--outline" onclick="history.back()">
           ← Back to Voter List
         </button>
       </div>

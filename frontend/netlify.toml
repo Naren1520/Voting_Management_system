@@ -40,6 +40,11 @@
   status = 301
 
 [[redirects]]
+  from   = "/face-enroll"
+  to     = "/face-enroll/index.html"
+  status = 301
+
+[[redirects]]
   from   = "/vote/:id"
   to     = "/vote/index.html"
   status = 200
