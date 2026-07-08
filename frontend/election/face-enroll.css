@@ -1,5 +1,10 @@
 /* face-enroll.css */
 
+body {
+  background: #f3f4f6;
+  min-height: 100vh;
+}
+
 .enroll-page {
   max-width: 680px;
   margin: 40px auto;
@@ -150,4 +155,13 @@
 @media (max-width: 480px) {
   .photo-slots { flex-direction: column; }
   .photo-slot  { max-width: 100%; }
+}
+
+/* Override header to be solid white (manage.css makes it sticky/transparent) */
+.dash-header {
+  background: #fff !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
