@@ -97,7 +97,6 @@ async function checkVoter() {
 
   // Pre-mark positions already voted so we skip them
   const alreadyVoted = new Set(res.voted_positions || []);
-  // Filter to only un-voted positions
   positions = positions.filter(p => !alreadyVoted.has(p.id));
 
   if (!positions.length) {
@@ -105,7 +104,85 @@ async function checkVoter() {
     return;
   }
 
+  // Go to face verification step
   hide('stepId');
+  hideMsg();
+  document.getElementById('faceVoterLabel').textContent = voterId;
+  show('stepFace');
+  await openCamera();
+}
+
+/* ─────────────────────────────────────────────────────
+   Step 1.5 — Face Verification
+───────────────────────────────────────────────────── */
+let faceStream = null;
+
+async function openCamera() {
+  try {
+    faceStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+    document.getElementById('faceVideo').srcObject = faceStream;
+    document.getElementById('faceOverlay').textContent = 'Look at the camera and blink naturally';
+    document.getElementById('captureBtn').disabled = false;
+    document.getElementById('captureBtn').innerHTML =
+      '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>' +
+      'Start Face Verification';
+  } catch (e) {
+    showMsg('Camera not available. Proceeding without face verification.', 'info');
+    stopCamera();
+    proceedToBallot();
+  }
+}
+
+function stopCamera() {
+  if (faceStream) { faceStream.getTracks().forEach(t => t.stop()); faceStream = null; }
+}
+
+async function startCapture() {
+  const btn     = document.getElementById('captureBtn');
+  const overlay = document.getElementById('faceOverlay');
+  btn.disabled  = true;
+  btn.innerHTML = '<span class="spinner" style="width:14px;height:14px;display:inline-block;margin-right:8px;"></span>Capturing…';
+  overlay.textContent = 'Hold still… capturing frames';
+
+  const video  = document.getElementById('faceVideo');
+  const canvas = document.getElementById('faceCanvas');
+  canvas.width  = video.videoWidth  || 640;
+  canvas.height = video.videoHeight || 480;
+
+  // Capture best frame from 10 samples
+  let bestFrame = null, bestSize = 0;
+  for (let i = 0; i < 10; i++) {
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0);
+    const b64 = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
+    if (b64.length > bestSize) { bestSize = b64.length; bestFrame = b64; }
+    await new Promise(r => setTimeout(r, 80));
+  }
+
+  overlay.textContent = 'Verifying identity…';
+  const res = await API.verifyFace(electionId, currentVoterId, bestFrame);
+  stopCamera();
+
+  btn.disabled  = false;
+  btn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>Start Face Verification';
+
+  if (!res || !res.success) {
+    showMsg('Face verification unavailable. Proceeding.', 'info');
+    proceedToBallot();
+    return;
+  }
+
+  if (!res.verified) {
+    showMsg('Face verification failed (score: ' + (res.score || 0).toFixed(2) + '). Please try again.', 'error');
+    await openCamera();
+    return;
+  }
+
+  proceedToBallot();
+}
+
+function proceedToBallot() {
+  hide('stepFace');
   hideMsg();
   showVoteStep(0);
   show('stepVote');
