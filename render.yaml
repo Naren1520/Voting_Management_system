@@ -34,3 +34,13 @@ services:
 
       - key: LOG_FILE
         value: ""
+
+      # Face verification service (optional — deploy face-service/ separately)
+      - key: FACE_SERVICE_URL
+        sync: false        # set to your Modal/HuggingFace URL after deploying
+
+      - key: FACE_API_SECRET
+        sync: false        # must match FACE_API_SECRET in face-service
+
+      - key: FACE_THRESHOLD
+        value: "0.82"

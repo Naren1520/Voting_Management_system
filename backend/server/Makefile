@@ -23,7 +23,8 @@ SRCS := $(SRCDIR)/main.cpp \
         $(SRCDIR)/controllers/VoterController.cpp \
         $(SRCDIR)/controllers/PositionController.cpp \
         $(SRCDIR)/controllers/PublicVoteController.cpp \
-        $(SRCDIR)/controllers/PublicMultiVoteController.cpp
+        $(SRCDIR)/controllers/PublicMultiVoteController.cpp \
+        $(SRCDIR)/controllers/FaceController.cpp
 
 OBJS := $(patsubst $(SRCDIR)/%.cpp, $(BINDIR)/obj/%.o, $(SRCS))
 

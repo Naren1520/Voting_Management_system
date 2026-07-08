@@ -92,7 +92,11 @@ const API = (() => {
       req('DELETE', `/api/elections/${elecId}/voters`, { voter_id }),
     getVotedIds:  (elecId)         => req('GET',    `/api/elections/${elecId}/voted`),
 
-    // Public voting (no auth)
+    // Face verification
+    enrollFace: (elecId, voterId, photos) =>
+      req('POST', `/api/elections/${elecId}/voters/${encodeURIComponent(voterId)}/enroll-face`, { photos }),
+    verifyFace: (elecId, voterId, bestFrame, threshold) =>
+      req('POST', `/api/vote/${elecId}/verify-face`, { voter_id: voterId, best_frame: bestFrame, ...(threshold ? { threshold } : {}) }, false),
     publicCandidates: (elecId) =>
       req('GET',  `/api/vote/${elecId}/candidates`, null, false),
     getElectionInfo: (elecId) =>

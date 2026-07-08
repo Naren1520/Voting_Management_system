@@ -14,6 +14,7 @@
 #include "../../include/controllers/PositionController.h"
 #include "../../include/controllers/PublicVoteController.h"
 #include "../../include/controllers/PublicMultiVoteController.h"
+#include "../../include/controllers/FaceController.h"
 #include "../../third_party/json.hpp"
 
 #include <sys/epoll.h>
@@ -40,6 +41,7 @@ static VoterController           g_voter;
 static PositionController        g_position;
 static PublicVoteController      g_vote;
 static PublicMultiVoteController g_multiVote;
+static FaceController            g_face;
 
 // Constructor / Destructor
 
@@ -649,6 +651,47 @@ std::string EpollServer::route(const HttpRequest& req) {
                 }
             } catch (...) {}
             return HttpResponse::buildError(404, "Election not found");
+        }
+
+        // ── FACE VERIFICATION ────────────────────────────────────────────────
+
+        // POST /api/elections/:id/voters/:voterId/enroll-face
+        // Admin enrolls voter's face (1–3 photos)
+        if (segs.size()==6 && segs[1]=="elections" && segs[3]=="voters" &&
+            segs[5]=="enroll-face" && method=="POST") {
+            std::string uid = g_auth.validateToken(token);
+            if (uid.empty()) return HttpResponse::buildError(401, "Unauthorized");
+            try {
+                auto rb = json::parse(body);
+                std::vector<std::string> photos;
+                if (rb.contains("photos") && rb["photos"].is_array()) {
+                    for (auto& p : rb["photos"]) photos.push_back(p.get<std::string>());
+                } else if (rb.contains("photo")) {
+                    photos.push_back(rb["photo"].get<std::string>());
+                }
+                auto r = g_face.enroll(uid, segs[2], segs[4], photos);
+                return HttpResponse::build(r["success"].get<bool>() ? 200 : 400, r.dump(), origin);
+            } catch (...) {
+                return HttpResponse::buildError(400, "Invalid request body");
+            }
+        }
+
+        // POST /api/vote/:id/verify-face
+        // Voter verifies face before ballot — C++ fetches embeddings (Change 1)
+        if (segs.size()==4 && segs[1]=="vote" && segs[3]=="verify-face" && method=="POST") {
+            try {
+                auto rb = json::parse(body);
+                std::string voterId   = rb.value("voter_id","");
+                std::string bestFrame = rb.value("best_frame","");
+                float threshold       = rb.value("threshold", 0.0f);
+                if (voterId.empty() || bestFrame.empty()) {
+                    return HttpResponse::buildError(400, "voter_id and best_frame required");
+                }
+                auto r = g_face.verify(segs[2], voterId, bestFrame, threshold);
+                return HttpResponse::build(r["success"].get<bool>() ? 200 : 400, r.dump(), origin);
+            } catch (...) {
+                return HttpResponse::buildError(400, "Invalid request body");
+            }
         }
 
         // ── 404 ───────────────────────────────────────────────────────────

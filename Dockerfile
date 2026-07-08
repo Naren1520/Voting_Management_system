@@ -40,6 +40,7 @@ RUN mkdir -p bin && \
         src/controllers/PositionController.cpp \
         src/controllers/PublicVoteController.cpp \
         src/controllers/PublicMultiVoteController.cpp \
+        src/controllers/FaceController.cpp \
         -Iinclude -Ithird_party \
         -lcurl -lssl -lcrypto \
         -o bin/voting_server

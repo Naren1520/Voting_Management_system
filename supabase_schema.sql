@@ -146,3 +146,22 @@ GRANT ALL ON public.position_candidates TO anon, authenticated;
 GRANT ALL ON public.multi_votes_cast    TO anon, authenticated;
 
 -- SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY 1;
+
+-- ── Voter face embeddings (biometric verification) 
+-- Stores AES-256-GCM encrypted InsightFace embeddings.
+-- Raw photos are NEVER stored — only embeddings (Change 6).
+CREATE TABLE IF NOT EXISTS public.voter_embeddings (
+    id              UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+    election_id     UUID        NOT NULL REFERENCES public.elections(id) ON DELETE CASCADE,
+    voter_id        TEXT        NOT NULL,
+    embeddings_json TEXT        NOT NULL,  -- encrypted JSON array of float arrays
+    embedding_count INT         NOT NULL DEFAULT 1,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE(election_id, voter_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_face_embeddings_voter
+    ON public.voter_embeddings(election_id, voter_id);
+
+ALTER TABLE public.voter_embeddings DISABLE ROW LEVEL SECURITY;
+GRANT ALL ON public.voter_embeddings TO anon, authenticated;
