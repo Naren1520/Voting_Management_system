@@ -3,13 +3,23 @@
 #include "../../include/core/Logger.h"
 #include "../../include/core/Config.h"
 
+#include <curl/curl.h>
 #include <cstdlib>
 #include <sstream>
 
 // ─────────────────────────────────────────────────────────────────────────────
-// callFaceService
+// libcurl write callback
+// ─────────────────────────────────────────────────────────────────────────────
+
+static size_t faceWriteCallback(char* ptr, size_t size, size_t nmemb, void* userdata) {
+    auto* buf = reinterpret_cast<std::string*>(userdata);
+    buf->append(ptr, size * nmemb);
+    return size * nmemb;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// callFaceService — direct libcurl call to Modal (or any external URL)
 // Change 1: Python service never calls Supabase.
-//           C++ backend sends everything the Python service needs.
 // ─────────────────────────────────────────────────────────────────────────────
 
 json FaceController::callFaceService(const std::string& endpoint, const json& body) {
@@ -17,34 +27,57 @@ json FaceController::callFaceService(const std::string& endpoint, const json& bo
     const char* faceKey = std::getenv("FACE_API_SECRET");
 
     if (!faceUrl || !faceKey) {
+        LOG_WARN("[FaceController] FACE_SERVICE_URL or FACE_API_SECRET not set");
         json err; err["success"] = false;
-        err["message"] = "Face service not configured";
+        err["message"] = "Face service not configured (set FACE_SERVICE_URL and FACE_API_SECRET)";
         return err;
     }
 
-    // Use SupabaseClient's curl pool for the outbound HTTP call
-    // We set the auth header manually via extraHeader param
+    std::string url = std::string(faceUrl) + endpoint;
+    std::string bodyStr = body.dump();
     std::string authHeader = "Authorization: Bearer " + std::string(faceKey);
+    std::string responseBody;
 
-    // Build the full URL
-    std::string fullEndpoint = std::string(faceUrl) + endpoint;
+    CURL* curl = curl_easy_init();
+    if (!curl) {
+        json err; err["success"] = false;
+        err["message"] = "Failed to init HTTP client";
+        return err;
+    }
 
-    // Temporarily use curl directly via SupabaseClient request
-    // by building a compatible URL (reuse the existing curl pool)
-    auto result = SupabaseClient::instance().request(
-        "POST",
-        fullEndpoint,   // NOTE: SupabaseClient prepends supabaseUrl — see note below
-        body.dump(),
-        authHeader
-    );
+    struct curl_slist* headers = nullptr;
+    headers = curl_slist_append(headers, "Content-Type: application/json");
+    headers = curl_slist_append(headers, authHeader.c_str());
 
-    // NOTE: SupabaseClient::request() prepends the Supabase URL.
-    // For production, add a separate FaceClient class that uses raw libcurl
-    // with FACE_SERVICE_URL. This placeholder shows the integration pattern.
+    curl_easy_setopt(curl, CURLOPT_URL,           url.c_str());
+    curl_easy_setopt(curl, CURLOPT_POST,           1L);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS,     bodyStr.c_str());
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE,  static_cast<long>(bodyStr.size()));
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER,     headers);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,  faceWriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA,      &responseBody);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT,        90L);   // 90s — Modal cold start
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+
+    CURLcode res = curl_easy_perform(curl);
+    long httpCode = 0;
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
+    curl_slist_free_all(headers);
+    curl_easy_cleanup(curl);
+
+    if (res != CURLE_OK) {
+        LOG_ERROR("[FaceController] curl failed: " + std::string(curl_easy_strerror(res)));
+        json err; err["success"] = false;
+        err["message"] = "Failed to reach face service";
+        return err;
+    }
+
+    LOG_INFO("[FaceController] " + endpoint + " -> HTTP " + std::to_string(httpCode));
 
     try {
-        return json::parse(result.body);
+        return json::parse(responseBody);
     } catch (...) {
+        LOG_ERROR("[FaceController] Invalid JSON from face service: " + responseBody.substr(0, 200));
         json err; err["success"] = false;
         err["message"] = "Invalid response from face service";
         return err;

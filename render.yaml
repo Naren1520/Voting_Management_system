@@ -37,7 +37,7 @@ services:
 
       # Face verification service (optional — deploy face-service/ separately)
       - key: FACE_SERVICE_URL
-        sync: false        # set to your Modal/HuggingFace URL after deploying
+        value: "https://narensonu1520--votestack-face-service-fastapi-app.modal.run"
 
       - key: FACE_API_SECRET
         sync: false        # must match FACE_API_SECRET in face-service
