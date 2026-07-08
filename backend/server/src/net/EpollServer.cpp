@@ -28,6 +28,7 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
+#include <set>
 #include <stdexcept>
 #include <thread>
 
@@ -481,17 +482,31 @@ std::string EpollServer::route(const HttpRequest& req) {
             std::string uid = g_auth.validateToken(token);
             if (uid.empty()) return HttpResponse::buildError(401, "Unauthorized");
             auto own = supabaseRequest("GET",
-                "elections?select=id&id=eq."+segs[2]+"&user_id=eq."+uid+"&limit=1");
+                "elections?select=id,election_type&id=eq."+segs[2]+"&user_id=eq."+uid+"&limit=1");
             bool owns = false;
-            try { auto a = json::parse(own.body); owns = a.is_array() && !a.empty(); } catch (...) {}
+            std::string elecType = "standard";
+            try {
+                auto a = json::parse(own.body);
+                owns = a.is_array() && !a.empty();
+                if (owns) elecType = a[0].value("election_type","standard");
+            } catch (...) {}
             if (!owns) return HttpResponse::buildError(403, "Unauthorized");
+
+            // Query correct table based on election type
+            std::string table = (elecType == "multi") ? "multi_votes_cast" : "votes_cast";
             auto r = supabaseRequest("GET",
-                "votes_cast?select=voter_id&election_id=eq."+segs[2]);
+                table+"?select=voter_id&election_id=eq."+segs[2]);
             try {
                 auto arr = json::parse(r.body);
                 json res; res["success"] = true; res["voted_ids"] = json::array();
                 if (arr.is_array()) {
-                    for (auto& v : arr) res["voted_ids"].push_back(v["voter_id"]);
+                    // Deduplicate voter_ids (multi has one row per position per voter)
+                    std::set<std::string> seen;
+                    for (auto& v : arr) {
+                        std::string vid = v["voter_id"].get<std::string>();
+                        if (seen.insert(vid).second)
+                            res["voted_ids"].push_back(vid);
+                    }
                 }
                 return HttpResponse::build(200, res.dump());
             } catch (...) {
