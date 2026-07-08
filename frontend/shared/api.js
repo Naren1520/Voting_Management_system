@@ -95,6 +95,8 @@ const API = (() => {
     // Face verification
     enrollFace: (elecId, voterId, photos) =>
       req('POST', `/api/elections/${elecId}/voters/${encodeURIComponent(voterId)}/enroll-face`, { photos }),
+    checkFaceEnrolled: (elecId, voterId) =>
+      req('GET', `/api/elections/${elecId}/voters/${encodeURIComponent(voterId)}/enroll-face`),
     verifyFace: (elecId, voterId, bestFrame, threshold) =>
       req('POST', `/api/vote/${elecId}/verify-face`, { voter_id: voterId, best_frame: bestFrame, ...(threshold ? { threshold } : {}) }, false),
     publicCandidates: (elecId) =>

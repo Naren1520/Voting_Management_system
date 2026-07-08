@@ -11,7 +11,7 @@ const electionId = params.get('election');
 const voterId    = params.get('voter');
 const photoData  = [null, null, null];
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   if (!Auth.requireAuth()) return;
   if (!electionId || !voterId) {
     showMsg('Missing election or voter ID in URL.', 'error');
@@ -19,7 +19,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   document.getElementById('voterLabel').textContent =
     `Voter: ${decodeURIComponent(voterId)} · Election: ${electionId}`;
+
+  // Check if face already enrolled
+  await checkEnrollmentStatus();
 });
+
+async function checkEnrollmentStatus() {
+  const res = await API.checkFaceEnrolled(electionId, decodeURIComponent(voterId));
+  if (res && res.enrolled) {
+    showAlreadyEnrolled(res.embedding_count || 1);
+  }
+}
 
 /* ── Photo preview ───────────────────────────────────────────── */
 
@@ -63,6 +73,8 @@ async function enrollFace() {
     document.getElementById('stepDone').style.display   = 'block';
     document.getElementById('doneMsg').textContent =
       res.message || 'Embeddings saved. Photos were not stored.';
+    // After enroll, also show the re-enroll option
+    showAlreadyEnrolled(photoData.filter(Boolean).length);
   } else {
     showMsg(res.message || 'Failed to enroll face. Try again.', 'error');
   }
@@ -75,4 +87,27 @@ function showMsg(text, type) {
   el.textContent   = text;
   el.className     = 'enroll-msg ' + type;
   el.style.display = 'block';
+}
+
+function showAlreadyEnrolled(count) {
+  document.getElementById('stepUpload').style.display  = 'none';
+  document.getElementById('stepDone').style.display    = 'none';
+  document.getElementById('stepEnrolled').style.display = 'block';
+  document.getElementById('enrolledCount').textContent =
+    count + ' embedding' + (count !== 1 ? 's' : '') + ' stored';
+}
+
+function reEnroll() {
+  document.getElementById('stepEnrolled').style.display = 'none';
+  document.getElementById('stepUpload').style.display   = 'block';
+  // Reset photo slots
+  photoData.fill(null);
+  for (let i = 0; i < 3; i++) {
+    const p = document.getElementById(`preview${i}`);
+    if (p) {
+      p.classList.remove('filled');
+      p.innerHTML = `<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>${['Front','Left','Right'][i]}</span>`;
+    }
+  }
+  document.getElementById('enrollBtn').disabled = true;
 }

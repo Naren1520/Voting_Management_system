@@ -670,6 +670,34 @@ std::string EpollServer::route(const HttpRequest& req) {
 
         // ── FACE VERIFICATION ────────────────────────────────────────────────
 
+        // GET /api/elections/:id/voters/:voterId/enroll-face — check enrollment status
+        if (segs.size()==6 && segs[1]=="elections" && segs[3]=="voters" &&
+            segs[5]=="enroll-face" && method=="GET") {
+            std::string uid = g_auth.validateToken(token);
+            if (uid.empty()) return HttpResponse::buildError(401, "Unauthorized");
+            // verify ownership
+            auto own = supabaseRequest("GET",
+                "elections?select=id&id=eq."+segs[2]+"&user_id=eq."+uid+"&limit=1");
+            try {
+                auto a = json::parse(own.body);
+                if (!a.is_array() || a.empty())
+                    return HttpResponse::buildError(403, "Unauthorized");
+            } catch (...) { return HttpResponse::buildError(500, "Server error"); }
+            auto r = supabaseRequest("GET",
+                "voter_embeddings?select=embedding_count&election_id=eq."+segs[2]+
+                "&voter_id=eq."+SupabaseClient::urlEncode(segs[4])+"&limit=1");
+            try {
+                auto arr = json::parse(r.body);
+                json res; res["success"] = true;
+                res["enrolled"] = arr.is_array() && !arr.empty();
+                res["embedding_count"] = (arr.is_array() && !arr.empty())
+                    ? arr[0].value("embedding_count", 1) : 0;
+                return HttpResponse::build(200, res.dump(), origin);
+            } catch (...) {
+                return HttpResponse::buildError(500, "Server error");
+            }
+        }
+
         // POST /api/elections/:id/voters/:voterId/enroll-face
         // Admin enrolls voter's face (1–3 photos)
         if (segs.size()==6 && segs[1]=="elections" && segs[3]=="voters" &&
