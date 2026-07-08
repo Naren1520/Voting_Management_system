@@ -295,11 +295,8 @@
         document.getElementById('faceVideo').srcObject = faceStream;
         document.getElementById('faceOverlay').textContent = 'Look at the camera and blink naturally';
       } catch (e) {
-        // Camera not available — skip face verification
-        showMsg('Camera not available. Proceeding without face verification.', 'info');
-        stopCamera();
-        showStep(3);
-        renderCandidates();
+        showMsg('Camera access denied. Face verification is required to vote. Please allow camera access and refresh.', 'error');
+        // Do NOT proceed — face verification is required
       }
     }
 
@@ -340,15 +337,14 @@
       btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg> Start Face Verification';
 
       if (!res || !res.success) {
-        // Face verification not configured or failed to call service — skip
-        showMsg('Face verification unavailable. Proceeding.', 'info');
-        showStep(3);
-        renderCandidates();
+        // Service error — do NOT silently skip, block and show error
+        showMsg('Face verification service error. Please try again or contact the election organiser.', 'error');
+        await openCamera();
         return;
       }
 
       if (!res.verified) {
-        showMsg('Face verification failed. Score: ' + (res.score || 0).toFixed(2) + '. Please try again.', 'error');
+        showMsg('Face verification failed (score: ' + (res.score || 0).toFixed(2) + '). Your face does not match the registered photo. Please try again.', 'error');
         await openCamera();
         return;
       }

@@ -43,4 +43,4 @@ services:
         sync: false        # must match FACE_API_SECRET in face-service
 
       - key: FACE_THRESHOLD
-        value: "0.82"
+        value: "0.88"

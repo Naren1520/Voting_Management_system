@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('electionSubtitle').textContent     = 'Multi-position election';
   document.title = infoRes.title + ' — VoteStack';
 
-  // ── Schedule check ────────────────────────────────────────
+  //  Schedule check 
   const sched = {
     schedule_type: infoRes.schedule_type || 'always_on',
     timezone:      infoRes.timezone,
@@ -66,9 +66,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   show('stepId');
 });
 
-/* ─────────────────────────────────────────────────────
+/* 
    Step 1 — Verify voter
-───────────────────────────────────────────────────── */
+ */
 async function checkVoter() {
   const voterId = document.getElementById('voterIdInput').value.trim();
   const btn     = document.getElementById('checkBtn');
@@ -127,9 +127,8 @@ async function openCamera() {
       '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>' +
       'Start Face Verification';
   } catch (e) {
-    showMsg('Camera not available. Proceeding without face verification.', 'info');
-    stopCamera();
-    proceedToBallot();
+    showMsg('Camera access denied. Face verification is required to vote. Please allow camera access and refresh.', 'error');
+    // Do NOT proceed — face verification is required
   }
 }
 
@@ -167,13 +166,13 @@ async function startCapture() {
   btn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>Start Face Verification';
 
   if (!res || !res.success) {
-    showMsg('Face verification unavailable. Proceeding.', 'info');
-    proceedToBallot();
+    showMsg('Face verification service error. Please try again or contact the election organiser.', 'error');
+    await openCamera();
     return;
   }
 
   if (!res.verified) {
-    showMsg('Face verification failed (score: ' + (res.score || 0).toFixed(2) + '). Please try again.', 'error');
+    showMsg('Face verification failed (score: ' + (res.score || 0).toFixed(2) + '). Your face does not match. Please try again.', 'error');
     await openCamera();
     return;
   }
