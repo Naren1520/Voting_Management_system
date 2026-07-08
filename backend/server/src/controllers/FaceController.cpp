@@ -165,17 +165,38 @@ json FaceController::enroll(const std::string& userId,
     std::string embeddingJson = faceRes["embeddings"].dump();
     std::string encrypted     = encryptEmbedding(embeddingJson);
 
-    // Store in voter_embeddings table
-    json dbBody;
-    dbBody["election_id"]        = electionId;
-    dbBody["voter_id"]           = voterId;
-    dbBody["embeddings_json"]    = encrypted;
-    dbBody["embedding_count"]    = faceRes.value("count", 1);
+    // Check if record already exists (re-enrollment case)
+    auto existing = supabaseRequest("GET",
+        "voter_embeddings?select=id&election_id=eq."+electionId+
+        "&voter_id=eq."+SupabaseClient::urlEncode(voterId)+"&limit=1");
 
-    auto dbRes = supabaseRequest("POST", "voter_embeddings", dbBody.dump());
-    if (dbRes.statusCode != 200 && dbRes.statusCode != 201) {
+    bool alreadyExists = false;
+    try {
+        auto arr = json::parse(existing.body);
+        alreadyExists = arr.is_array() && !arr.empty();
+    } catch (...) {}
+
+    json dbBody;
+    dbBody["election_id"]     = electionId;
+    dbBody["voter_id"]        = voterId;
+    dbBody["embeddings_json"] = encrypted;
+    dbBody["embedding_count"] = faceRes.value("count", 1);
+
+    HttpResult dbRes;
+    if (alreadyExists) {
+        // Re-enrollment: UPDATE existing record
+        dbRes = supabaseRequest("PATCH",
+            "voter_embeddings?election_id=eq."+electionId+
+            "&voter_id=eq."+SupabaseClient::urlEncode(voterId),
+            dbBody.dump());
+    } else {
+        // First enrollment: INSERT new record
+        dbRes = supabaseRequest("POST", "voter_embeddings", dbBody.dump());
+    }
+
+    if (dbRes.statusCode != 200 && dbRes.statusCode != 201 && dbRes.statusCode != 204) {
         LOG_ERROR("[FaceController] Failed to store embedding. Status: " +
-                  std::to_string(dbRes.statusCode));
+                  std::to_string(dbRes.statusCode) + " Body: " + dbRes.body);
         res["success"] = false;
         res["message"] = "Failed to store face data";
         return res;
@@ -183,7 +204,7 @@ json FaceController::enroll(const std::string& userId,
 
     // Change 6: photos are NOT stored — only embeddings reach the DB
     res["success"] = true;
-    res["message"] = "Face enrolled successfully (" +
+    res["message"] = (alreadyExists ? "Face re-enrolled successfully (" : "Face enrolled successfully (") +
                      std::to_string(faceRes.value("count",1)) + " embedding(s) stored)";
     return res;
 }
