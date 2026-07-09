@@ -39,6 +39,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Show election ID
   document.getElementById('electionIdDisplay').textContent = electionId;
 
+  // Set face toggle initial state
+  setFaceToggle(!!e.face_verify_enabled);
+
   // Schedule widget
   Schedule.buildWidget('manageSchedWidget');
   Schedule.setValue('manageSchedWidget', e);
@@ -461,6 +464,28 @@ function copyLink() {
 
 function copyElectionId() {
   navigator.clipboard.writeText(electionId).then(() => toast('Election ID copied!'));
+}
+
+/* ─────────────────────────────────────────────────────
+   FACE VERIFICATION TOGGLE
+───────────────────────────────────────────────────── */
+let _faceVerifyEnabled = false;
+
+function setFaceToggle(enabled) {
+  _faceVerifyEnabled = enabled;
+  const el = document.getElementById('faceToggle');
+  if (el) el.classList.toggle('on', enabled);
+}
+
+async function toggleFaceVerify() {
+  const newVal = !_faceVerifyEnabled;
+  const res = await API.toggleFaceVerify(electionId, newVal);
+  if (res.success) {
+    setFaceToggle(newVal);
+    toast(newVal ? 'Face verification enabled' : 'Face verification disabled');
+  } else {
+    toast('Failed to update face verification setting');
+  }
 }
 
 function showMsg(id, text, type) {

@@ -34,6 +34,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('electionSubtitle').textContent     = 'Multi-position election';
   document.title = infoRes.title + ' — VoteStack';
 
+  // Store face verify flag
+  window._faceVerifyEnabled = !!infoRes.face_verify_enabled;
+
   //  Schedule check 
   const sched = {
     schedule_type: infoRes.schedule_type || 'always_on',
@@ -104,10 +107,16 @@ async function checkVoter() {
     return;
   }
 
-  // Go to face verification step
+  // Go to face verification step (or skip if disabled)
   hide('stepId');
   hideMsg();
   document.getElementById('faceVoterLabel').textContent = voterId;
+
+  if (!window._faceVerifyEnabled) {
+    proceedToBallot();
+    return;
+  }
+
   show('stepFace');
   await openCamera();
 }

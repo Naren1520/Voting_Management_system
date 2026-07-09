@@ -31,6 +31,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (!infoRes.is_active) { showError('This election is closed.'); return; }
 
+  // Store face verify flag — used when routing from voter ID step
+  window._faceVerifyEnabled = !!infoRes.face_verify_enabled;
+
   // Schedule check
   const sched = {
     schedule_type: infoRes.schedule_type || 'always_on',
@@ -88,6 +91,14 @@ async function checkVoter() {
 
   hide('stepId');
   hideMsg();
+
+  // Skip face step if admin has disabled it for this election
+  if (!window._faceVerifyEnabled) {
+    show('stepVote');
+    renderCandidates();
+    return;
+  }
+
   show('stepFace');
   await openCamera();
 }

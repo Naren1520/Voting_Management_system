@@ -207,7 +207,16 @@
           <h2 id="totalPositionsResult">0</h2>
           <p>Positions voted on</p>
         </div>
-        <div class="results-total-right">
+        <div class="results-total-right" style="display:flex;align-items:center;gap:12px;">
+          <label class="face-toggle-wrap" title="Toggle face verification for voters">
+            <span class="face-toggle-label">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><polyline points="16 11 18 13 22 9"/></svg>
+              Face ID
+            </span>
+            <div class="face-toggle" id="faceToggle" onclick="toggleFaceVerify()">
+              <div class="face-toggle-knob"></div>
+            </div>
+          </label>
           <button class="btn-ghost-sm" onclick="loadResults()">
             <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
             Refresh

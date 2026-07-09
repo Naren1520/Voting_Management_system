@@ -402,6 +402,31 @@ std::string EpollServer::route(const HttpRequest& req) {
             return HttpResponse::build(r["success"].get<bool>() ? 201 : 400, r.dump());
         }
 
+        // PATCH /api/elections/:id/face-verify — toggle face verification on/off
+        if (segs.size()==4 && segs[1]=="elections" && segs[3]=="face-verify" && method=="PATCH") {
+            std::string uid = g_auth.validateToken(token);
+            if (uid.empty()) return HttpResponse::buildError(401, "Unauthorized");
+            auto own = supabaseRequest("GET",
+                "elections?select=id&id=eq."+segs[2]+"&user_id=eq."+uid+"&limit=1");
+            try {
+                auto a = json::parse(own.body);
+                if (!a.is_array() || a.empty())
+                    return HttpResponse::buildError(403, "Unauthorized");
+            } catch (...) { return HttpResponse::buildError(500, "Server error"); }
+            try {
+                auto rb = json::parse(body);
+                bool enabled = rb.value("face_verify_enabled", false);
+                json upd; upd["face_verify_enabled"] = enabled;
+                auto r = supabaseRequest("PATCH",
+                    "elections?id=eq."+segs[2], upd.dump());
+                json res;
+                res["success"] = (r.statusCode==200||r.statusCode==204);
+                res["face_verify_enabled"] = enabled;
+                res["message"] = enabled ? "Face verification enabled" : "Face verification disabled";
+                return HttpResponse::build(200, res.dump(), origin);
+            } catch (...) { return HttpResponse::buildError(400, "Invalid request"); }
+        }
+
         // PATCH /api/elections/:id/schedule
         if (segs.size()==4 && segs[1]=="elections" && segs[3]=="schedule" && method=="PATCH") {
             std::string uid = g_auth.validateToken(token);
@@ -591,14 +616,15 @@ std::string EpollServer::route(const HttpRequest& req) {
         // GET /api/multi-vote/:id/info
         if (segs.size()==4 && segs[1]=="multi-vote" && segs[3]=="info" && method=="GET") {
             auto r = supabaseRequest("GET",
-                "elections?select=title,is_active,schedule_type,starts_at,ends_at,"
+                "elections?select=title,is_active,face_verify_enabled,schedule_type,starts_at,ends_at,"
                 "schedule_json,timezone&id=eq."+segs[2]+"&limit=1");
             try {
                 auto arr = json::parse(r.body);
                 if (arr.is_array() && !arr.empty()) {
                     json res; res["success"] = true;
-                    res["title"]         = arr[0]["title"];
-                    res["is_active"]     = arr[0]["is_active"];
+                    res["title"]               = arr[0]["title"];
+                    res["is_active"]           = arr[0]["is_active"];
+                    res["face_verify_enabled"] = arr[0].value("face_verify_enabled",false);
                     res["schedule_type"] = arr[0].value("schedule_type","always_on");
                     res["timezone"]      = arr[0].value("timezone","UTC");
                     if (arr[0].contains("starts_at") && !arr[0]["starts_at"].is_null())
@@ -645,15 +671,16 @@ std::string EpollServer::route(const HttpRequest& req) {
         // GET /api/vote/:id/info
         if (segs.size()==4 && segs[1]=="vote" && segs[3]=="info") {
             auto r = supabaseRequest("GET",
-                "elections?select=title,is_active,election_type,schedule_type,starts_at,ends_at,"
+                "elections?select=title,is_active,election_type,face_verify_enabled,schedule_type,starts_at,ends_at,"
                 "schedule_json,timezone&id=eq."+segs[2]+"&limit=1");
             try {
                 auto arr = json::parse(r.body);
                 if (arr.is_array() && !arr.empty()) {
                     json res; res["success"] = true;
-                    res["title"]         = arr[0]["title"];
-                    res["is_active"]     = arr[0]["is_active"];
-                    res["election_type"] = arr[0].value("election_type","standard");
+                    res["title"]               = arr[0]["title"];
+                    res["is_active"]           = arr[0]["is_active"];
+                    res["election_type"]       = arr[0].value("election_type","standard");
+                    res["face_verify_enabled"] = arr[0].value("face_verify_enabled",false);
                     res["schedule_type"] = arr[0].value("schedule_type","always_on");
                     res["timezone"]      = arr[0].value("timezone","UTC");
                     if (arr[0].contains("starts_at") && !arr[0]["starts_at"].is_null())

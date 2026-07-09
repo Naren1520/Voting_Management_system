@@ -62,6 +62,7 @@ const API = (() => {
     getElection:     (id)                        => req('GET',    `/api/elections/${id}`),
     deleteElection:  (id)                        => req('DELETE', `/api/elections/${id}`),
     updateSchedule:  (id, sched)                 => req('PATCH',  `/api/elections/${id}/schedule`, sched),
+    toggleFaceVerify:(id, enabled)               => req('PATCH',  `/api/elections/${id}/face-verify`, { face_verify_enabled: enabled }),
 
     // Positions (multi elections)
     getPositions:    (elecId)             => req('GET',    `/api/elections/${elecId}/positions`),
