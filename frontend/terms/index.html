@@ -48,7 +48,7 @@
           <span>Terms & Conditions</span>
         </div>
         <h1>Terms of Service</h1>
-        <p class="legal-meta">Last updated: January 2025</p>
+        <p class="legal-meta">Last updated: July 2026</p>
         <p class="legal-intro">
           By accessing or using VoteStack, you agree to be bound by these Terms of Service. 
           Please read them carefully.
@@ -62,6 +62,7 @@
           <li><a href="#agreement">Agreement to Terms</a></li>
           <li><a href="#use">Use of the Platform</a></li>
           <li><a href="#election">Election Management</a></li>
+          <li><a href="#biometric">Biometric Data</a></li>
           <li><a href="#data">Data and Privacy</a></li>
           <li><a href="#ip">Intellectual Property</a></li>
           <li><a href="#availability">Service Availability</a></li>
@@ -141,6 +142,46 @@
             VoteStack provides tools for election management but does not validate the legality or appropriateness 
             of your elections. You are solely responsible for ensuring compliance with applicable laws and regulations.
           </p>
+        </section>
+
+        <section class="legal-section" id="biometric">
+          <h2>Biometric Data and Face Verification</h2>
+
+          <h3>Optional Feature</h3>
+          <p>
+            VoteStack offers an optional biometric face verification feature. Election organizers may choose to 
+            enable this feature for their elections. It is <strong>disabled by default</strong> and must be 
+            explicitly enabled per election.
+          </p>
+
+          <h3>How It Works</h3>
+          <p>When face verification is enabled for an election:</p>
+          <ul>
+            <li>The election organizer enrolls a reference photo of each voter</li>
+            <li>Reference photos are processed immediately — a mathematical face embedding (a 512-dimensional vector) is generated and stored</li>
+            <li>The original photos are <strong>never stored</strong> on our servers; only the mathematical embedding is retained</li>
+            <li>At voting time, a live camera capture is compared against the stored embedding using cosine similarity</li>
+            <li>Liveness detection (blink/head movement) is applied to prevent static photo spoofing</li>
+          </ul>
+
+          <h3>Organizer Responsibilities</h3>
+          <p>If you enable face verification as an election organizer, you:</p>
+          <ul>
+            <li>Must obtain explicit written consent from each voter before enrolling their biometric data</li>
+            <li>Are responsible for informing voters how their biometric data will be used</li>
+            <li>Must comply with applicable biometric privacy laws (e.g. BIPA, GDPR Article 9)</li>
+            <li>Acknowledge that embeddings are stored encrypted in your election's database records</li>
+            <li>Can delete voter embeddings at any time by removing the voter from your election</li>
+          </ul>
+
+          <h3>Voter Rights</h3>
+          <p>As a voter subject to face verification:</p>
+          <ul>
+            <li>You may refuse face verification and should contact your election organizer to discuss alternatives</li>
+            <li>Your biometric embedding is used solely to verify your identity for this election</li>
+            <li>Embeddings are not shared with third parties or used for any other purpose</li>
+            <li>You may request deletion of your biometric data by contacting the election organizer</li>
+          </ul>
         </section>
 
         <section class="legal-section" id="data">
@@ -293,7 +334,7 @@
           <p>Questions or concerns about these Terms:</p>
           <div class="contact-box">
             <p><strong>VoteStack Legal Team</strong></p>
-            <p>Email: <a href="mailto:legal@votestack.com">legal@votestack.com</a></p>
+            <p>Email: <a href="mailto:narensonu1520@gmail.com">narensonu1520@gmail.com</a></p>
             <p>Response time: within 30 days</p>
           </div>
         </section>
@@ -311,7 +352,7 @@
             <img src="/assets/Logo.png" alt="VoteStack" />
             <span>VoteStack</span>
           </div>
-          <p>Enterprise-grade secure online voting platform.</p>
+          <p>Production-grade secure online voting platform with biometric verification.</p>
         </div>
         <div class="footer-col">
           <h4>Product</h4>
@@ -326,24 +367,19 @@
           <ul>
             <li><a href="/privacy/index.html">Privacy Policy</a></li>
             <li><a href="/terms/index.html">Terms of Service</a></li>
-            <li><a href="/privacy/index.html#gdpr">GDPR Compliance</a></li>
           </ul>
         </div>
         <div class="footer-col">
-          <h4>Company</h4>
+          <h4>Account</h4>
           <ul>
-            <li><a href="/landing/index.html">Home</a></li>
-            <li><a href="/auth/signup.html">Get Started</a></li>
+            <li><a href="/auth/signup.html">Sign up</a></li>
+            <li><a href="/auth/login.html">Sign in</a></li>
+            <li><a href="/dashboard/index.html">Dashboard</a></li>
           </ul>
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2025 VoteStack. All rights reserved.</p>
-        <div class="footer-trust">
-          <span><i data-lucide="shield-check"></i> SOC 2 Compliant</span>
-          <span><i data-lucide="lock"></i> GDPR Ready</span>
-          <span><i data-lucide="globe"></i> Enterprise Security</span>
-        </div>
+        <p>&copy; 2026 VoteStack. All rights reserved.</p>
       </div>
     </div>
   </footer>

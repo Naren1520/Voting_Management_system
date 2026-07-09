@@ -91,37 +91,69 @@ A production-grade online voting platform with a high-performance C++ backend, b
       └────────┬────────┘    └────────┬────────┘    └────────┬────────┘
                │                       │                       │
                └───────────────┬───────┴───────────────┬───────┘
-                               │
-                               ▼
-                     ┌─────────────────────┐
-                     │        Redis        │
-                     │ Session Cache       │
-                     │ Rate Limiting       │
-                     │ Application Cache   │
-                     └─────────┬───────────┘
-                               │
-                               ▼
-                  ┌────────────────────────────┐
-                  │  Supabase / PostgreSQL     │
-                  │ Users • Elections • Votes  │
-                  └────────────────────────────┘
-                               │
-                               ▼
+                               │                       │
+               ┌───────────────┘                       │
+               │                                       │
+               ▼                                       ▼
+   ┌─────────────────────┐               ┌─────────────────────────┐
+   │        Redis        │               │   Modal.com (Python)    │
+   │ Session Cache       │               │   Face Service          │
+   │ Rate Limiting       │               │   InsightFace ArcFace   │
+   │ Candidate Cache     │               │   MediaPipe Liveness    │
+   └─────────────────────┘               │   ONNX Runtime (CPU)   │
+                                         └────────────┬────────────┘
+               │                                      │
+               └──────────────────┬───────────────────┘
+                                  │
+                                  ▼
+                   ┌──────────────────────────────┐
+                   │   Supabase / PostgreSQL      │
+                   │ Users • Elections • Votes    │
+                   │ Sessions • Voters            │
+                   │ Positions • Embeddings       │
+                   └──────────────────────────────┘
+                                  │
+                                  ▼
+                   ┌──────────────────────────────┐
+                   │         Prometheus           │
+                   │  Scrapes GET /metrics        │
+                   │  every 10 s from backend     │
+                   └──────────────┬───────────────┘
+                                  │
+                                  ▼
+                   ┌──────────────────────────────┐
+                   │           Grafana            │
+                   │  Dashboards & Alerts         │
+                   └──────────────────────────────┘
+```
 
-                   ┌───────────────────────┐
-                   │     Prometheus        │
-                   │ Scrapes /metrics      │
-                   │ from every instance   │
-                   └──────────┬────────────┘
-                              │
-                              ▼
-                   ┌───────────────────────┐
-                   │       Grafana         │
-                   │ Dashboards & Metrics  │
-                   └───────────────────────┘
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Face Verification Flow (when enabled per election)             │
+│                                                                 │
+│  Browser (WebRTC)                                               │
+│    │  25 frames captured                                        │
+│    │  MediaPipe JS → liveness check (blink / head move)         │
+│    │  Best frame selected                                       │
+│    ▼                                                            │
+│  C++ Backend                                                    │
+│    │  Fetches stored embedding from Supabase (DB owner)         │
+│    │  Forwards: { best_frame, stored_embeddings }               │
+│    ▼                                                            │
+│  Modal Python Service  (stateless — no DB access)               │
+│    │  InsightFace → live 512-dim face embedding                 │
+│    │  Cosine similarity vs stored embeddings                    │
+│    │  score ≥ threshold (0.82) ?                                │
+│    ▼                                                            │
+│  C++ Backend → { verified, score } → Frontend                   │
+│      Verified  →  Ballot shown                                  │
+│      Failed    →  Retry prompt                                  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 **Request flow** -- Cloudflare terminates TLS and absorbs DDoS, nginx handles HTTP/2 and routes to one of four C++ instances using `least_conn`. Each instance uses edge-triggered epoll with a thread pool. Redis handles session validation, candidate caching, and per-IP rate limiting. All vote writes go through a Postgres RPC that uses `INSERT ON CONFLICT DO NOTHING` in a single transaction, eliminating duplicate-vote races.
+
+**Face verification flow** -- When enabled for an election: browser captures 25 frames → MediaPipe liveness check (blink/head movement) → best frame selected → sent to C++ backend → C++ fetches stored embeddings from Supabase → forwards frame + embeddings to Modal Python service → InsightFace generates live embedding → cosine similarity comparison → result returned. The Python service is stateless and never accesses the database directly.
 
 ---
 
@@ -399,7 +431,22 @@ Edit `frontend/config.js` to point at the local backend:
 window.API_BASE = 'http://localhost:8080';
 ```
 
-### 4 - Build the backend only (no Docker)
+### 4 - Deploy the face service (optional)
+
+```bash
+pip install modal
+python -m modal setup          # authenticate with modal.com
+cd face-service
+python -m modal secret create votestack-face-secrets \
+  FACE_API_SECRET="your-secret" FACE_THRESHOLD="0.82" \
+  INSIGHTFACE_MODEL="buffalo_sc" \
+  FACE_ALLOWED_ORIGINS="http://localhost:8080"
+modal deploy modal_app.py
+```
+
+Add `FACE_SERVICE_URL` and `FACE_API_SECRET` to your backend's `.env`.
+
+### 5 - Build the backend only (no Docker)
 
 ```bash
 cd backend/server
@@ -542,18 +589,31 @@ curl -X POST https://voting-backend.onrender.com/api/auth/login \
 
 ## Environment Variables
 
-| Variable               | Required | Default                        | Description                          |
-|------------------------|----------|--------------------------------|--------------------------------------|
-| `SUPABASE_URL`         | yes      | -                              | Supabase project REST URL            |
-| `SUPABASE_KEY`         | yes      | -                              | Supabase anon or service role key    |
-| `REDIS_URL`            | no       | `redis://127.0.0.1:6379`       | Redis connection string              |
-| `PORT`                 | no       | `8080`                         | Server listen port                   |
-| `RATE_LIMIT_REQUESTS`  | no       | `100`                          | Max requests per IP per window       |
-| `RATE_LIMIT_WINDOW_SEC`| no       | `60`                           | Rate limit window in seconds         |
-| `ALLOWED_ORIGINS`      | no       | Netlify + localhost            | Comma-separated CORS origins         |
-| `LOG_FILE`             | no       | `server.log`                   | Log file path inside container       |
-| `GRAFANA_USER`         | no       | `admin`                        | Grafana admin username               |
-| `GRAFANA_PASSWORD`     | no       | -                              | Grafana admin password               |
+### C++ Backend (Render)
+
+| Variable               | Required | Default                        | Description                               |
+|------------------------|----------|--------------------------------|-------------------------------------------|
+| `SUPABASE_URL`         | yes      | -                              | Supabase project REST URL                 |
+| `SUPABASE_KEY`         | yes      | -                              | Supabase **service_role** key             |
+| `REDIS_URL`            | no       | `redis://127.0.0.1:6379`       | Redis connection string (Redis Cloud)     |
+| `PORT`                 | no       | `8080`                         | Server listen port                        |
+| `RATE_LIMIT_REQUESTS`  | no       | `100`                          | Max requests per IP per window            |
+| `RATE_LIMIT_WINDOW_SEC`| no       | `60`                           | Rate limit window in seconds              |
+| `ALLOWED_ORIGINS`      | no       | `*`                            | Comma-separated CORS origins              |
+| `LOG_FILE`             | no       | _(stdout)_                     | Log file path inside container            |
+| `WORKER_THREADS`       | no       | `4`                            | Thread pool size (keep 4 on free tier)    |
+| `FACE_SERVICE_URL`     | no       | -                              | Modal face service base URL               |
+| `FACE_API_SECRET`      | no       | -                              | Shared secret for face service auth       |
+| `FACE_THRESHOLD`       | no       | `0.82`                         | Face similarity threshold (0.0–1.0)       |
+
+### Face Service (Modal secrets — `votestack-face-secrets`)
+
+| Variable               | Required | Default         | Description                                |
+|------------------------|----------|-----------------|--------------------------------------------|
+| `FACE_API_SECRET`      | yes      | -               | Must match `FACE_API_SECRET` on backend    |
+| `FACE_THRESHOLD`       | no       | `0.82`          | Cosine similarity threshold                |
+| `INSIGHTFACE_MODEL`    | no       | `buffalo_sc`    | `buffalo_sc` (CPU) or `buffalo_l` (GPU)    |
+| `FACE_ALLOWED_ORIGINS` | no       | Render URL      | CORS origins for face service              |
 
 ---
 
@@ -582,37 +642,50 @@ Authorization: Bearer <token>
 
 ### Elections
 
-| Method | Endpoint                              | Auth | Description                    |
-|--------|---------------------------------------|------|--------------------------------|
-| GET    | `/api/elections`                      | yes  | List elections for user        |
-| POST   | `/api/elections`                      | yes  | Create election                |
-| GET    | `/api/elections/:id`                  | yes  | Get election                   |
-| DELETE | `/api/elections/:id`                  | yes  | Delete election and all data   |
-| PATCH  | `/api/elections/:id/schedule`         | yes  | Update schedule settings       |
-| GET    | `/api/elections/:id/candidates`       | yes  | List candidates                |
-| POST   | `/api/elections/:id/candidates`       | yes  | Add candidate                  |
-| DELETE | `/api/elections/:id/candidates`       | yes  | Remove candidate               |
-| GET    | `/api/elections/:id/voters`           | yes  | List registered voters         |
-| POST   | `/api/elections/:id/voters`           | yes  | Register voter                 |
-| DELETE | `/api/elections/:id/voters`           | yes  | Remove voter                   |
-| POST   | `/api/elections/:id/voters/sync`      | yes  | Batch-replace voter list       |
-| GET    | `/api/elections/:id/positions`        | yes  | List positions (multi-ballot)  |
-| POST   | `/api/elections/:id/positions`        | yes  | Add position                   |
-| DELETE | `/api/elections/:id/positions/:posId` | yes  | Remove position                |
+| Method | Endpoint                                         | Auth | Description                    |
+|--------|--------------------------------------------------|------|--------------------------------|
+| GET    | `/api/elections`                                 | yes  | List elections for user        |
+| POST   | `/api/elections`                                 | yes  | Create election                |
+| GET    | `/api/elections/:id`                             | yes  | Get election                   |
+| DELETE | `/api/elections/:id`                             | yes  | Delete election and all data   |
+| PATCH  | `/api/elections/:id/schedule`                    | yes  | Update schedule settings       |
+| PATCH  | `/api/elections/:id/face-verify`                 | yes  | Toggle face verification on/off|
+| GET    | `/api/elections/:id/candidates`                  | yes  | List candidates                |
+| POST   | `/api/elections/:id/candidates`                  | yes  | Add candidate                  |
+| DELETE | `/api/elections/:id/candidates`                  | yes  | Remove candidate               |
+| GET    | `/api/elections/:id/voters`                      | yes  | List registered voters         |
+| POST   | `/api/elections/:id/voters`                      | yes  | Register voter                 |
+| DELETE | `/api/elections/:id/voters`                      | yes  | Remove voter                   |
+| POST   | `/api/elections/:id/voters/sync`                 | yes  | Batch-replace voter list       |
+| GET    | `/api/elections/:id/voters/:vid/enroll-face`     | yes  | Check if voter face enrolled   |
+| POST   | `/api/elections/:id/voters/:vid/enroll-face`     | yes  | Enroll voter face (1–3 photos) |
+| GET    | `/api/elections/:id/positions`                   | yes  | List positions (multi-ballot)  |
+| POST   | `/api/elections/:id/positions`                   | yes  | Add position                   |
+| DELETE | `/api/elections/:id/positions/:posId`            | yes  | Remove position                |
 
 ### Public Voting (no auth)
 
-| Method | Endpoint                        | Description                          |
-|--------|---------------------------------|--------------------------------------|
-| GET    | `/api/vote/:id/candidates`      | Candidate list for ballot            |
-| GET    | `/api/vote/:id/info`            | Election title and active status     |
-| POST   | `/api/vote/:id/check`           | Verify voter ID, check if voted      |
-| POST   | `/api/vote/:id/cast`            | Cast vote (atomic, duplicate-safe)   |
-| GET    | `/api/vote/:id/results`         | Live results                         |
-| GET    | `/api/multi-vote/:id/positions` | Full ballot for multi-position       |
-| POST   | `/api/multi-vote/:id/check`     | Check voter for multi-position       |
-| POST   | `/api/multi-vote/:id/cast`      | Cast all position votes atomically   |
-| GET    | `/api/multi-vote/:id/results`   | Multi-position live results          |
+| Method | Endpoint                        | Description                              |
+|--------|---------------------------------|------------------------------------------|
+| GET    | `/api/vote/:id/candidates`      | Candidate list for ballot                |
+| GET    | `/api/vote/:id/info`            | Election info incl. `face_verify_enabled`|
+| POST   | `/api/vote/:id/check`           | Verify voter ID, check if voted          |
+| POST   | `/api/vote/:id/verify-face`     | Verify voter face (fetch emb from DB)    |
+| POST   | `/api/vote/:id/cast`            | Cast vote (atomic, duplicate-safe)       |
+| GET    | `/api/vote/:id/results`         | Live results                             |
+| GET    | `/api/multi-vote/:id/positions` | Full ballot for multi-position           |
+| GET    | `/api/multi-vote/:id/info`      | Multi election info + face_verify flag   |
+| POST   | `/api/multi-vote/:id/check`     | Check voter for multi-position           |
+| POST   | `/api/multi-vote/:id/cast`      | Cast all position votes atomically       |
+| GET    | `/api/multi-vote/:id/results`   | Multi-position live results              |
+
+### Face Service (Modal — called by C++ backend only)
+
+| Method | Endpoint                   | Auth   | Description                          |
+|--------|----------------------------|--------|--------------------------------------|
+| GET    | `/health`                  | none   | Health check + current threshold     |
+| POST   | `/generate-embedding`      | secret | Photos → face embeddings (enroll)    |
+| POST   | `/verify`                  | secret | Live frame + stored embeddings → result |
 
 ### Example responses
 
@@ -645,37 +718,49 @@ GET /api/vote/:id/results
 
 ## Security
 
-| Concern                   | Implementation                                              |
-|---------------------------|-------------------------------------------------------------|
-| Password hashing          | PBKDF2-SHA256, 100k iterations, random salt per password    |
-| Password comparison       | Constant-time via `CRYPTO_memcmp`                           |
-| Session tokens            | 32 random bytes via `RAND_bytes`, stored in Redis + Supabase|
-| Duplicate vote prevention | `INSERT ON CONFLICT DO NOTHING` in single DB transaction    |
-| Rate limiting             | Redis INCR + EXPIRE per IP, 100 req / 60s default          |
-| CORS                      | Origin validated against `ALLOWED_ORIGINS` allowlist        |
-| Auth guards               | Every protected route validates token before any DB access  |
-| Data isolation            | Every query scoped to authenticated `user_id`               |
-| XSS prevention            | `escHtml()` sanitiser on all user-supplied output           |
-| Request size cap          | 1 MB body limit, 5s receive timeout per connection          |
-| TLS                       | nginx terminates HTTPS, TLSv1.2/1.3 only, HSTS enabled     |
+| Concern                   | Implementation                                                          |
+|---------------------------|-------------------------------------------------------------------------|
+| Password hashing          | PBKDF2-SHA256, 100k iterations, random salt via `RAND_bytes`            |
+| Password comparison       | Constant-time via `CRYPTO_memcmp`                                       |
+| Session tokens            | 32 random bytes via `RAND_bytes` (64-char hex), Redis + Supabase        |
+| Duplicate vote prevention | `INSERT ON CONFLICT DO NOTHING` in single DB transaction                |
+| Rate limiting             | Redis INCR + EXPIRE per IP, 100 req / 60s default                      |
+| CORS                      | Origin validated against `ALLOWED_ORIGINS` allowlist                    |
+| Auth guards               | Every protected route validates token before any DB access              |
+| Data isolation            | Every query scoped to authenticated `user_id`                           |
+| XSS prevention            | `escHtml()` sanitiser on all user-supplied output                       |
+| Request size cap          | 1 MB body limit, 5s receive timeout per connection                      |
+| TLS                       | nginx terminates HTTPS, TLSv1.2/1.3 only, HSTS enabled                 |
+| Face biometrics           | Embeddings stored encrypted; raw photos never persisted (Change 6)      |
+| Face liveness             | MediaPipe blink/head-movement check prevents static photo spoofing      |
+| Face service auth         | Shared secret in `Authorization: Bearer` header between C++ and Modal   |
+| Stateless face service    | Python service never accesses DB — C++ owns all data (Change 1)         |
+| Configurable threshold    | `FACE_THRESHOLD` env var — no code change needed to tune accuracy        |
 
 ---
 
 ## Monitoring
 
-Prometheus scrapes each backend instance, Redis, nginx, and the host every 15 seconds.
+Prometheus scrapes the Render backend every 10 seconds via `GET /metrics` (Prometheus text format).
 
-Access Grafana at `http://your-server:3001` (restrict this port to your IP via firewall).
+**Run locally** (Docker Desktop required):
+
+```bash
+docker compose -f monitoring/docker-compose.monitoring.yml up -d
+```
+
+| Service    | URL                    |
+|------------|------------------------|
+| Grafana    | http://localhost:3001  |
+| Prometheus | http://localhost:9090  |
 
 The pre-loaded **VoteStack Overview** dashboard shows:
 
-- Requests/sec per instance
+- Requests/sec and total request count
 - Latency histogram (p50 / p95 / p99)
 - 5xx error rate
-- Active connections per instance
-- Redis memory usage and commands/sec
-- nginx active and waiting connections
-- Host CPU and memory gauges
+- Active connections
+- HTTP status breakdown (2xx / 4xx / 5xx)
 
 Alert rules are defined in `monitoring/alert_rules.yml` and fire on:
 
@@ -691,19 +776,22 @@ Alert rules are defined in `monitoring/alert_rules.yml` and fire on:
 Requires [k6](https://k6.io/docs/get-started/installation/).
 
 ```bash
-# Smoke test -- run before every deploy (5 VUs, 15s)
-BASE_URL=https://your-domain.com k6 run load-test/smoke_test.js
+# Install k6 on Windows
+winget install k6 --source winget
 
-# Full staged load test (ramps to 2000 VUs over ~4 minutes)
-BASE_URL=https://your-domain.com \
-ELECTION_ID_1=<uuid> \
-ELECTION_ID_2=<uuid> \
-  k6 run load-test/load_test.js
+# Smoke test — 5 VUs, 20s (run before every deploy)
+k6 run load-test/smoke_test.js
+
+# Full staged load test (ramps 10 → 50 → 100 VUs)
+k6 run --env ELECTION_ID=<your-election-uuid> load-test/load_test.js
+
+# Save results to JSON
+k6 run --out json=load-test/results.json load-test/load_test.js
 ```
 
-Default thresholds: p95 latency < 500ms, error rate < 1%.
+Default thresholds: p95 latency < 3s (Render free tier), error rate < 5%.
 
-See `load-test/README.md` for tuning guidance on thread pool size, Redis memory, and nginx worker connections based on benchmark results.
+See `load-test/README.md` for full instructions and benchmark interpretation.
 
 ---
 

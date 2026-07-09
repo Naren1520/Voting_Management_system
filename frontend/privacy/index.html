@@ -48,7 +48,7 @@
           <span>Your Privacy Matters</span>
         </div>
         <h1>Privacy Policy</h1>
-        <p class="legal-meta">Last updated: January 2025</p>
+        <p class="legal-meta">Last updated: July 2026</p>
         <p class="legal-intro">
           At VoteStack, we take your privacy seriously. This policy explains how we collect, use, 
           and safeguard your information when you use our platform.
@@ -61,6 +61,7 @@
         <ol>
           <li><a href="#intro">Introduction</a></li>
           <li><a href="#collect">Information We Collect</a></li>
+          <li><a href="#biometric">Biometric Data</a></li>
           <li><a href="#use">How We Use Your Information</a></li>
           <li><a href="#gdpr">GDPR &amp; Data Protection</a></li>
           <li><a href="#security">Data Security</a></li>
@@ -109,6 +110,31 @@
           </ul>
         </section>
 
+        <section class="legal-section" id="biometric">
+          <h2>Biometric Data</h2>
+          <p>
+            VoteStack offers an <strong>optional</strong> face verification feature that election organizers 
+            may choose to enable. When this feature is active for an election:
+          </p>
+          <ul>
+            <li><strong>Reference photos</strong> submitted by the organizer are processed by our AI service (InsightFace) to generate a mathematical face embedding (512-dimensional vector)</li>
+            <li><strong>Original photos are immediately discarded</strong> — only the mathematical embedding is stored, encrypted, in the database</li>
+            <li>At voting time, a live camera capture is processed to generate a new embedding, which is compared against the stored one using cosine similarity</li>
+            <li>The live capture frame is processed in memory and never stored</li>
+            <li>Face embeddings cannot be used to reconstruct the original photo</li>
+            <li>Embeddings are stored per-election and are deleted when the election or voter record is deleted</li>
+          </ul>
+          <p>
+            <strong>Consent:</strong> Election organizers are responsible for obtaining explicit consent from voters 
+            before enrolling their biometric data. VoteStack does not verify that consent has been obtained.
+          </p>
+          <p>
+            <strong>Legal basis:</strong> Processing of biometric data is based on explicit consent under GDPR 
+            Article 9(2)(a) or equivalent applicable law. Organizers must ensure they have a valid legal basis 
+            before enabling this feature.
+          </p>
+        </section>
+
         <section class="legal-section" id="use">
           <h2>How We Use Your Information</h2>
           <p>We use collected information to:</p>
@@ -149,13 +175,15 @@
             We implement industry-standard technical and organisational measures to protect your data:
           </p>
           <ul>
-            <li>TLS/SSL encryption for all data in transit</li>
-            <li>AES-256 encryption for data at rest</li>
-            <li>Secure password hashing (bcrypt)</li>
-            <li>Complete data isolation between organisations</li>
-            <li>Regular penetration testing and security audits</li>
-            <li>Automated backup and disaster recovery systems</li>
-            <li>DDoS protection and real-time infrastructure monitoring</li>
+            <li>TLS/HTTPS encryption for all data in transit (enforced by Cloudflare)</li>
+            <li>PBKDF2-SHA256 password hashing (100,000 iterations) via OpenSSL — not plain bcrypt</li>
+            <li>Session tokens generated via RAND_bytes (32 bytes, 64 hex chars) stored in Redis with 24h TTL</li>
+            <li>Per-user data isolation on every database query — no cross-account data leakage</li>
+            <li>Rate limiting via Redis INCR/EXPIRE (100 requests per IP per 60 seconds)</li>
+            <li>Face embeddings stored encrypted — raw biometric photos are never persisted</li>
+            <li>CORS origin validation — only whitelisted domains can call the API</li>
+            <li>Request size cap (1MB) and 5-second receive timeout to prevent abuse</li>
+            <li>INSERT ON CONFLICT DO NOTHING for vote writes — eliminates duplicate-vote races at DB level</li>
           </ul>
           <p>
             While we strive to protect your information, no transmission over the Internet is 100% secure. 
@@ -243,7 +271,7 @@
           <p>Questions or requests regarding this Privacy Policy:</p>
           <div class="contact-box">
             <p><strong>VoteStack Privacy Team</strong></p>
-            <p>Email: <a href="mailto:privacy@votestack.com">privacy@votestack.com</a></p>
+            <p>Email: <a href="mailto:narensonu1520@gmail.com">narensonu1520@gmail.com</a></p>
             <p>Response time: within 30 days</p>
           </div>
         </section>
@@ -261,7 +289,7 @@
             <img src="/assets/Logo.png" alt="VoteStack" />
             <span>VoteStack</span>
           </div>
-          <p>Enterprise-grade secure online voting platform.</p>
+          <p>Production-grade secure online voting platform with biometric verification.</p>
         </div>
         <div class="footer-col">
           <h4>Product</h4>
@@ -276,24 +304,19 @@
           <ul>
             <li><a href="/privacy/index.html">Privacy Policy</a></li>
             <li><a href="/terms/index.html">Terms of Service</a></li>
-            <li><a href="/privacy/index.html#gdpr">GDPR Compliance</a></li>
           </ul>
         </div>
         <div class="footer-col">
-          <h4>Company</h4>
+          <h4>Account</h4>
           <ul>
-            <li><a href="/landing/index.html">Home</a></li>
-            <li><a href="/auth/signup.html">Get Started</a></li>
+            <li><a href="/auth/signup.html">Sign up</a></li>
+            <li><a href="/auth/login.html">Sign in</a></li>
+            <li><a href="/dashboard/index.html">Dashboard</a></li>
           </ul>
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2025 VoteStack. All rights reserved.</p>
-        <div class="footer-trust">
-          <span><i data-lucide="shield-check"></i> SOC 2 Compliant</span>
-          <span><i data-lucide="lock"></i> GDPR Ready</span>
-          <span><i data-lucide="globe"></i> Enterprise Security</span>
-        </div>
+        <p>&copy; 2026 VoteStack. All rights reserved.</p>
       </div>
     </div>
   </footer>
