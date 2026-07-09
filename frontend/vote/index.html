@@ -4,143 +4,82 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Cast Your Vote — VoteStack</title>
-  <link rel="stylesheet" href="/shared/styles.css"/>
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <link rel="icon" href="/assets/Logo.png" type="image/png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="vote.css"/>
   <style>
-    .vote-page {
-      min-height: 100vh;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 40px 24px;
-      background:
-        radial-gradient(ellipse at 20% 50%, rgba(0,255,136,.07) 0%, transparent 55%),
-        radial-gradient(ellipse at 80% 30%, rgba(0,217,255,.07) 0%, transparent 55%);
-      position: relative; z-index: 1;
+    .sched-block {
+      display: none; text-align: center; padding: 20px 0;
     }
-    .vote-box { width: 100%; max-width: 520px; }
-    .vote-header { text-align: center; margin-bottom: 32px; }
-    .vote-header img { width: 56px; height: 56px; border-radius: 14px; margin-bottom: 16px; }
-    .vote-header h1 { font-size: 28px; margin-bottom: 8px; }
-    .vote-header p  { color: var(--text-2); font-size: 14px; }
-    .vote-card { padding: 36px; }
-
-    /* Steps */
-    .step-indicator { display: flex; gap: 0; margin-bottom: 32px; }
-    .step-dot {
-      flex: 1; height: 4px; background: var(--border-bright); border-radius: 2px;
-      transition: background .4s;
+    .sched-block-icon {
+      width: 64px; height: 64px;
+      background: #fffbeb; border: 1px solid #fde68a; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;
     }
-    .step-dot.done   { background: var(--primary); }
-    .step-dot.active { background: var(--secondary); }
-
-    /* Voter ID step */
-    #stepId { display: block; }
-    #stepVote, #stepDone { display: none; }
-
-    /* Candidate list */
-    .candidate-option {
-      display: flex; align-items: center; gap: 16px;
-      padding: 16px; border: 1.5px solid var(--border-bright);
-      border-radius: var(--radius-sm); margin-bottom: 10px;
-      cursor: pointer; transition: all .25s;
-    }
-    .candidate-option:hover { border-color: var(--primary); background: var(--primary-dim); }
-    .candidate-option.selected {
-      border-color: var(--primary); background: var(--primary-dim);
-      box-shadow: 0 0 0 3px var(--primary-glow);
-    }
-    .candidate-option input[type=radio] { display: none; }
-    .radio-circle {
-      width: 22px; height: 22px; border-radius: 50%;
-      border: 2px solid var(--border-bright); flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      transition: all .2s;
-    }
-    .candidate-option.selected .radio-circle {
-      background: var(--primary); border-color: var(--primary); color: #000;
-    }
-    .candidate-name-lbl { font-size: 16px; font-weight: 600; flex: 1; }
-
-    /* Done step */
-    .done-icon { font-size: 72px; text-align: center; margin-bottom: 20px; }
-    .done-text { text-align: center; }
-    .done-text h2 { font-size: 26px; margin-bottom: 12px; }
-    .done-text p  { color: var(--text-2); font-size: 15px; }
-
-    /* Results after vote */
-    .result-mini { margin-top: 32px; }
-    .result-mini h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
-    .result-row { margin-bottom: 14px; }
-    .result-row-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
-    .result-row-bar { height: 6px; background: var(--border-bright); border-radius: 3px; overflow: hidden; }
-    .result-row-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 3px; transition: width 1s; }
-
-    #loadingMsg { text-align:center; padding:32px; color:var(--text-2); }
-    #msgBox { display:none; margin-bottom:16px; }
+    .sched-block-label    { font-size: 1.05rem; font-weight: 800; color: #d97706; margin-bottom: 6px; }
+    .sched-block-reason   { font-size: .875rem; color: #6a6a6a; margin-bottom: 16px; line-height: 1.6; }
+    .sched-block-countdown { font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; color: #0f0f0f; }
   </style>
 </head>
 <body>
+
   <div class="vote-page">
     <div class="vote-box">
+
+      <!-- Header -->
       <div class="vote-header">
         <img src="/assets/Logo.png" alt="VoteStack"/>
-        <h1 class="gradient-text" id="electionTitleDisplay">Loading…</h1>
+        <h1 id="electionTitleDisplay">Loading…</h1>
         <p>Enter your voter ID to cast your vote</p>
       </div>
 
-      <div class="card vote-card">
-        <!-- Step indicator — now 4 steps -->
-        <div class="step-indicator">
-          <div class="step-dot active" id="dot0"></div>
-          <div style="width:8px;"></div>
-          <div class="step-dot" id="dot1"></div>
-          <div style="width:8px;"></div>
-          <div class="step-dot" id="dot2"></div>
-          <div style="width:8px;"></div>
-          <div class="step-dot" id="dot3"></div>
+      <div class="vote-card">
+
+        <!-- Message -->
+        <div class="msg-box" id="msgBox"></div>
+
+        <!-- Loading -->
+        <div class="loading-wrap" id="loadingMsg">
+          <div class="spinner"></div>
+          <p>Loading ballot…</p>
         </div>
 
-        <div id="msgBox" class="msg"></div>
-        <div id="loadingMsg"><span class="spinner" style="width:28px;height:28px;"></span></div>
-
-        <!-- Schedule blocked state -->
-        <div id="schedBlock" style="display:none;text-align:center;padding:16px 0;">
-          <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#d97706"
-            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-            style="margin:0 auto 16px;">
-            <rect x="3" y="4" width="18" height="18" rx="2"/>
-            <line x1="16" y1="2" x2="16" y2="6"/>
-            <line x1="8" y1="2" x2="8" y2="6"/>
-            <line x1="3" y1="10" x2="21" y2="10"/>
-          </svg>
-          <div style="font-size:1rem;font-weight:800;color:#d97706;margin-bottom:6px;"
-               id="schedBlockLabel">Outside voting hours</div>
-          <div style="font-size:.875rem;color:var(--text-2);margin-bottom:16px;"
-               id="schedBlockReason"></div>
-          <div style="font-size:1.25rem;font-weight:800;font-variant-numeric:tabular-nums;
-               color:var(--text-1);" id="schedBlockCountdown"></div>
+        <!-- Schedule blocked -->
+        <div class="sched-block" id="schedBlock">
+          <div class="sched-block-icon">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#d97706"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </div>
+          <div class="sched-block-label"  id="schedBlockLabel">Outside voting hours</div>
+          <div class="sched-block-reason" id="schedBlockReason"></div>
+          <div class="sched-block-countdown" id="schedBlockCountdown"></div>
         </div>
 
-        <!-- Step 1: Voter ID -->
+        <!-- ══ Step 1: Voter ID ══ -->
         <div id="stepId" style="display:none;">
-          <div class="input-group" style="margin-bottom:20px;">
+          <div class="input-group">
             <label for="voterIdInput">Your Voter ID</label>
             <input id="voterIdInput" class="input-field" type="text"
               placeholder="Enter your assigned voter ID"
-              onkeydown="if(event.key==='Enter')checkVoter()" />
+              onkeydown="if(event.key==='Enter') checkVoter()"/>
           </div>
-          <button id="checkBtn" class="btn btn-primary btn-full" onclick="checkVoter()">
+          <button id="checkBtn" class="btn-primary-full" onclick="checkVoter()">
             Verify &amp; Continue
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </button>
         </div>
 
-        <!-- Step 2: Face Verification -->
+        <!-- ══ Step 2: Face Verification ══ -->
         <div id="stepFace" style="display:none;">
-          <p style="color:var(--text-2);font-size:13px;margin-bottom:16px;text-align:center;">
-            Verifying as: <strong style="color:var(--primary);" id="faceVoterLabel"></strong>
+          <p class="voter-label">
+            Verifying as: <strong id="faceVoterLabel"></strong>
           </p>
-          <!-- Camera preview -->
           <div style="position:relative;border-radius:12px;overflow:hidden;background:#000;margin-bottom:12px;">
             <video id="faceVideo" autoplay playsinline muted
               style="width:100%;display:block;max-height:260px;object-fit:cover;"></video>
@@ -148,284 +87,77 @@
             <div id="faceOverlay" style="
               position:absolute;bottom:0;left:0;right:0;
               background:linear-gradient(transparent,rgba(0,0,0,.7));
-              color:#fff;padding:10px 14px;font-size:13px;font-weight:600;
-              text-align:center;">
+              color:#fff;padding:10px 14px;font-size:13px;font-weight:600;text-align:center;">
               Look at the camera and blink naturally
             </div>
           </div>
-          <button id="captureBtn" class="btn btn-primary btn-full" onclick="startCapture()" style="margin-bottom:10px;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+          <button id="captureBtn" class="btn-primary-full" onclick="startCapture()">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
             Start Face Verification
           </button>
-          <button class="btn btn-outline" onclick="backToId()" style="width:100%;">← Back</button>
-        </div>
-
-        <!-- Step 3: Select candidate -->
-        <div id="stepVote" style="display:none;">
-          <p style="color:var(--text-2);font-size:14px;margin-bottom:20px;">
-            Voting as: <strong style="color:var(--primary);" id="voterIdLabel"></strong>
-          </p>
-          <div id="candidateOptions"></div>
-          <div style="display:flex;gap:12px;margin-top:24px;">
-            <button class="btn btn-outline" onclick="backToId()">
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          <div class="vote-nav" style="margin-top:12px;">
+            <button class="btn-vote-back" style="width:100%;" onclick="backToId()">
+              <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;display:inline;vertical-align:-1px;margin-right:4px"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
               Back
-            </button>
-            <button class="btn btn-primary" style="flex:1;" id="castBtn" onclick="castVote()" disabled>
-              Cast Vote
             </button>
           </div>
         </div>
 
+        <!-- ══ Step 3: Select Candidate ══ -->
+        <div id="stepVote" style="display:none;">
+          <p class="voter-label">
+            Voting as: <strong id="voterIdLabel"></strong>
+          </p>
+          <div class="candidates-wrap" id="candidateOptions"></div>
+          <div class="vote-nav">
+            <button class="btn-vote-back" onclick="backToId()">
+              <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;display:inline;vertical-align:-1px;margin-right:4px"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+              Back
+            </button>
+            <button class="btn-vote-next" id="castBtn" onclick="castVote()" disabled>
+              Cast Vote
+              <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- ══ Step 4: Done ══ -->
         <div id="stepDone" style="display:none;">
-          <div style="text-align:center;padding:20px 0;">
-            <div style="margin-bottom:24px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <div class="done-content">
+            <div class="done-icon-wrap">
+              <svg width="40" height="40" viewBox="0 0 24 24">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
             </div>
-            <h2 class="gradient-text" style="font-size:30px;margin-bottom:16px;">Thank You!</h2>
-            <p style="color:var(--text-2);font-size:16px;line-height:1.8;">
+            <div class="done-title">Thank You!</div>
+            <p class="done-body">
               Your vote has been recorded successfully.<br/>
               Results will be announced by the election host.
             </p>
-            <div style="margin-top:32px;padding:16px;background:var(--primary-dim);border:1px solid rgba(0,255,136,.2);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;gap:10px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              <p style="color:var(--primary);font-size:14px;font-weight:600;margin:0;">
-                Your vote is secure and confidential
-              </p>
+            <div class="done-secure">
+              <svg width="15" height="15" viewBox="0 0 24 24">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              <span>Your vote is secure and confidential</span>
             </div>
           </div>
         </div>
+
+      </div><!-- /.vote-card -->
+
+      <div class="vote-footer">
+        <a href="/landing/index.html">Powered by VoteStack</a>
       </div>
 
-      <div style="text-align:center;margin-top:24px;">
-        <a href="/landing/index.html" style="color:var(--text-3);font-size:13px;text-decoration:none;">
-          Powered by VoteStack
-        </a>
-      </div>
     </div>
   </div>
 
   <script src="/config.js"></script>
   <script src="/shared/api.js"></script>
   <script src="/shared/schedule.js"></script>
-  <script>
-    const params     = new URLSearchParams(location.search);
-    const electionId = params.get('election');
-    let candidates   = [];
-    let selectedCand = null;
-    let currentVoterId = null;
-
-    document.addEventListener('DOMContentLoaded', async () => {
-      if (!electionId) { showError('Invalid voting link'); return; }
-
-      // Load info + candidates in parallel
-      const [infoRes, candRes] = await Promise.all([
-        API.getElectionInfo(electionId),
-        API.publicCandidates(electionId)
-      ]);
-      document.getElementById('loadingMsg').style.display = 'none';
-
-      if (!infoRes.success) { showError(infoRes.message || 'Election not found'); return; }
-
-      document.getElementById('electionTitleDisplay').textContent = infoRes.title;
-      document.title = infoRes.title + ' — VoteStack';
-
-      if (!infoRes.is_active) { showError('This election is closed.'); return; }
-
-      // ── Schedule check ──────────────────────────────────────
-      const sched  = { schedule_type: infoRes.schedule_type || 'always_on',
-                        timezone:      infoRes.timezone,
-                        starts_at: infoRes.starts_at, ends_at: infoRes.ends_at,
-                        schedule_json: infoRes.schedule_json };
-      const status = Schedule.getStatus(sched);
-      if (!status.open) {
-        // Show blocked banner with countdown
-        const wrap = document.getElementById('schedBlock');
-        wrap.style.display = 'block';
-        document.getElementById('schedBlockLabel').textContent  = status.label;
-        document.getElementById('schedBlockReason').textContent = status.reason;
-        if (status.nextChange) {
-          Schedule.startCountdown(status.nextChange, document.getElementById('schedBlockCountdown'));
-        }
-        return;
-      }
-      // ────────────────────────────────────────────────────────
-
-      if (!candRes.success) { showError(candRes.message || 'Failed to load candidates'); return; }
-      candidates = candRes.candidates || [];
-      document.getElementById('stepId').style.display = 'block';
-    });
-
-    /* ---- Step 1: Verify voter ---- */
-    async function checkVoter() {
-      const voterId = document.getElementById('voterIdInput').value.trim();
-      const btn     = document.getElementById('checkBtn');
-      if (!voterId) { showMsg('Enter your voter ID', 'error'); return; }
-
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> Verifying…';
-
-      const res = await API.checkVoter(electionId, voterId);
-      btn.disabled = false; btn.innerHTML = 'Verify &amp; Continue <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
-
-      if (res.already_voted) {
-        showMsg('You have already voted in this election.', 'error');
-        return;
-      }
-      if (!res.success) {
-        showMsg(res.message || 'Voter not found', 'error');
-        return;
-      }
-
-      currentVoterId = voterId;
-      document.getElementById('voterIdLabel').textContent = voterId;
-      document.getElementById('faceVoterLabel').textContent = voterId;
-
-      // Go to face verification step (step 2)
-      showStep(2);
-      await openCamera();
-    }
-
-    /* ---- Step 2: Face verification ---- */
-    let faceStream = null;
-
-    async function openCamera() {
-      try {
-        faceStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
-        document.getElementById('faceVideo').srcObject = faceStream;
-        document.getElementById('faceOverlay').textContent = 'Look at the camera and blink naturally';
-      } catch (e) {
-        showMsg('Camera access denied. Face verification is required to vote. Please allow camera access and refresh.', 'error');
-        // Do NOT proceed — face verification is required
-      }
-    }
-
-    function stopCamera() {
-      if (faceStream) { faceStream.getTracks().forEach(t => t.stop()); faceStream = null; }
-    }
-
-    async function startCapture() {
-      const btn = document.getElementById('captureBtn');
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> Capturing…';
-
-      const overlay = document.getElementById('faceOverlay');
-      overlay.textContent = 'Hold still… capturing frames';
-
-      const video  = document.getElementById('faceVideo');
-      const canvas = document.getElementById('faceCanvas');
-      canvas.width  = video.videoWidth  || 640;
-      canvas.height = video.videoHeight || 480;
-
-      // Capture best frame (Change 5: multiple frames, pick sharpest)
-      let bestFrame = null;
-      let bestSize  = 0;
-      for (let i = 0; i < 10; i++) {
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0);
-        const b64 = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
-        if (b64.length > bestSize) { bestSize = b64.length; bestFrame = b64; }
-        await new Promise(r => setTimeout(r, 80));
-      }
-
-      overlay.textContent = 'Verifying identity…';
-
-      const res = await API.verifyFace(electionId, currentVoterId, bestFrame);
-
-      stopCamera();
-      btn.disabled  = false;
-      btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg> Start Face Verification';
-
-      if (!res || !res.success) {
-        // Service error — do NOT silently skip, block and show error
-        showMsg('Face verification service error. Please try again or contact the election organiser.', 'error');
-        await openCamera();
-        return;
-      }
-
-      if (!res.verified) {
-        showMsg('Face verification failed (score: ' + (res.score || 0).toFixed(2) + '). Your face does not match the registered photo. Please try again.', 'error');
-        await openCamera();
-        return;
-      }
-
-      // Verified — proceed to ballot
-      showStep(3);
-      renderCandidates();
-    }
-
-    function backToId() {
-      stopCamera();
-      showStep(1);
-    }
-    function renderCandidates() {
-      const div = document.getElementById('candidateOptions');
-      if (!candidates.length) {
-        div.innerHTML = '<p style="color:var(--text-2);text-align:center;">No candidates added yet.</p>';
-        return;
-      }
-      div.innerHTML = candidates.map((c, i) => `
-        <label class="candidate-option" id="opt_${i}" onclick="selectCand(${i})">
-          <div class="radio-circle" id="rc_${i}"></div>
-          <span class="candidate-name-lbl">${escHtml(c.name)}</span>
-        </label>
-      `).join('');
-    }
-
-    function selectCand(idx) {
-      document.querySelectorAll('.candidate-option').forEach(el => el.classList.remove('selected'));
-      document.querySelectorAll('.radio-circle').forEach(el => el.innerHTML = '');
-      document.getElementById('opt_'+idx)?.classList.add('selected');
-      const rc = document.getElementById('rc_'+idx);
-      if (rc) rc.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
-      selectedCand = candidates[idx].name;
-      document.getElementById('castBtn').disabled = false;
-    }
-
-    async function castVote() {
-      if (!selectedCand) { showMsg('Select a candidate', 'error'); return; }
-      const btn = document.getElementById('castBtn');
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> Casting vote…';
-
-      const res = await API.castVote(electionId, currentVoterId, selectedCand);
-      if (res.success) {
-        showStep(4);
-      } else {
-        showMsg(res.message || 'Failed to cast vote', 'error');
-        btn.disabled = false; btn.textContent = 'Cast Vote';
-      }
-    }
-
-    function backToId() { stopCamera(); showStep(1); selectedCand = null; }
-
-    /* ---- Helpers ---- */
-    function showStep(n) {
-      document.getElementById('stepId').style.display   = n===1?'block':'none';
-      document.getElementById('stepFace').style.display = n===2?'block':'none';
-      document.getElementById('stepVote').style.display = n===3?'block':'none';
-      document.getElementById('stepDone').style.display = n===4?'block':'none';
-      document.getElementById('msgBox').style.display   = 'none';
-      [0,1,2,3].forEach(i => {
-        const d = document.getElementById('dot'+i);
-        if (d) d.className = 'step-dot' + (i < n-1 ? ' done' : i===n-1 ? ' active' : '');
-      });
-    }
-
-    function showMsg(text, type) {
-      const el = document.getElementById('msgBox');
-      el.textContent = text; el.className = 'msg msg-'+type; el.style.display='block';
-    }
-
-    function showError(text) {
-      document.getElementById('loadingMsg').style.display = 'none';
-      document.getElementById('electionTitleDisplay').textContent = 'Error';
-      showMsg(text, 'error');
-    }
-
-    function escHtml(s) {
-      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-  </script>
+  <script src="/shared/face-capture.js"></script>
+  <script src="vote.js"></script>
 </body>
 </html>
