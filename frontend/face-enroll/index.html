@@ -30,81 +30,133 @@
         <p id="voterLabel">Loading voter…</p>
       </div>
 
+      <!-- Already enrolled banner -->
+      <div id="enrolledBanner" class="enrolled-banner" style="display:none;">
+        <div class="enrolled-banner-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><polyline points="16 11 18 13 22 9"/></svg>
+        </div>
+        <div class="enrolled-banner-text">
+          <strong>Face already enrolled</strong>
+          <span id="enrolledCountText">1 embedding stored</span>
+        </div>
+        <button class="enrolled-banner-rebtn" onclick="dismissBanner()">Update</button>
+      </div>
+
       <div id="msgBox" class="enroll-msg" style="display:none;margin-bottom:16px;"></div>
 
-      <!-- Upload photos -->
+      <!-- Main card -->
       <div id="stepUpload" class="enroll-card">
-        <div class="enroll-step-title">
-          <span class="step-num">1</span>
-          Upload reference photos
-        </div>
-        <p class="enroll-hint">
-          Upload 1–3 clear photos of the voter's face:
-          <strong>front</strong>, <strong>left</strong>, <strong>right</strong>.
-          Photos are processed immediately and never stored.
-        </p>
 
-        <div class="photo-slots">
-          <div class="photo-slot">
-            <label class="slot-label" for="photo0">
-              <div class="slot-preview" id="preview0">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-                <span>Front</span>
-              </div>
-            </label>
-            <input type="file" id="photo0" accept="image/*" style="display:none" onchange="previewPhoto(0, this)"/>
-          </div>
-          <div class="photo-slot">
-            <label class="slot-label" for="photo1">
-              <div class="slot-preview" id="preview1">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-                <span>Left</span>
-              </div>
-            </label>
-            <input type="file" id="photo1" accept="image/*" style="display:none" onchange="previewPhoto(1, this)"/>
-          </div>
-          <div class="photo-slot">
-            <label class="slot-label" for="photo2">
-              <div class="slot-preview" id="preview2">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-                <span>Right</span>
-              </div>
-            </label>
-            <input type="file" id="photo2" accept="image/*" style="display:none" onchange="previewPhoto(2, this)"/>
-          </div>
+        <!-- Tabs -->
+        <div class="tab-row">
+          <button class="tab-btn active" id="tabUpload" onclick="switchTab('upload')">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Upload Photos
+          </button>
+          <button class="tab-btn" id="tabCamera" onclick="switchTab('camera')">
+            <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Use Camera
+          </button>
         </div>
 
+        <!-- ── Upload pane ── -->
+        <div id="paneUpload">
+          <p class="enroll-hint">Upload 1–3 photos: <strong>front</strong>, <strong>left</strong>, <strong>right</strong>. Photos are never stored.</p>
+          <div class="photo-slots">
+            <div class="photo-slot">
+              <label class="slot-label" for="photo0">
+                <div class="slot-preview" id="preview0">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                  <span>Front</span>
+                </div>
+              </label>
+              <input type="file" id="photo0" accept="image/*" style="display:none" onchange="handleUpload(0,this)"/>
+            </div>
+            <div class="photo-slot">
+              <label class="slot-label" for="photo1">
+                <div class="slot-preview" id="preview1">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                  <span>Left</span>
+                </div>
+              </label>
+              <input type="file" id="photo1" accept="image/*" style="display:none" onchange="handleUpload(1,this)"/>
+            </div>
+            <div class="photo-slot">
+              <label class="slot-label" for="photo2">
+                <div class="slot-preview" id="preview2">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                  <span>Right</span>
+                </div>
+              </label>
+              <input type="file" id="photo2" accept="image/*" style="display:none" onchange="handleUpload(2,this)"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Camera pane ── -->
+        <div id="paneCamera" style="display:none;">
+          <p class="enroll-hint" id="cameraHint">Open camera and capture your face from 3 angles for best accuracy.</p>
+
+          <!-- Live preview -->
+          <div class="camera-wrap" id="cameraWrap">
+            <video id="enrollVideo" autoplay playsinline muted></video>
+            <canvas id="enrollCanvas" style="display:none;"></canvas>
+            <div class="camera-guide" id="cameraGuide">Press "Open Camera" to start</div>
+          </div>
+
+          <!-- Camera controls -->
+          <div class="camera-ctrl-row">
+            <button class="enroll-btn enroll-btn--outline" id="openCamBtn" onclick="openEnrollCamera()">
+              <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              Open Camera
+            </button>
+            <button class="enroll-btn enroll-btn--outline" id="closeCamBtn" onclick="closeEnrollCamera()" style="display:none;">
+              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Close
+            </button>
+          </div>
+
+          <!-- Angle capture buttons -->
+          <div class="angle-row" id="angleRow" style="display:none;">
+            <button class="angle-btn" id="capFront" onclick="captureAngle(0)" title="Look straight ahead">
+              <div class="angle-thumb" id="thumb0">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              </div>
+              <span>Front</span>
+              <div class="angle-check" id="check0" style="display:none;">✓</div>
+            </button>
+            <button class="angle-btn" id="capLeft" onclick="captureAngle(1)" title="Turn slightly left">
+              <div class="angle-thumb" id="thumb1">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              </div>
+              <span>Left</span>
+              <div class="angle-check" id="check1" style="display:none;">✓</div>
+            </button>
+            <button class="angle-btn" id="capRight" onclick="captureAngle(2)" title="Turn slightly right">
+              <div class="angle-thumb" id="thumb2">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              </div>
+              <span>Right</span>
+              <div class="angle-check" id="check2" style="display:none;">✓</div>
+            </button>
+          </div>
+
+          <div class="angle-tip" id="angleTip" style="display:none;">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span id="angleTipText">Look straight at the camera and click Front</span>
+          </div>
+        </div>
+
+        <!-- Note -->
         <div class="enroll-note">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          At least 1 photo required. Front-facing is mandatory. Photos are discarded after embedding generation.
+          At least 1 photo required. Photos are never stored — only face embeddings are saved.
         </div>
 
         <button class="enroll-btn" id="enrollBtn" onclick="enrollFace()" disabled>
           Generate &amp; Save Embeddings
           <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </button>
-      </div>
-
-      <!-- Already enrolled -->
-      <div id="stepEnrolled" class="enroll-card enroll-card--done" style="display:none;">
-        <div class="done-icon" style="background:#eff6ff;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="8" r="4"/>
-            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-            <polyline points="16 11 18 13 22 9"/>
-          </svg>
-        </div>
-        <h2>Face Already Enrolled</h2>
-        <p id="enrolledCount" style="color:#6b7280;font-size:.875rem;margin-top:4px;"></p>
-        <div style="display:flex;gap:10px;margin-top:24px;flex-direction:column;">
-          <button class="enroll-btn" onclick="reEnroll()">
-            <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-            Re-enroll (Update Photos)
-          </button>
-          <button class="enroll-btn enroll-btn--outline" onclick="history.back()">
-            ← Back to Voter List
-          </button>
-        </div>
       </div>
 
       <!-- Success -->
@@ -116,9 +168,8 @@
         </div>
         <h2>Face Enrolled</h2>
         <p id="doneMsg">Embeddings saved. Photos were not stored.</p>
-        <button class="enroll-btn enroll-btn--outline" onclick="history.back()">
-          ← Back to Voter List
-        </button>
+        <button class="enroll-btn enroll-btn--outline" onclick="resetForm()">Enroll Again</button>
+        <button class="enroll-btn" style="margin-top:10px;" onclick="history.back()">← Back to Voter List</button>
       </div>
 
     </div>
