@@ -167,7 +167,5 @@ ALTER TABLE public.voter_embeddings DISABLE ROW LEVEL SECURITY;
 GRANT ALL ON public.voter_embeddings TO anon, authenticated;
 
 -- ── Face verification toggle per election ────────────────────────────────
--- Add this column to enable the face verification toggle in the manage page.
--- Default false = face verification off for existing elections.
 ALTER TABLE public.elections
 ADD COLUMN IF NOT EXISTS face_verify_enabled BOOLEAN NOT NULL DEFAULT false;
