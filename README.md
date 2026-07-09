@@ -1,6 +1,6 @@
 # VoteStack
 
-A production-grade online voting platform with a high-performance C++ backend, Redis caching, nginx load balancing, and a Vanilla JS frontend. Built for concurrent multi-user elections with full data isolation per account.
+A production-grade online voting platform with a high-performance C++ backend, biometric face verification, Redis caching, nginx load balancing, and a Vanilla JS frontend. Built for concurrent multi-user elections with full data isolation per account.
 
 [![Documentation](https://img.shields.io/badge/Docs-DeepWiki-blue?style=for-the-badge&logo=gitbook&logoColor=white)](https://deepwiki.com/Naren1520/Voting_Management_system)
 
@@ -16,11 +16,22 @@ A production-grade online voting platform with a high-performance C++ backend, R
 ![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
 
+**Face Verification Service**
+
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![OpenCV](https://img.shields.io/badge/OpenCV-5C3EE8?style=for-the-badge&logo=opencv&logoColor=white)
+![InsightFace](https://img.shields.io/badge/InsightFace-ArcFace-FF6B35?style=for-the-badge&logo=python&logoColor=white)
+![MediaPipe](https://img.shields.io/badge/MediaPipe-Liveness-0097A7?style=for-the-badge&logo=google&logoColor=white)
+![ONNX](https://img.shields.io/badge/ONNX_Runtime-CPU-717272?style=for-the-badge&logo=onnx&logoColor=white)
+![Modal](https://img.shields.io/badge/Modal-Serverless-6366F1?style=for-the-badge&logo=modal&logoColor=white)
+
 **Frontend**
 
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![WebRTC](https://img.shields.io/badge/WebRTC-Camera-333333?style=for-the-badge&logo=webrtc&logoColor=white)
 ![Netlify](https://img.shields.io/badge/Netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white)
 
 **Infrastructure**
@@ -120,12 +131,23 @@ A production-grade online voting platform with a high-performance C++ backend, R
 - Create unlimited independent elections per account
 - Standard (single candidate) and multi-position ballot types
 - Scheduled elections with timezone support
-- Shareable per-election voting link
+- Shareable per-election voting link and Election ID
+- Join page — voters enter Election ID to access their ballot
+
+**Biometric face verification**
+- Admin enrolls voter photos via file upload or live webcam capture (3 angles: front/left/right)
+- InsightFace ArcFace model generates 512-dim face embeddings at enrollment time
+- MediaPipe FaceMesh liveness detection (blink / head-movement) prevents photo spoofing
+- Cosine similarity comparison at voting time — configurable threshold (default 0.82)
+- Embeddings stored encrypted in DB; raw photos are never persisted
+- Stateless Python microservice on Modal.com — C++ backend owns all DB access
+- Graceful re-enrollment — admin can update photos at any time
 
 **Voting**
-- Voter ID verification before ballot is shown
+- Face verification required before ballot is shown
+- Voter ID verification before face step
 - Duplicate vote prevention enforced at the database level
-- Atomic vote writes via Postgres RPC - no TOCTOU race possible
+- Atomic vote writes via `INSERT ON CONFLICT DO NOTHING` — no TOCTOU race possible
 - Live results with per-candidate vote counts
 
 **Auth**
@@ -158,6 +180,7 @@ VotingSystem using cpp/
 |       |   |   +-- AuthController.h          - signup, login, sessions, token validation
 |       |   |   +-- CandidateController.h     - add/remove/list candidates (authed)
 |       |   |   +-- ElectionController.h      - CRUD elections, schedule management
+|       |   |   +-- FaceController.h          - face enroll/verify proxy to Python service
 |       |   |   +-- PositionController.h      - positions for multi-ballot elections
 |       |   |   +-- PublicMultiVoteController.h - multi-position public ballot
 |       |   |   +-- PublicVoteController.h    - single-candidate public ballot
@@ -181,6 +204,7 @@ VotingSystem using cpp/
 |       |   |   +-- AuthController.cpp
 |       |   |   +-- CandidateController.cpp
 |       |   |   +-- ElectionController.cpp
+|       |   |   +-- FaceController.cpp        - direct libcurl calls to face service
 |       |   |   +-- PositionController.cpp
 |       |   |   +-- PublicMultiVoteController.cpp
 |       |   |   +-- PublicVoteController.cpp
@@ -201,15 +225,29 @@ VotingSystem using cpp/
 |       +-- CMakeLists.txt
 |       \-- Makefile
 |
++-- face-service/                             - Python face verification microservice (Modal)
+|   +-- app/
+|   |   +-- __init__.py
+|   |   +-- config.py                         - configurable threshold, secrets
+|   |   +-- face_engine.py                    - InsightFace + ONNX + cosine similarity
+|   |   +-- liveness.py                       - MediaPipe blink/head-move detection
+|   |   +-- models.py                         - Pydantic request/response schemas
+|   |   +-- security.py                       - shared-secret API auth
+|   |   \-- routes/
+|   |       +-- embedding.py                  - POST /generate-embedding (enroll)
+|   |       +-- health.py                     - GET /health
+|   |       \-- verify.py                     - POST /verify (voting)
+|   +-- main.py                               - FastAPI app entry point
+|   +-- modal_app.py                          - Modal.com deployment wrapper
+|   +-- requirements.txt
+|   +-- Dockerfile
+|   +-- .env.example
+|   \-- README.md                             - setup, hosting, schema, API docs
+|
 +-- frontend/                                 - Vanilla JS static site (Netlify)
 |   +-- assets/
 |   |   +-- Logo.png
-|   |   +-- founder.jpg
-|   |   +-- founder1.png
-|   |   +-- img1.jpg  img2.jpg  img3.png
-|   |   +-- img4.png  img5.jpg  img6.jpg  img7.jpg
-|   |   +-- vdo1.mp4
-|   |   \-- vdo2.mp4
+|   |   +-- img1..img7, vdo1..vdo2            - landing page media
 |   +-- auth/
 |   |   +-- login.html
 |   |   +-- signup.html
@@ -226,6 +264,14 @@ VotingSystem using cpp/
 |   |   +-- manage-multi.html                 - multi-position election manager
 |   |   +-- manage-multi.css
 |   |   \-- manage-multi.js
+|   +-- face-enroll/                          - admin face enrollment (upload + camera)
+|   |   +-- index.html
+|   |   +-- face-enroll.css
+|   |   \-- face-enroll.js
+|   +-- join/                                 - voter entry page (enter election ID)
+|   |   +-- index.html
+|   |   +-- join.css
+|   |   \-- join.js
 |   +-- landing/
 |   |   +-- index.html
 |   |   +-- landing.css
@@ -243,6 +289,7 @@ VotingSystem using cpp/
 |   |       \-- sessions.js
 |   +-- shared/
 |   |   +-- api.js                            - centralised fetch client + auth guards
+|   |   +-- face-capture.js                   - browser liveness + best-frame selection
 |   |   +-- styles.css                        - design system (tokens, components)
 |   |   +-- schedule.css
 |   |   +-- schedule.js
@@ -250,13 +297,15 @@ VotingSystem using cpp/
 |   +-- terms/
 |   |   +-- index.html
 |   |   \-- terms.js
-|   +-- vote/
-|   |   \-- index.html                        - public single-candidate ballot
-|   +-- vote-multi/
-|   |   +-- index.html                        - public multi-position ballot
+|   +-- vote/                                 - public single-candidate ballot
+|   |   +-- index.html
+|   |   +-- vote.css                          - imports vote-multi.css (shared design)
+|   |   \-- vote.js
+|   +-- vote-multi/                           - public multi-position ballot
+|   |   +-- index.html
 |   |   +-- vote-multi.css
 |   |   \-- vote-multi.js
-|   +-- config.js                             - window.API_BASE (edit for local dev)
+|   +-- config.js                             - window.API_BASE (auto-detects local/prod)
 |   +-- loader.html
 |   \-- netlify.toml                          - publish dir + SPA redirect rules
 |
@@ -268,24 +317,27 @@ VotingSystem using cpp/
 |   \-- nginx.conf                            - HTTPS, HTTP/2, gzip, least_conn upstream
 |
 +-- monitoring/
-|   +-- prometheus.yml                        - scrape config: backend, Redis, nginx, node
+|   +-- prometheus.yml                        - scrapes Render backend + local services
 |   +-- alert_rules.yml                       - alerts: instance down, latency, errors
+|   +-- docker-compose.monitoring.yml         - local Prometheus + Grafana stack
 |   \-- grafana/
 |       +-- dashboards/
-|       |   \-- votestack.json                - pre-built overview dashboard
+|       |   \-- votestack.json                - pre-built VoteStack overview dashboard
 |       \-- provisioning/
 |           +-- dashboards/
-|           |   \-- dashboards.yml            - auto-load dashboards from disk
+|           |   \-- dashboards.yml
 |           \-- datasources/
-|               \-- prometheus.yml            - auto-connect Prometheus datasource
+|               \-- prometheus.yml
 |
 +-- load-test/
-|   +-- smoke_test.js                         - 5 VUs x 15s, run before every deploy
-|   +-- load_test.js                          - staged ramp: 100 -> 500 -> 2000 VUs
-|   \-- README.md                             - benchmark tuning guide
+|   +-- smoke_test.js                         - 5 VUs x 20s, run before every deploy
+|   +-- load_test.js                          - staged ramp: 10 -> 50 -> 100 VUs
+|   \-- README.md                             - k6 install + run instructions
 |
-+-- docker-compose.yml                        - full stack orchestration
-+-- .env.example                              - all env vars with descriptions
++-- docker-compose.yml                        - full stack orchestration (self-hosted)
++-- supabase_schema.sql                       - full DB schema + GRANT statements
++-- render.yaml                               - Render deployment config
++-- .env.example                              - all env vars documented
 +-- .dockerignore
 +-- .gitignore
 \-- README.md
@@ -295,13 +347,17 @@ VotingSystem using cpp/
 
 ## Prerequisites
 
-| Tool        | Version | Purpose                          |
-|-------------|---------|----------------------------------|
-| Docker      | 24+     | Build and run all services       |
-| Docker Compose | v2+  | Orchestrate the full stack       |
-| k6          | any     | Load testing (optional)          |
-| GCC / G++   | 12+     | Local build only (no Docker)     |
-| Python      | 3.x     | Serve frontend locally           |
+| Tool           | Version | Purpose                                        |
+|----------------|---------|------------------------------------------------|
+| Docker         | 24+     | Build and run all services                     |
+| Docker Compose | v2+     | Orchestrate the full stack                     |
+| k6             | any     | Load testing (optional)                        |
+| GCC / G++      | 12+     | Local C++ build only (no Docker)               |
+| Python         | 3.11+   | Serve frontend locally + deploy face service   |
+| pip / modal    | latest  | Deploy face-service to Modal.com               |
+| Supabase       | —       | Free PostgreSQL DB (supabase.com)              |
+| Redis Cloud    | —       | Free Redis instance (redis.io/try-free)        |
+| Modal.com      | —       | Free serverless Python for face service        |
 
 ---
 
