@@ -713,3 +713,13 @@ See `load-test/README.md` for tuning guidance on thread pool size, Redis memory,
 narensonu1520@gmail.com
 
 [Project Documentation](https://deepwiki.com/Naren1520/Voting_Management_system)
+
+## License
+
+VoteStack is proprietary software.
+
+The source code is not open source and may not be copied, modified,
+redistributed, or used without explicit written permission.
+
+Users are permitted to access and use the official deployed VoteStack
+application only.
