@@ -4,7 +4,7 @@
 
 json ElectionController::getElections(const std::string& userId) {
     auto r = supabaseRequest("GET",
-        "elections?select=id,title,is_active,election_type,schedule_type,"
+        "elections?select=id,title,is_active,election_type,face_verify_enabled,schedule_type,"
         "starts_at,ends_at,schedule_json,timezone,created_at"
         "&user_id=eq." + userId + "&order=created_at.desc");
     try {
@@ -61,7 +61,7 @@ json ElectionController::createElection(const std::string& userId,
 json ElectionController::getElection(const std::string& userId,
                                      const std::string& electionId) {
     auto r = supabaseRequest("GET",
-        "elections?select=id,title,is_active,election_type,schedule_type,"
+        "elections?select=id,title,is_active,election_type,face_verify_enabled,schedule_type,"
         "starts_at,ends_at,schedule_json,timezone,created_at"
         "&id=eq." + electionId + "&user_id=eq." + userId + "&limit=1");
     try {
