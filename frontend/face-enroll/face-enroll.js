@@ -59,6 +59,7 @@ function switchTab(tab) {
 
   if (tab === 'upload') {
     closeEnrollCamera();
+    removeCameraNotice();
   }
   updateEnrollBtn();
 }
@@ -117,16 +118,15 @@ async function openEnrollCamera() {
     document.getElementById('angleRow').style.display    = 'flex';
     document.getElementById('angleTip').style.display    = 'flex';
     setAngleTip(0);
+    removeCameraNotice(); // camera opened fine — remove any previous notice
   } catch (e) {
     let msg = '';
+    const isPermissionDenied = e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError';
 
     switch (e.name) {
       case 'NotAllowedError':
       case 'PermissionDeniedError':
-        msg =
-          'Camera permission was denied. ' +
-          'To fix: click the 🔒 / ℹ️ icon in the Chrome address bar → ' +
-          'Site settings → Camera → Allow, then reload the page.';
+        msg = 'Camera permission was denied.';
         break;
 
       case 'NotFoundError':
@@ -143,7 +143,6 @@ async function openEnrollCamera() {
 
       case 'OverconstrainedError':
       case 'ConstraintNotSatisfiedError':
-        msg = 'Camera does not meet the required settings. Trying with basic settings…';
         // Retry with minimal constraints
         try {
           enrollStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
@@ -162,9 +161,7 @@ async function openEnrollCamera() {
         break;
 
       case 'SecurityError':
-        msg =
-          'Camera access blocked by browser security policy. ' +
-          'Make sure the page is served over HTTPS.';
+        msg = 'Camera access blocked by browser security policy. Make sure the page is served over HTTPS.';
         break;
 
       case 'AbortError':
@@ -176,8 +173,39 @@ async function openEnrollCamera() {
     }
 
     showMsg(msg, 'error');
+
+    // Show the fix-it notice only when permission was actually denied
+    if (isPermissionDenied) {
+      showCameraNotice();
+    }
+
     console.error('[Camera]', e.name, e.message);
   }
+}
+
+/* Inject a camera fix-it notice below the hint — only on permission denial */
+function showCameraNotice() {
+  if (document.getElementById('cameraNotice')) return; // already shown
+  const notice = document.createElement('div');
+  notice.id        = 'cameraNotice';
+  notice.className = 'camera-notice';
+  notice.innerHTML =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;flex-shrink:0">' +
+      '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>' +
+    '</svg>' +
+    '<span>To fix: click the <strong>🔒</strong> icon in the address bar → ' +
+    '<strong>Site settings → Camera → Allow</strong>, then reload the page.</span>';
+
+  // Insert it right after the enroll-hint paragraph inside paneCamera
+  const hint = document.getElementById('cameraHint');
+  if (hint && hint.parentNode) {
+    hint.parentNode.insertBefore(notice, hint.nextSibling);
+  }
+}
+
+function removeCameraNotice() {
+  const notice = document.getElementById('cameraNotice');
+  if (notice) notice.remove();
 }
 
 function closeEnrollCamera() {
