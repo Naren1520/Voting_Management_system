@@ -48,6 +48,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   Schedule.renderStatusBanner(e, document.getElementById('schedStatusWrap'));
 
   await loadAll();
+
+  hideSkeleton();
 });
 
 async function loadAll() {
@@ -530,4 +532,15 @@ function esc(s) {
 }
 function fmt(d) {
   return new Date(d).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+}
+
+function hideSkeleton() {
+  const sk   = document.getElementById('pageSkeletonOverlay');
+  const page = document.querySelector('.mn-page');
+
+  if (page) page.classList.add('mn-ready');
+
+  if (!sk) return;
+  sk.classList.add('sk-hidden');
+  sk.addEventListener('transitionend', () => sk.remove(), { once: true });
 }

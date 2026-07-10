@@ -14,6 +14,69 @@
 </head>
 <body>
 
+  <!-- ═══════════════════════════════════════════════════
+       SKELETON LOADER — shown until all data is fetched
+  ════════════════════════════════════════════════════ -->
+  <div id="pageSkeletonOverlay" class="sk-overlay" aria-hidden="true">
+    <div class="sk-header">
+      <div class="sk-header-inner">
+        <div class="sk-brand">
+          <div class="sk-box" style="width:32px;height:32px;border-radius:50%"></div>
+          <div class="sk-box" style="width:100px;height:18px;border-radius:6px"></div>
+        </div>
+        <div class="sk-header-right">
+          <div class="sk-box" style="width:100px;height:34px;border-radius:8px"></div>
+          <div class="sk-box" style="width:90px;height:34px;border-radius:8px"></div>
+        </div>
+      </div>
+    </div>
+    <div class="sk-page">
+      <div class="sk-card sk-hero">
+        <div class="sk-hero-left">
+          <div class="sk-box" style="width:55%;height:28px;border-radius:8px;margin-bottom:10px"></div>
+          <div class="sk-box" style="width:35%;height:14px;border-radius:6px"></div>
+        </div>
+        <div class="sk-hero-right">
+          <div class="sk-box" style="width:70px;height:26px;border-radius:100px"></div>
+          <div class="sk-box" style="width:90px;height:34px;border-radius:8px"></div>
+        </div>
+      </div>
+      <div class="sk-card sk-share">
+        <div class="sk-box" style="width:40px;height:40px;border-radius:12px;flex-shrink:0"></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+          <div class="sk-box" style="width:120px;height:16px;border-radius:6px"></div>
+          <div class="sk-box" style="width:80%;height:12px;border-radius:6px"></div>
+        </div>
+        <div class="sk-box" style="width:200px;height:40px;border-radius:8px"></div>
+        <div class="sk-box" style="width:100px;height:36px;border-radius:8px"></div>
+      </div>
+      <div class="sk-stats">
+        <div class="sk-card sk-stat-card"><div class="sk-box" style="width:44px;height:44px;border-radius:12px;flex-shrink:0"></div><div style="flex:1;display:flex;flex-direction:column;gap:8px"><div class="sk-box" style="width:50px;height:28px;border-radius:6px"></div><div class="sk-box" style="width:90px;height:12px;border-radius:6px"></div></div></div>
+        <div class="sk-card sk-stat-card"><div class="sk-box" style="width:44px;height:44px;border-radius:12px;flex-shrink:0"></div><div style="flex:1;display:flex;flex-direction:column;gap:8px"><div class="sk-box" style="width:50px;height:28px;border-radius:6px"></div><div class="sk-box" style="width:110px;height:12px;border-radius:6px"></div></div></div>
+        <div class="sk-card sk-stat-card"><div class="sk-box" style="width:44px;height:44px;border-radius:12px;flex-shrink:0"></div><div style="flex:1;display:flex;flex-direction:column;gap:8px"><div class="sk-box" style="width:50px;height:28px;border-radius:6px"></div><div class="sk-box" style="width:80px;height:12px;border-radius:6px"></div></div></div>
+        <div class="sk-card sk-stat-card"><div class="sk-box" style="width:44px;height:44px;border-radius:12px;flex-shrink:0"></div><div style="flex:1;display:flex;flex-direction:column;gap:8px"><div class="sk-box" style="width:50px;height:28px;border-radius:6px"></div><div class="sk-box" style="width:70px;height:12px;border-radius:6px"></div></div></div>
+      </div>
+      <div class="sk-tabs">
+        <div class="sk-box" style="width:110px;height:40px;border-radius:6px"></div>
+        <div class="sk-box" style="width:80px;height:40px;border-radius:6px"></div>
+        <div class="sk-box" style="width:160px;height:40px;border-radius:6px"></div>
+        <div class="sk-box" style="width:90px;height:40px;border-radius:6px"></div>
+      </div>
+      <div class="sk-panel">
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+          <div class="sk-box" style="width:180px;height:20px;border-radius:6px"></div>
+          <div class="sk-box" style="width:280px;height:13px;border-radius:6px"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="sk-card" style="height:120px;border-radius:16px;overflow:hidden;position:relative"><div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);background-size:600px 100%;animation:sk-shimmer 1.4s ease-in-out infinite"></div></div>
+          <div class="sk-card" style="height:120px;border-radius:16px;overflow:hidden;position:relative;opacity:.75"><div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);background-size:600px 100%;animation:sk-shimmer 1.4s ease-in-out infinite"></div></div>
+          <div class="sk-card" style="height:120px;border-radius:16px;overflow:hidden;position:relative;opacity:.5"><div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);background-size:600px 100%;animation:sk-shimmer 1.4s ease-in-out infinite"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- END SKELETON -->
+
   <!-- HEADER -->
   <header class="mn-header">
     <div class="mn-header-inner">
@@ -133,12 +196,12 @@
       <button class="mn-tab active" id="tab-positions" onclick="switchTab('positions',this)">
         <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
         Positions &amp; Candidates
-        <span class="mn-tab-count" id="tcPos">0</span>
+        <span class="mn-tab-count" id="tcPos">—</span>
       </button>
       <button class="mn-tab" id="tab-voters" onclick="switchTab('voters',this)">
         <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         Voters
-        <span class="mn-tab-count" id="tcVoter">0</span>
+        <span class="mn-tab-count" id="tcVoter">—</span>
       </button>
       <button class="mn-tab" id="tab-results" onclick="switchTab('results',this)">
         <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>

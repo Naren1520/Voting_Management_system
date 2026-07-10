@@ -15,6 +15,114 @@
 </head>
 <body>
 
+  <!-- ═══════════════════════════════════════════════════
+       SKELETON LOADER — shown until all data is fetched
+  ════════════════════════════════════════════════════ -->
+  <div id="pageSkeletonOverlay" class="sk-overlay" aria-hidden="true">
+
+    <!-- Fake header -->
+    <div class="sk-header">
+      <div class="sk-header-inner">
+        <div class="sk-brand">
+          <div class="sk-box" style="width:32px;height:32px;border-radius:50%"></div>
+          <div class="sk-box" style="width:100px;height:18px;border-radius:6px"></div>
+        </div>
+        <div class="sk-header-right">
+          <div class="sk-box" style="width:100px;height:34px;border-radius:8px"></div>
+          <div class="sk-box" style="width:90px;height:34px;border-radius:8px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sk-page">
+
+      <!-- Hero banner -->
+      <div class="sk-card sk-hero">
+        <div class="sk-hero-left">
+          <div class="sk-box" style="width:55%;height:28px;border-radius:8px;margin-bottom:10px"></div>
+          <div class="sk-box" style="width:35%;height:14px;border-radius:6px"></div>
+        </div>
+        <div class="sk-hero-right">
+          <div class="sk-box" style="width:70px;height:26px;border-radius:100px"></div>
+          <div class="sk-box" style="width:80px;height:26px;border-radius:100px"></div>
+          <div class="sk-box" style="width:90px;height:34px;border-radius:8px"></div>
+        </div>
+      </div>
+
+      <!-- Share banner -->
+      <div class="sk-card sk-share">
+        <div class="sk-box" style="width:40px;height:40px;border-radius:12px;flex-shrink:0"></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+          <div class="sk-box" style="width:120px;height:16px;border-radius:6px"></div>
+          <div class="sk-box" style="width:80%;height:12px;border-radius:6px"></div>
+        </div>
+        <div class="sk-box" style="width:200px;height:40px;border-radius:8px"></div>
+        <div class="sk-box" style="width:100px;height:36px;border-radius:8px"></div>
+      </div>
+
+      <!-- Stats strip -->
+      <div class="sk-stats">
+        <div class="sk-card sk-stat-card">
+          <div class="sk-box" style="width:44px;height:44px;border-radius:12px;flex-shrink:0"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+            <div class="sk-box" style="width:50px;height:28px;border-radius:6px"></div>
+            <div class="sk-box" style="width:90px;height:12px;border-radius:6px"></div>
+          </div>
+        </div>
+        <div class="sk-card sk-stat-card">
+          <div class="sk-box" style="width:44px;height:44px;border-radius:12px;flex-shrink:0"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+            <div class="sk-box" style="width:50px;height:28px;border-radius:6px"></div>
+            <div class="sk-box" style="width:110px;height:12px;border-radius:6px"></div>
+          </div>
+        </div>
+        <div class="sk-card sk-stat-card">
+          <div class="sk-box" style="width:44px;height:44px;border-radius:12px;flex-shrink:0"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+            <div class="sk-box" style="width:50px;height:28px;border-radius:6px"></div>
+            <div class="sk-box" style="width:80px;height:12px;border-radius:6px"></div>
+          </div>
+        </div>
+        <div class="sk-card sk-stat-card">
+          <div class="sk-box" style="width:44px;height:44px;border-radius:12px;flex-shrink:0"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+            <div class="sk-box" style="width:50px;height:28px;border-radius:6px"></div>
+            <div class="sk-box" style="width:70px;height:12px;border-radius:6px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="sk-tabs">
+        <div class="sk-box" style="width:110px;height:40px;border-radius:6px"></div>
+        <div class="sk-box" style="width:80px;height:40px;border-radius:6px"></div>
+        <div class="sk-box" style="width:160px;height:40px;border-radius:6px"></div>
+        <div class="sk-box" style="width:90px;height:40px;border-radius:6px"></div>
+      </div>
+
+      <!-- Panel — list items -->
+      <div class="sk-panel">
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+          <div class="sk-box" style="width:180px;height:20px;border-radius:6px"></div>
+          <div class="sk-box" style="width:280px;height:13px;border-radius:6px"></div>
+        </div>
+        <div class="sk-form-row">
+          <div class="sk-box" style="flex:1;height:42px;border-radius:10px"></div>
+          <div class="sk-box" style="width:130px;height:42px;border-radius:10px"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="sk-card sk-list-item"></div>
+          <div class="sk-card sk-list-item" style="opacity:.85"></div>
+          <div class="sk-card sk-list-item" style="opacity:.7"></div>
+          <div class="sk-card sk-list-item" style="opacity:.55"></div>
+          <div class="sk-card sk-list-item" style="opacity:.4"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- END SKELETON --><body>
+
   <!-- 
        HEADER
    -->
@@ -135,12 +243,12 @@
       <button class="mn-tab active" id="tab-candidates" onclick="switchTab('candidates',this)">
         <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         Candidates
-        <span class="mn-tab-count" id="tcCand">0</span>
+        <span class="mn-tab-count" id="tcCand">—</span>
       </button>
       <button class="mn-tab" id="tab-voters" onclick="switchTab('voters',this)">
         <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         Voters
-        <span class="mn-tab-count" id="tcVoter">0</span>
+        <span class="mn-tab-count" id="tcVoter">—</span>
       </button>
       <button class="mn-tab" id="tab-results" onclick="switchTab('results',this)">
         <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>

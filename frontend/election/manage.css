@@ -42,7 +42,7 @@
    RESET
  */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; overscroll-behavior: none; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; overscroll-behavior: none; background: var(--surface-3); }
 body {
   font-family: var(--font);
   color: var(--ink);
@@ -60,7 +60,7 @@ body {
   min-height: 100vh;
   line-height: 1.6;
   overflow-x: hidden;
-  overscroll-behavior-y: none;
+  overscroll-behavior: none;
   animation: pageReveal .4s var(--ease);
 }
 @keyframes pageReveal { from { opacity: 0; } to { opacity: 1; } }
@@ -80,6 +80,16 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow-xs);
+}
+/* Fills the rubber-band overscroll area above the header on mobile */
+.mn-header::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  bottom: 100%;
+  height: 200px;           /* enough to cover any overscroll bounce */
+  background: #fff;
+  pointer-events: none;
 }
 .mn-header-inner {
   max-width: 1280px; margin: 0 auto;
@@ -123,6 +133,15 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .mn-page {
   max-width: 1280px; margin: 0 auto;
   padding: 36px 32px 64px;
+  /* hidden until skeleton dismissed — prevents flash of 0s */
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+/* revealed by JS after data loads */
+.mn-page.mn-ready {
+  visibility: visible;
+  opacity: 1;
 }
 
 /* 
@@ -926,4 +945,198 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   .filter-pill { flex: 1; justify-content: center; }
   .mn-brand { font-size: 0; }
   .mn-brand img { width: 28px; height: 28px; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   SKELETON LOADER
+═══════════════════════════════════════════════════════════ */
+
+/* Shimmer keyframe */
+@keyframes sk-shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+/* Every skeleton placeholder box */
+.sk-box {
+  background: linear-gradient(
+    90deg,
+    #ebebeb 25%,
+    #f5f5f5 50%,
+    #ebebeb 75%
+  );
+  background-size: 600px 100%;
+  animation: sk-shimmer 1.4s ease-in-out infinite;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Full-page overlay — sits on top of real content */
+.sk-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: var(--surface-3);
+  overflow-y: auto;
+  overscroll-behavior: none;
+  /* fade out when hidden */
+  transition: opacity .3s ease, visibility .3s ease;
+}
+.sk-overlay.sk-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Skeleton header strip */
+.sk-header {
+  height: 66px;
+  background: rgba(255,255,255,.92);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+}
+.sk-header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 32px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+.sk-brand { display: flex; align-items: center; gap: 10px; }
+.sk-header-right { margin-left: auto; display: flex; gap: 10px; }
+
+/* Skeleton page content area */
+.sk-page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 36px 32px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Generic skeleton card */
+.sk-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+}
+
+/* Hero */
+.sk-hero {
+  padding: 32px 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.sk-hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #e0e0e0, #f0f0f0, #e0e0e0);
+  background-size: 600px 100%;
+  animation: sk-shimmer 1.4s ease-in-out infinite;
+}
+.sk-hero-left  { display: flex; flex-direction: column; gap: 0; flex: 1; }
+.sk-hero-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+/* Share banner */
+.sk-share {
+  padding: 20px 28px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+/* Stats grid */
+.sk-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.sk-stat-card {
+  padding: 20px 22px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Tabs bar */
+.sk-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+  overflow: hidden;
+}
+.sk-tabs .sk-box {
+  border-radius: 6px 6px 0 0;
+  margin-bottom: -1px;
+}
+
+/* Panel area */
+.sk-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+}
+.sk-form-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+/* List item placeholder — mimics candidate/voter card */
+.sk-list-item {
+  height: 68px;
+  border-radius: var(--radius-md) !important;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  position: relative;
+  overflow: hidden;
+}
+.sk-list-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,.6) 50%,
+    transparent 100%
+  );
+  background-size: 600px 100%;
+  animation: sk-shimmer 1.4s ease-in-out infinite;
+}
+
+/* Responsive skeleton */
+@media (max-width: 900px) {
+  .sk-stats { grid-template-columns: repeat(2, 1fr); }
+  .sk-share .sk-box:nth-child(3) { display: none; }
+}
+@media (max-width: 640px) {
+  .sk-page { padding: 16px 14px 48px; }
+  .sk-header-inner { padding: 0 14px; }
+  .sk-stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .sk-stat-card { padding: 14px 16px; }
+  .sk-hero { padding: 20px 18px; }
+  .sk-tabs { gap: 2px; }
+  .sk-tabs .sk-box { width: 60px !important; }
+  .sk-panel { padding: 20px 16px; }
+  .sk-share { padding: 14px 16px; }
+}
+@media (max-width: 480px) {
+  .sk-stats { grid-template-columns: 1fr; }
 }

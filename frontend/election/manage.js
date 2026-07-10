@@ -51,6 +51,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   Schedule.renderStatusBanner(e, document.getElementById('schedStatusWrap'));
 
   await loadAll();
+
+  // All data fetched — dismiss skeleton with a fade
+  hideSkeleton();
 });
 
 async function loadAll() {
@@ -481,4 +484,17 @@ function esc(s) {
 
 function fmt(d) {
   return new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function hideSkeleton() {
+  const sk   = document.getElementById('pageSkeletonOverlay');
+  const page = document.querySelector('.mn-page');
+
+  // Reveal real content first (behind the fading skeleton)
+  if (page) page.classList.add('mn-ready');
+
+  // Then fade out skeleton
+  if (!sk) return;
+  sk.classList.add('sk-hidden');
+  sk.addEventListener('transitionend', () => sk.remove(), { once: true });
 }
