@@ -127,6 +127,14 @@ async function checkVoter() {
 let faceStream = null;
 
 async function openCamera() {
+  if (!window.isSecureContext) {
+    showMsg('Camera requires HTTPS. If testing locally, use http://localhost — not an IP address.', 'error');
+    return;
+  }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showMsg('Camera not supported on this connection. Make sure the page is loaded over HTTPS.', 'error');
+    return;
+  }
   try {
     faceStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
     document.getElementById('faceVideo').srcObject = faceStream;
@@ -136,7 +144,25 @@ async function openCamera() {
       '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>' +
       'Start Face Verification';
   } catch (e) {
-    showMsg('Camera access denied. Face verification is required to vote. Please allow camera access and refresh.', 'error');
+    let msg = '';
+    switch (e.name) {
+      case 'NotAllowedError':
+      case 'PermissionDeniedError':
+        msg = 'Camera permission denied. Click the 🔒 icon in the address bar → Site settings → Camera → Allow, then reload.';
+        break;
+      case 'NotFoundError':
+      case 'DevicesNotFoundError':
+        msg = 'No camera found on this device. Please connect a camera and try again.';
+        break;
+      case 'NotReadableError':
+      case 'TrackStartError':
+        msg = 'Camera is in use by another app. Close it and try again.';
+        break;
+      default:
+        msg = `Camera error (${e.name}): ${e.message}. Please allow camera access and refresh.`;
+    }
+    showMsg(msg, 'error');
+    console.error('[Camera]', e.name, e.message);
     // Do NOT proceed — face verification is required
   }
 }

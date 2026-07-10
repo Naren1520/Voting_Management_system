@@ -97,6 +97,17 @@
         <div id="paneCamera" style="display:none;">
           <p class="enroll-hint" id="cameraHint">Open camera and capture your face from 3 angles for best accuracy.</p>
 
+          <!-- HTTPS / permission notice -->
+          <div class="camera-notice" id="cameraNotice">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;flex-shrink:0">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span>
+              Chrome requires <strong>HTTPS</strong> and camera permission.
+              If blocked, click the <strong>🔒</strong> icon in the address bar → <strong>Site settings → Camera → Allow</strong>, then reload.
+            </span>
+          </div>
+
           <!-- Live preview -->
           <div class="camera-wrap" id="cameraWrap">
             <video id="enrollVideo" autoplay playsinline muted></video>

@@ -84,6 +84,26 @@ function handleUpload(idx, input) {
    Camera tab
 ───────────────────────────────────────────────────── */
 async function openEnrollCamera() {
+  // Chrome requires HTTPS (or localhost) for camera access
+  if (!window.isSecureContext) {
+    showMsg(
+      'Camera requires a secure connection (HTTPS). ' +
+      'If you\'re testing locally, use http://localhost — not an IP address or http://.',
+      'error'
+    );
+    return;
+  }
+
+  // mediaDevices is undefined on HTTP in Chrome
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showMsg(
+      'Your browser does not support camera access on this connection. ' +
+      'Make sure the page is loaded over HTTPS.',
+      'error'
+    );
+    return;
+  }
+
   try {
     enrollStream = await navigator.mediaDevices.getUserMedia({
       video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
@@ -98,7 +118,65 @@ async function openEnrollCamera() {
     document.getElementById('angleTip').style.display    = 'flex';
     setAngleTip(0);
   } catch (e) {
-    showMsg('Camera access denied. Please allow camera access and try again.', 'error');
+    let msg = '';
+
+    switch (e.name) {
+      case 'NotAllowedError':
+      case 'PermissionDeniedError':
+        msg =
+          'Camera permission was denied. ' +
+          'To fix: click the 🔒 / ℹ️ icon in the Chrome address bar → ' +
+          'Site settings → Camera → Allow, then reload the page.';
+        break;
+
+      case 'NotFoundError':
+      case 'DevicesNotFoundError':
+        msg = 'No camera found on this device. Please connect a camera and try again.';
+        break;
+
+      case 'NotReadableError':
+      case 'TrackStartError':
+        msg =
+          'Camera is already in use by another app or browser tab. ' +
+          'Close any apps using the camera, then try again.';
+        break;
+
+      case 'OverconstrainedError':
+      case 'ConstraintNotSatisfiedError':
+        msg = 'Camera does not meet the required settings. Trying with basic settings…';
+        // Retry with minimal constraints
+        try {
+          enrollStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+          const video = document.getElementById('enrollVideo');
+          video.srcObject = enrollStream;
+          document.getElementById('cameraGuide').style.display = 'none';
+          document.getElementById('openCamBtn').style.display  = 'none';
+          document.getElementById('closeCamBtn').style.display = 'inline-flex';
+          document.getElementById('angleRow').style.display    = 'flex';
+          document.getElementById('angleTip').style.display    = 'flex';
+          setAngleTip(0);
+          return;
+        } catch (e2) {
+          msg = 'Camera could not be started. Please try the Upload Photos tab instead.';
+        }
+        break;
+
+      case 'SecurityError':
+        msg =
+          'Camera access blocked by browser security policy. ' +
+          'Make sure the page is served over HTTPS.';
+        break;
+
+      case 'AbortError':
+        msg = 'Camera access was interrupted. Please try again.';
+        break;
+
+      default:
+        msg = `Camera error: ${e.message || e.name}. Please try the Upload Photos tab instead.`;
+    }
+
+    showMsg(msg, 'error');
+    console.error('[Camera]', e.name, e.message);
   }
 }
 

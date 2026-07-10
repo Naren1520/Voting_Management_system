@@ -82,6 +82,15 @@ body {
 .slot-preview img    { width:100%; height:100%; object-fit:cover; }
 
 /* ── Camera pane ─────────────────────────────────────────────── */
+.camera-notice {
+  display: flex; align-items: flex-start; gap: 8px;
+  background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
+  padding: 10px 13px; font-size: .8125rem; color: #1e40af;
+  line-height: 1.55; margin-bottom: 14px;
+}
+.camera-notice svg { flex-shrink: 0; stroke: #3b82f6; }
+.camera-notice strong { font-weight: 700; }
+
 .camera-wrap {
   position:relative; border-radius:12px; overflow:hidden;
   background:#0f0f0f; margin-bottom:12px; aspect-ratio:4/3;
