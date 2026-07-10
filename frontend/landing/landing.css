@@ -1312,9 +1312,10 @@ img {
 .hero--cinema {
   position: relative;
   width: 100%;
-  height: 100vh;
-  min-height: 0;
-  max-height: 100vh;
+  /* --vh is set by JS to window.innerHeight * 0.01, fixing mobile browser chrome offset */
+  height: calc(var(--vh, 1vh) * 100);
+  /* dvh overrides for browsers that support it natively (Chrome 108+, Safari 16+) */
+  height: 100dvh;
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -1324,16 +1325,27 @@ img {
 /* ── Background video ── */
 .hero-bg {
   position: absolute;
-  inset: 0;
-  z-index: 0;
-}
-.hero-bg-video {
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
+  z-index: 0;
+  overflow: hidden;
+}
+.hero-bg-video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* Center and cover — guaranteed fill regardless of aspect ratio */
+  transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
   object-fit: cover;
   display: block;
   opacity: .38;
-  animation: none;
 }
 /* Single dark scrim — no gradients, just a clean tint */
 .hero-bg-overlay {

@@ -30,6 +30,7 @@
 html, body {
   height: 100%;
   overflow: hidden;           /* hard lock — no scroll ever */
+  overflow-x: hidden;         /* belt-and-suspenders: no horizontal pull */
   -webkit-font-smoothing: antialiased;
 }
 body {
@@ -60,6 +61,7 @@ button  { font-family: inherit; cursor: pointer; border: none; background: none;
   justify-content: space-between;
   padding: 36px 48px;
   overflow: hidden;
+  min-width: 0;   /* prevent flex blowout */
 }
 
 
@@ -180,6 +182,7 @@ button  { font-family: inherit; cursor: pointer; border: none; background: none;
   background: var(--surface);
   position: relative;
   overflow: hidden;
+  min-width: 0;   /* prevent flex blowout */
 }
 
 /* Dot grid — desktop only */
@@ -415,12 +418,18 @@ button  { font-family: inherit; cursor: pointer; border: none; background: none;
    Compact dark hero header + card slides up over it
  */
 @media (max-width: 860px) {
-  html, body { overflow: auto; height: auto; }
+  html, body {
+    overflow-x: hidden;   /* block horizontal pull/scroll */
+    overflow-y: auto;
+    height: auto;
+  }
 
   .auth-layout {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
     background: #111;        /* dark base so header seams perfectly */
   }
 

@@ -244,8 +244,24 @@
   .add-form-row .btn-primary { width: 100%; justify-content: center; }
 
   /* Voter cards: tighter */
-  .voter-card { padding: 12px 14px; gap: 10px; }
-  .voter-avatar { width: 32px; height: 32px; font-size: .875rem; }
+  .voter-card {
+    padding: 12px 14px;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .voter-avatar { width: 32px; height: 32px; font-size: .875rem; align-self: center; }
+  .voter-info { flex: 1; min-width: 0; }
+  .voter-info strong { font-size: .875rem; white-space: normal; word-break: break-word; line-height: 1.3; }
+  .voter-info small  { font-size: .75rem; white-space: normal; word-break: break-all; margin-top: 2px; }
+  .voter-meta {
+    width: 100%;
+    padding-left: 42px; /* 32px avatar + 10px gap */
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .voter-id-chip { font-size: 11px; padding: 3px 8px; }
+  .voted-chip, .pending-chip { font-size: 11px; padding: 3px 8px; }
 
   /* Voter search row: stack */
   .voter-search-row { flex-direction: column; align-items: stretch; }

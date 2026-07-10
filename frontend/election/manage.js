@@ -237,16 +237,18 @@ function renderVoters(voters) {
         <strong>${esc(v.name)}</strong>
         <small>${[v.email, v.phone].filter(Boolean).map(esc).join(' · ') || 'No contact info'}</small>
       </div>
-      <span class="voter-id-chip">${esc(v.voter_id)}</span>
-      ${v.has_voted
-        ? '<span class="voted-chip"><svg viewBox="0 0 24 24" style="width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round"><polyline points="20 6 9 17 4 12"/></svg>Voted</span>'
-        : '<span class="pending-chip"><svg viewBox="0 0 24 24" style="width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Pending</span>'}
-      <a class="btn-face-enroll" href="/face-enroll/index.html?election=${electionId}&voter=${encodeURIComponent(v.voter_id)}" title="Enroll face">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><polyline points="16 11 18 13 22 9"/></svg>
-      </a>
-      <button class="btn-danger-icon" onclick="deleteVoter('${esc(v.voter_id)}')" title="Remove voter">
-        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+      <div class="voter-meta">
+        <span class="voter-id-chip">${esc(v.voter_id)}</span>
+        ${v.has_voted
+          ? '<span class="voted-chip"><svg viewBox="0 0 24 24" style="width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round"><polyline points="20 6 9 17 4 12"/></svg>Voted</span>'
+          : '<span class="pending-chip"><svg viewBox="0 0 24 24" style="width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Pending</span>'}
+        <a class="btn-face-enroll" href="/face-enroll/index.html?election=${electionId}&voter=${encodeURIComponent(v.voter_id)}" title="Enroll face">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><polyline points="16 11 18 13 22 9"/></svg>
+        </a>
+        <button class="btn-danger-icon" onclick="deleteVoter('${esc(v.voter_id)}')" title="Remove voter">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
     </div>
   `).join('');
 }

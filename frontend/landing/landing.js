@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (typeof lucide !== 'undefined') lucide.createIcons();
 
+  initViewportFix();
   initHeader();
   initMobileMenu();
   initScrollProgress();
@@ -25,6 +26,32 @@ document.addEventListener('DOMContentLoaded', () => {
   initAuthState();
 
 });
+
+/*
+   VIEWPORT FIX — iOS Safari reports wrong 100vh on initial load
+   because the address bar is still visible. We set --vh as a CSS
+   variable matching the real inner height, and update it on resize.
+ */
+function initViewportFix() {
+  const setVh = () => {
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  };
+
+  // Run immediately on DOMContentLoaded
+  setVh();
+
+  // Run again after full page load (fonts, images, video metadata)
+  window.addEventListener('load', setVh, { passive: true });
+
+  // Run on resize (orientation change, window resize)
+  window.addEventListener('resize', setVh, { passive: true });
+
+  // orientationchange fires before the new dimensions settle — delay slightly
+  window.addEventListener('orientationchange', () => {
+    setTimeout(setVh, 300);
+  }, { passive: true });
+}
 
 /* 
    HEADER — scroll shadow + colour swap
