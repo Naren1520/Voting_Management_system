@@ -478,7 +478,7 @@ details[open] .faq-q svg { transform: rotate(45deg); stroke: var(--blue); }
 /* ── ≤860px : single-column, horizontal sidebar ── */
 @media (max-width: 860px) {
 
-  /* Single column layout */
+  /* Single column layout — sidebar moves BELOW the page title/toggle */
   .guide-wrap {
     grid-template-columns: 1fr;
     gap: 0;
@@ -486,12 +486,16 @@ details[open] .faq-q svg { transform: rotate(45deg); stroke: var(--blue); }
     overflow-x: hidden;
   }
 
+  /* Push sidebar after guide-main so title/toggle show first */
+  .guide-sidebar { order: 2; }
+  .guide-main    { order: 1; }
+
   /* Sidebar: sticky horizontal pill bar */
   .guide-sidebar {
     position: sticky;
     top: var(--header-h);
     z-index: 800;
-    width: calc(100% + 32px);   /* bleed past the 16px padding on each side */
+    width: calc(100% + 32px);
     margin-left: -16px;
     padding: 0 16px;
     max-height: none;
@@ -558,13 +562,13 @@ details[open] .faq-q svg { transform: rotate(45deg); stroke: var(--blue); }
   .guide-back-btn       { padding: 7px 10px; gap: 4px; font-size: 12px; }
 
   /* ── Sidebar ── */
-  .guide-sidebar { top: var(--header-h); }
+  .guide-sidebar { top: var(--header-h); order: 2; width: calc(100% + 28px); margin-left: -14px; padding: 0 14px; }
   .sidebar-nav   { gap: 4px; padding: 8px 0; }
   .sidebar-link  { font-size: 11.5px; padding: 6px 11px; }
 
   /* ── Wrap ── */
   .guide-wrap { padding: 0 14px 56px; overflow-x: hidden; }
-  .guide-main { padding-top: 14px; }
+  .guide-main { padding-top: 20px; order: 1; }
 
   /* ── Page title ── */
   .guide-page-title    { margin-bottom: 20px; padding-bottom: 16px; }

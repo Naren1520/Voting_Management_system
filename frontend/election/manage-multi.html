@@ -14,9 +14,7 @@
 </head>
 <body>
 
-  <!-- ═══════════════════════════════════════════════════
-       SKELETON LOADER — shown until all data is fetched
-  ════════════════════════════════════════════════════ -->
+  
   <div id="pageSkeletonOverlay" class="sk-overlay" aria-hidden="true">
     <div class="sk-header">
       <div class="sk-header-inner">
@@ -75,9 +73,7 @@
       </div>
     </div>
   </div>
-  <!-- END SKELETON -->
-
-  <!-- HEADER -->
+  
   <header class="mn-header">
     <div class="mn-header-inner">
       <a class="mn-brand" href="/landing/index.html">
@@ -99,7 +95,6 @@
 
   <main class="mn-page">
 
-    <!-- Hero -->
     <div class="election-hero">
       <div class="election-hero-left">
         <div class="multi-badge-hero">
@@ -128,7 +123,6 @@
       </div>
     </div>
 
-    <!-- Share Banner -->
     <div class="share-banner">
       <div class="share-banner-icon">
         <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
@@ -151,7 +145,6 @@
       </button>
     </div>
 
-    <!-- Stats -->
     <div class="mn-stats">
       <div class="mn-stat-card">
         <div class="mn-stat-icon" style="background:#fdf4ff">
@@ -191,7 +184,6 @@
       </div>
     </div>
 
-    <!-- Tabs -->
     <div class="mn-tabs">
       <button class="mn-tab active" id="tab-positions" onclick="switchTab('positions',this)">
         <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
@@ -213,7 +205,6 @@
       </button>
     </div>
 
-    <!-- PANEL: POSITIONS & CANDIDATES -->
     <div class="mn-panel active" id="panelPositions">
       <div class="panel-header">
         <div>
@@ -273,7 +264,6 @@
       <div class="voters-list" id="votersList"></div>
     </div>
 
-    <!-- PANEL: RESULTS -->
     <div class="mn-panel" id="panelResults">
       <div class="results-total-card">
         <div class="results-total-left">
@@ -290,7 +280,6 @@
       <div id="multiResultsList"></div>
     </div>
 
-    <!-- PANEL: SCHEDULE -->
     <div class="mn-panel" id="panelSchedule">
       <div class="panel-header">
         <div>
@@ -311,7 +300,6 @@
 
   </main>
 
-  <!-- ADD POSITION MODAL -->
   <div class="modal-overlay-mn" id="addPosOverlay" onclick="if(event.target===this)closeAddPositionModal()">
     <div class="modal-mn">
       <div class="modal-mn-header">
@@ -333,7 +321,6 @@
     </div>
   </div>
 
-  <!-- TOAST -->
   <div class="mn-toast" id="mnToast" role="status" aria-live="polite">
     <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
     <span id="mnToastMsg"></span>

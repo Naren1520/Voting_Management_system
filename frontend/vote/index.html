@@ -27,7 +27,6 @@
   <div class="vote-page">
     <div class="vote-box">
 
-      <!-- Header -->
       <div class="vote-header">
         <img src="/assets/Logo.png" alt="VoteStack"/>
         <h1 id="electionTitleDisplay">Loading…</h1>
@@ -36,16 +35,13 @@
 
       <div class="vote-card">
 
-        <!-- Message -->
         <div class="msg-box" id="msgBox"></div>
 
-        <!-- Loading -->
         <div class="loading-wrap" id="loadingMsg">
           <div class="spinner"></div>
           <p>Loading ballot…</p>
         </div>
 
-        <!-- Schedule blocked -->
         <div class="sched-block" id="schedBlock">
           <div class="sched-block-icon">
             <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#d97706"
@@ -61,7 +57,6 @@
           <div class="sched-block-countdown" id="schedBlockCountdown"></div>
         </div>
 
-        <!-- ══ Step 1: Voter ID ══ -->
         <div id="stepId" style="display:none;">
           <div class="input-group">
             <label for="voterIdInput">Your Voter ID</label>
@@ -75,7 +70,6 @@
           </button>
         </div>
 
-        <!-- ══ Step 2: Face Verification ══ -->
         <div id="stepFace" style="display:none;">
           <p class="voter-label">
             Verifying as: <strong id="faceVoterLabel"></strong>
@@ -103,7 +97,6 @@
           </div>
         </div>
 
-        <!-- ══ Step 3: Select Candidate ══ -->
         <div id="stepVote" style="display:none;">
           <p class="voter-label">
             Voting as: <strong id="voterIdLabel"></strong>
@@ -121,7 +114,6 @@
           </div>
         </div>
 
-        <!-- ══ Step 4: Done ══ -->
         <div id="stepDone" style="display:none;">
           <div class="done-content">
             <div class="done-icon-wrap">
@@ -145,7 +137,7 @@
           </div>
         </div>
 
-      </div><!-- /.vote-card -->
+      </div>
 
       <div class="vote-footer">
         <a href="/landing/index.html">Powered by VoteStack</a>

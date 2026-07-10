@@ -30,7 +30,6 @@
         <p id="voterLabel">Loading voter…</p>
       </div>
 
-      <!-- Already enrolled banner -->
       <div id="enrolledBanner" class="enrolled-banner" style="display:none;">
         <div class="enrolled-banner-icon">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><polyline points="16 11 18 13 22 9"/></svg>
@@ -44,10 +43,8 @@
 
       <div id="msgBox" class="enroll-msg" style="display:none;margin-bottom:16px;"></div>
 
-      <!-- Main card -->
       <div id="stepUpload" class="enroll-card">
 
-        <!-- Tabs -->
         <div class="tab-row">
           <button class="tab-btn active" id="tabUpload" onclick="switchTab('upload')">
             <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -59,7 +56,6 @@
           </button>
         </div>
 
-        <!-- ── Upload pane ── -->
         <div id="paneUpload">
           <p class="enroll-hint">Upload 1–3 photos: <strong>front</strong>, <strong>left</strong>, <strong>right</strong>. Photos are never stored.</p>
           <div class="photo-slots">
@@ -93,18 +89,15 @@
           </div>
         </div>
 
-        <!-- ── Camera pane ── -->
         <div id="paneCamera" style="display:none;">
           <p class="enroll-hint" id="cameraHint">Open camera and capture your face from 3 angles for best accuracy.</p>
 
-          <!-- Live preview -->
           <div class="camera-wrap" id="cameraWrap">
             <video id="enrollVideo" autoplay playsinline muted></video>
             <canvas id="enrollCanvas" style="display:none;"></canvas>
             <div class="camera-guide" id="cameraGuide">Press "Open Camera" to start</div>
           </div>
 
-          <!-- Camera controls -->
           <div class="camera-ctrl-row">
             <button class="enroll-btn enroll-btn--outline" id="openCamBtn" onclick="openEnrollCamera()">
               <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
@@ -116,7 +109,6 @@
             </button>
           </div>
 
-          <!-- Angle capture buttons -->
           <div class="angle-row" id="angleRow" style="display:none;">
             <button class="angle-btn" id="capFront" onclick="captureAngle(0)" title="Look straight ahead">
               <div class="angle-thumb" id="thumb0">
@@ -147,7 +139,6 @@
           </div>
         </div>
 
-        <!-- Note -->
         <div class="enroll-note">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           At least 1 photo required. Photos are never stored — only face embeddings are saved.
@@ -159,7 +150,6 @@
         </button>
       </div>
 
-      <!-- Success -->
       <div id="stepDone" class="enroll-card enroll-card--done" style="display:none;">
         <div class="done-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">

@@ -13,9 +13,6 @@
 </head>
 <body>
 
-  <!-- ═══════════════════════════════════════════════════
-       SKELETON LOADER
-  ════════════════════════════════════════════════════ -->
   <div id="dashSkeletonOverlay" class="dsk-overlay" aria-hidden="true">
 
     <!-- Fake header -->
@@ -35,7 +32,6 @@
 
     <div class="dsk-page">
 
-      <!-- Title row -->
       <div class="dsk-title-row">
         <div style="display:flex;flex-direction:column;gap:10px">
           <div class="dsk-box" style="width:160px;height:28px;border-radius:8px"></div>
@@ -44,7 +40,6 @@
         <div class="dsk-box" style="width:140px;height:42px;border-radius:10px"></div>
       </div>
 
-      <!-- Stats strip -->
       <div class="dsk-stats">
         <div class="dsk-stat-card">
           <div class="dsk-box" style="width:44px;height:44px;border-radius:12px;flex-shrink:0"></div>
@@ -69,10 +64,8 @@
         </div>
       </div>
 
-      <!-- Section label -->
       <div class="dsk-box" style="width:100px;height:12px;border-radius:4px"></div>
 
-      <!-- Election cards grid -->
       <div class="dsk-grid">
         <div class="dsk-card dsk-ec" style="opacity:1"></div>
         <div class="dsk-card dsk-ec" style="opacity:.85"></div>
@@ -84,11 +77,7 @@
 
     </div>
   </div>
-  <!-- END SKELETON -->
 
-  <!-- 
-       HEADER
-   -->
   <header class="dash-header">
     <div class="dash-header-inner">
       <a class="dash-brand" href="/landing/index.html">
@@ -112,12 +101,9 @@
     </div>
   </header>
 
-  <!-- 
-       PAGE
-   -->
+  
   <main class="dash-page" id="dashPage">
 
-    <!-- Title -->
     <div class="dash-title-row">
       <div>
         <h1>My Elections</h1>
@@ -152,7 +138,6 @@
       </div>
     </div>
 
-    <!-- Stats strip -->
     <div class="dash-stats">
       <div class="dash-stat-card">
         <div class="dash-stat-icon">
@@ -183,17 +168,13 @@
       </div>
     </div>
 
-    <!-- Section label -->
     <div class="dash-section-label">All elections</div>
 
-    <!-- Grid -->
     <div class="elections-grid" id="electionsGrid"></div>
 
   </main>
 
-  <!-- 
-       CREATE STANDARD MODAL
-   -->
+  
   <div class="modal-overlay" id="createOverlay" onclick="closeModalOutside(event,'createOverlay')">
     <div class="modal">
       <div class="modal-header">
@@ -209,7 +190,6 @@
           placeholder="e.g. Student Council 2025"
           onkeydown="if(event.key==='Enter') createElection()" />
       </div>
-      <!-- Schedule widget -->
       <div id="stdSchedWidget"></div>
       <div class="modal-actions">
         <button class="btn-cancel" onclick="closeCreateModal()">Cancel</button>
@@ -221,9 +201,7 @@
     </div>
   </div>
 
-  <!-- 
-       CREATE MULTI-POSITION MODAL
-   -->
+
   <div class="modal-overlay" id="multiOverlay" onclick="closeModalOutside(event,'multiOverlay')">
     <div class="modal modal--wide">
       <div class="modal-header">
@@ -247,7 +225,6 @@
         <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Add position
       </button>
-      <!-- Schedule widget -->
       <div id="multiSchedWidget"></div>
       <div class="modal-actions" style="margin-top:28px;">
         <button class="btn-cancel" onclick="closeMultiModal()">Cancel</button>
@@ -259,9 +236,7 @@
     </div>
   </div>
 
-  <!-- 
-       DELETE MODAL
-   -->
+  
   <div class="modal-overlay" id="deleteOverlay" onclick="closeModalOutside(event,'deleteOverlay')">
     <div class="modal" style="max-width:400px">
       <div class="modal-header">
@@ -282,9 +257,7 @@
     </div>
   </div>
 
-  <!-- 
-       TOAST
-   -->
+  
   <div class="dash-toast" id="dashToast" role="status" aria-live="polite">
     <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
     <span class="toast-msg"></span>

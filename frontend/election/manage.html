@@ -15,9 +15,6 @@
 </head>
 <body>
 
-  <!-- ═══════════════════════════════════════════════════
-       SKELETON LOADER — shown until all data is fetched
-  ════════════════════════════════════════════════════ -->
   <div id="pageSkeletonOverlay" class="sk-overlay" aria-hidden="true">
 
     <!-- Fake header -->
@@ -36,7 +33,6 @@
 
     <div class="sk-page">
 
-      <!-- Hero banner -->
       <div class="sk-card sk-hero">
         <div class="sk-hero-left">
           <div class="sk-box" style="width:55%;height:28px;border-radius:8px;margin-bottom:10px"></div>
@@ -49,7 +45,6 @@
         </div>
       </div>
 
-      <!-- Share banner -->
       <div class="sk-card sk-share">
         <div class="sk-box" style="width:40px;height:40px;border-radius:12px;flex-shrink:0"></div>
         <div style="flex:1;display:flex;flex-direction:column;gap:8px">
@@ -60,7 +55,6 @@
         <div class="sk-box" style="width:100px;height:36px;border-radius:8px"></div>
       </div>
 
-      <!-- Stats strip -->
       <div class="sk-stats">
         <div class="sk-card sk-stat-card">
           <div class="sk-box" style="width:44px;height:44px;border-radius:12px;flex-shrink:0"></div>
@@ -92,7 +86,6 @@
         </div>
       </div>
 
-      <!-- Tabs -->
       <div class="sk-tabs">
         <div class="sk-box" style="width:110px;height:40px;border-radius:6px"></div>
         <div class="sk-box" style="width:80px;height:40px;border-radius:6px"></div>
@@ -100,7 +93,6 @@
         <div class="sk-box" style="width:90px;height:40px;border-radius:6px"></div>
       </div>
 
-      <!-- Panel — list items -->
       <div class="sk-panel">
         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
           <div class="sk-box" style="width:180px;height:20px;border-radius:6px"></div>
@@ -121,11 +113,9 @@
 
     </div>
   </div>
-  <!-- END SKELETON --><body>
+  <body>
 
-  <!-- 
-       HEADER
-   -->
+  
   <header class="mn-header">
     <div class="mn-header-inner">
       <a class="mn-brand" href="/landing/index.html">
@@ -145,12 +135,10 @@
     </div>
   </header>
 
-  <!-- 
-       PAGE
-   -->
+  
   <main class="mn-page">
 
-    <!-- ── Election Hero Banner ── -->
+    
     <div class="election-hero">
       <div class="election-hero-left">
         <h1 id="electionTitle">Loading…</h1>
@@ -175,7 +163,7 @@
       </div>
     </div>
 
-    <!-- ── Share Banner ── -->
+   
     <div class="share-banner">
       <div class="share-banner-icon">
         <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
@@ -198,7 +186,7 @@
       </button>
     </div>
 
-    <!-- ── Stats Strip ── -->
+    
     <div class="mn-stats">
       <div class="mn-stat-card">
         <div class="mn-stat-icon">
@@ -238,7 +226,7 @@
       </div>
     </div>
 
-    <!-- ── Tabs ── -->
+   
     <div class="mn-tabs">
       <button class="mn-tab active" id="tab-candidates" onclick="switchTab('candidates',this)">
         <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -260,9 +248,6 @@
       </button>
     </div>
 
-    <!-- 
-         PANEL: CANDIDATES
-     -->
     <div class="mn-panel active" id="panelCandidates">
       <div class="panel-header">
         <div>
@@ -283,9 +268,6 @@
       <div class="candidates-list" id="candidatesList"></div>
     </div>
 
-    <!-- 
-         PANEL: VOTERS
-     -->
     <div class="mn-panel" id="panelVoters">
       <div class="panel-header">
         <div>
@@ -337,9 +319,6 @@
       <div class="voters-list" id="votersList"></div>
     </div>
 
-    <!-- 
-         PANEL: RESULTS & ANALYTICS
-     -->
     <div class="mn-panel" id="panelResults">
       <!-- Total votes card + refresh -->
       <div class="results-total-card">
@@ -356,7 +335,6 @@
       </div>
 
       <div class="results-grid">
-        <!-- Left: vote breakdown bars -->
         <div>
           <div class="panel-header">
             <div>
@@ -367,10 +345,8 @@
           <div class="results-bars" id="resultsList"></div>
         </div>
 
-        <!-- Right: empty filler so grid stays 2-col on desktop -->
         <div></div>
 
-        <!-- Bottom: two charts side by side (spans full width) -->
         <div class="charts-col">
           <div class="chart-card">
             <h3>
@@ -394,9 +370,6 @@
       </div>
     </div>
 
-    <!-- 
-         PANEL: SCHEDULE
-     -->
     <div class="mn-panel" id="panelSchedule">
       <div class="panel-header">
         <div>
@@ -419,9 +392,6 @@
 
   </main>
 
-  <!-- 
-       TOAST
-   -->
   <div class="mn-toast" id="mnToast" role="status" aria-live="polite">
     <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
     <span id="mnToastMsg"></span>

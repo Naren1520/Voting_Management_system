@@ -67,9 +67,8 @@ function switchGuide(guide) {
   // Re-init observers for newly visible sections
   initReveal();
   initActiveSection();
-  // Scroll to top of main content smoothly
-  const main = document.getElementById('guideMain');
-  if (main) main.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Scroll to top of page when switching guides
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function applyGuide(guide, animate) {
@@ -223,9 +222,17 @@ function initActiveSection() {
       links.forEach(l => {
         l.classList.toggle('is-active', l.dataset.id === id);
       });
-      // Scroll active link into view in mobile horizontal nav
-      const active = document.querySelector('.sidebar-link.is-active');
-      if (active) active.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+      // On mobile the sidebar is a horizontal scroll nav —
+      // scroll it horizontally to show the active pill.
+      // NEVER use scrollIntoView here: it hijacks the page scroll.
+      const nav    = document.getElementById('sidebarNav');
+      const active = nav && nav.querySelector('.sidebar-link.is-active');
+      if (active && nav.scrollWidth > nav.clientWidth) {
+        const navRect    = nav.getBoundingClientRect();
+        const linkRect   = active.getBoundingClientRect();
+        const linkCenter = linkRect.left - navRect.left + nav.scrollLeft + linkRect.width / 2;
+        nav.scrollTo({ left: linkCenter - nav.clientWidth / 2, behavior: 'smooth' });
+      }
     });
   }, {
     rootMargin: `-${headerH + 16}px 0px -55% 0px`,
