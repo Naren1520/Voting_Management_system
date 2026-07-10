@@ -1,5 +1,6 @@
 
 body {
+  overscroll-behavior: none;
   min-height: 100vh;
   display: flex;
   flex-direction: column;

@@ -1,4 +1,4 @@
-   /* VoteStack - Shared Design System */
+﻿   /* VoteStack - Shared Design System */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
@@ -31,7 +31,7 @@
 
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-html { scroll-behavior: smooth; overscroll-behavior-y: none; }
+html { scroll-behavior: smooth; overscroll-behavior: none; }
 
 body {
   font-family: 'Inter', system-ui, sans-serif;
@@ -40,7 +40,7 @@ body {
   min-height: 100vh;
   line-height: 1.6;
   overflow-x: hidden;
-  overscroll-behavior-y: none;
+  overscroll-behavior: none;
 }
 
 /* Grid background */

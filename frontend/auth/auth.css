@@ -31,6 +31,8 @@ html, body {
   height: 100%;
   overflow: hidden;           /* hard lock — no scroll ever */
   overflow-x: hidden;         /* belt-and-suspenders: no horizontal pull */
+  overscroll-behavior: none;  /* kill pull-to-refresh and rubber-band bounce */
+  -webkit-overflow-scrolling: auto; /* disable momentum scroll on iOS */
   -webkit-font-smoothing: antialiased;
 }
 body {
@@ -419,9 +421,10 @@ button  { font-family: inherit; cursor: pointer; border: none; background: none;
  */
 @media (max-width: 860px) {
   html, body {
-    overflow-x: hidden;   /* block horizontal pull/scroll */
+    overflow-x: hidden;        /* block horizontal pull/scroll */
     overflow-y: auto;
     height: auto;
+    overscroll-behavior: none; /* no pull-to-refresh, no rubber-band */
   }
 
   .auth-layout {
