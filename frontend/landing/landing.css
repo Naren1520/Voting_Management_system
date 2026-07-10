@@ -1142,13 +1142,14 @@ details[open] .faq-q i { transform: rotate(45deg); }
    MICRO-INTERACTIONS & SMOOTH TRANSITIONS
  */
 
-/* Smooth page reveal on load */
+/* Smooth page reveal on load — non-hero content fades in gently */
 body {
-  animation: pageReveal 0.6s var(--ease);
+  animation: pageReveal 0.4s ease;
 }
 @keyframes pageReveal {
   from { opacity: 0; }
-  to { opacity: 1; }
+  to   { opacity: 1; }
+}
 }
 
 /* Button ripple effect on click */
@@ -2034,4 +2035,133 @@ img {
   }
   .cta-inner { animation: none; }
   .scroll-progress { display: none; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   HERO SKELETON LOADER
+   Covers the cinema hero until the bg video/poster is ready.
+═══════════════════════════════════════════════════════════ */
+
+@keyframes hsk-shimmer {
+  0%   { background-position: -700px 0; }
+  100% { background-position:  700px 0; }
+}
+
+/* Shimmer box — dark on black bg */
+.hsk-box {
+  display: block;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,.07) 25%,
+    rgba(255,255,255,.16) 50%,
+    rgba(255,255,255,.07) 75%
+  );
+  background-size: 700px 100%;
+  animation: hsk-shimmer 1.6s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+/* Overlay — sits inside .hero--cinema, fills it exactly */
+.hero-skeleton {
+  position: absolute;
+  inset: 0;
+  z-index: 5;              /* above video (z:0) and overlay (z:0), below content (z:1) */
+  background: #0a0a0a;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  /* fade out */
+  transition: opacity .5s ease, visibility .5s ease;
+}
+.hero-skeleton.hsk-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Inner mirrors .hero-cinema-inner layout */
+.hsk-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 48px;
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+
+/* Text column */
+.hsk-text {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cards column — mirrors .hero-cinema-cards */
+.hsk-cards {
+  position: relative;
+  height: 520px;
+  pointer-events: none;
+}
+
+.hsk-card {
+  position: absolute;
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+}
+/* shimmer sweep on each card */
+.hsk-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,.1) 50%,
+    transparent 100%
+  );
+  background-size: 700px 100%;
+  animation: hsk-shimmer 1.6s ease-in-out infinite;
+}
+
+/* Match exact card positions from .cinema-card--* */
+.hsk-card--a { width: 230px; height: 180px; top: 0;   left: 30px; }
+.hsk-card--b { width: 260px; height: 200px; top: 20px; right: 0; }
+.hsk-card--c { width: 220px; height: 175px; top: 210px; left: 0; }
+.hsk-card--d { width: 250px; height: 190px; bottom: 0; right: 10px; }
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .hsk-inner    { padding: 0 32px; gap: 32px; }
+  .hsk-cards    { height: 420px; }
+  .hsk-card--a  { width: 195px; height: 152px; }
+  .hsk-card--b  { width: 218px; height: 168px; }
+  .hsk-card--c  { width: 185px; height: 145px; }
+  .hsk-card--d  { width: 210px; height: 158px; }
+}
+
+@media (max-width: 800px) {
+  .hsk-inner {
+    grid-template-columns: 1fr;
+    padding: 0 24px;
+    gap: 28px;
+    justify-items: center;
+    text-align: center;
+  }
+  .hsk-text  { align-items: center; }
+  .hsk-text > div[style*="display:flex"] { justify-content: center; }
+  .hsk-cards { width: 100%; height: 220px; }
+  .hsk-card--a { width: 120px; height: 95px;  top: 0;    left: 2%; }
+  .hsk-card--b { width: 138px; height: 108px; top: 0;    right: 2%; }
+  .hsk-card--c { width: 115px; height: 90px;  bottom: 0; left: 20%; }
+  .hsk-card--d { width: 130px; height: 100px; bottom: 0; right: 8%; }
+}
+
+@media (max-width: 480px) {
+  /* On very small screens, hide cards — text skeleton only */
+  .hsk-cards   { display: none; }
+  .hsk-inner   { grid-template-columns: 1fr; }
 }

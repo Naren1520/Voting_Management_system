@@ -69,11 +69,38 @@
     <div class="hero-bg">
       <video
         class="hero-bg-video"
+        id="heroBgVideo"
         src="/assets/vdo2.mp4"
         autoplay muted loop playsinline
         poster="/assets/img3.png"
       ></video>
       <div class="hero-bg-overlay"></div>
+    </div>
+
+    <!-- Hero skeleton — covers the section until video/poster is ready -->
+    <div class="hero-skeleton" id="heroSkeleton" aria-hidden="true">
+      <div class="hsk-inner">
+        <!-- Left: text placeholders -->
+        <div class="hsk-text">
+          <div class="hsk-box" style="width:140px;height:13px;border-radius:4px;margin-bottom:22px"></div>
+          <div class="hsk-box" style="width:95%;height:52px;border-radius:10px;margin-bottom:12px"></div>
+          <div class="hsk-box" style="width:85%;height:52px;border-radius:10px;margin-bottom:12px"></div>
+          <div class="hsk-box" style="width:65%;height:52px;border-radius:10px;margin-bottom:28px"></div>
+          <div class="hsk-box" style="width:90%;height:16px;border-radius:4px;margin-bottom:8px"></div>
+          <div class="hsk-box" style="width:70%;height:16px;border-radius:4px;margin-bottom:28px"></div>
+          <div style="display:flex;gap:12px">
+            <div class="hsk-box" style="width:150px;height:46px;border-radius:100px"></div>
+            <div class="hsk-box" style="width:130px;height:46px;border-radius:100px"></div>
+          </div>
+        </div>
+        <!-- Right: card placeholders -->
+        <div class="hsk-cards">
+          <div class="hsk-card hsk-card--a"></div>
+          <div class="hsk-card hsk-card--b"></div>
+          <div class="hsk-card hsk-card--c"></div>
+          <div class="hsk-card hsk-card--d"></div>
+        </div>
+      </div>
     </div>
 
     <div class="hero-cinema-inner">

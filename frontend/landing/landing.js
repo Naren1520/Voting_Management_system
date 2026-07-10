@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (typeof lucide !== 'undefined') lucide.createIcons();
 
   initViewportFix();
+  initHeroSkeleton();   // must be early — sets up video listener
   initHeader();
   initMobileMenu();
   initScrollProgress();
@@ -51,6 +52,50 @@ function initViewportFix() {
   window.addEventListener('orientationchange', () => {
     setTimeout(setVh, 300);
   }, { passive: true });
+}
+
+/*
+   HERO SKELETON — dismiss when the bg video has enough data to play,
+   or the poster image loads, whichever comes first.
+   Hard fallback: 2.5s max so slow connections never wait forever.
+ */
+function initHeroSkeleton() {
+  const sk    = document.getElementById('heroSkeleton');
+  const video = document.getElementById('heroBgVideo');
+  if (!sk) return;
+
+  let dismissed = false;
+
+  function dismiss() {
+    if (dismissed) return;
+    dismissed = true;
+    sk.classList.add('hsk-hidden');
+    sk.addEventListener('transitionend', () => sk.remove(), { once: true });
+  }
+
+  // Best case: video is ready to play (has buffered enough frames)
+  if (video) {
+    // readyState >= 3 means browser has data for current position
+    if (video.readyState >= 3) {
+      dismiss();
+      return;
+    }
+    video.addEventListener('canplay',  dismiss, { once: true });
+    video.addEventListener('playing',  dismiss, { once: true });
+    // If video fails entirely, still dismiss so page isn't blocked
+    video.addEventListener('error',    dismiss, { once: true });
+  }
+
+  // Poster image fallback — if it loads fast, dismiss immediately
+  if (video && video.poster) {
+    const img = new Image();
+    img.onload = dismiss;
+    img.src = video.poster;
+  }
+
+  // Hard timeout — max 2.5s on mobile, 1.5s on fast connections
+  const isMobile = window.innerWidth <= 800;
+  setTimeout(dismiss, isMobile ? 2500 : 1500);
 }
 
 /* 
