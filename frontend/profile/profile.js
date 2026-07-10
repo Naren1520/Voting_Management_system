@@ -3,7 +3,17 @@
 document.addEventListener('DOMContentLoaded', () => {
   if (!Auth.requireAuth()) return;
   populateProfile();
+  hideProfSkeleton();
 });
+
+function hideProfSkeleton() {
+  const sk   = document.getElementById('profSkeletonOverlay');
+  const page = document.getElementById('profPage');
+  if (page) page.classList.add('prof-ready');
+  if (!sk) return;
+  sk.classList.add('psk-hidden');
+  sk.addEventListener('transitionend', () => sk.remove(), { once: true });
+}
 
 function populateProfile() {
   const user = Auth.user();

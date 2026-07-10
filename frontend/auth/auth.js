@@ -9,6 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initInputAnimations();
   if (typeof initStrength === 'function') initStrength();
 
+  // Dismiss skeleton — DOM is ready, layout is painted
+  hideAuthSkeleton();
+
   // Ping the server as soon as the page loads so Render's free tier
   // starts waking up before the user clicks the submit button.
   // The result is ignored — this is purely a warm-up call.
@@ -17,6 +20,13 @@ document.addEventListener('DOMContentLoaded', () => {
     signal: AbortSignal.timeout ? AbortSignal.timeout(35000) : undefined
   }).catch(() => {});
 });
+
+function hideAuthSkeleton() {
+  const sk = document.getElementById('authSkeletonOverlay');
+  if (!sk) return;
+  sk.classList.add('ask-hidden');
+  sk.addEventListener('transitionend', () => sk.remove(), { once: true });
+}
 
 /* 
    Password visibility toggle

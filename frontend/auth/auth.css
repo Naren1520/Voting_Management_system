@@ -39,9 +39,7 @@ body {
   font-family: var(--font);
   color: var(--ink);
   background: var(--surface);
-  animation: pageReveal .4s var(--ease);
 }
-@keyframes pageReveal { from { opacity: 0; } to { opacity: 1; } }
 img     { display: block; max-width: 100%; }
 a       { text-decoration: none; color: inherit; }
 button  { font-family: inherit; cursor: pointer; border: none; background: none; }
@@ -542,4 +540,157 @@ button  { font-family: inherit; cursor: pointer; border: none; background: none;
 @media (max-width: 400px) {
   .auth-panel-right { padding: 28px 16px 36px; }
   .auth-panel-left  { height: 200px; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   AUTH SKELETON / PAGE REVEAL
+═══════════════════════════════════════════════════════════ */
+
+@keyframes ask-shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+.ask-box {
+  background: linear-gradient(90deg, rgba(255,255,255,.06) 25%, rgba(255,255,255,.14) 50%, rgba(255,255,255,.06) 75%);
+  background-size: 600px 100%;
+  animation: ask-shimmer 1.6s ease-in-out infinite;
+  display: block;
+  border-radius: 8px;
+}
+
+/* Full-screen overlay */
+.ask-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+  transition: opacity .35s ease, visibility .35s ease;
+}
+.ask-overlay.ask-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Left skeleton panel — dark, mirrors real left panel */
+.ask-left {
+  background: #111;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 36px 48px;
+  position: relative;
+  overflow: hidden;
+}
+/* subtle colour wash same as real panel */
+.ask-left::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(160deg, rgba(0,103,184,.14) 0%, transparent 55%, rgba(0,0,0,.5) 100%);
+  pointer-events: none;
+}
+.ask-left-top {
+  display: flex; align-items: center; gap: 10px;
+  position: relative; z-index: 1;
+}
+.ask-left-body {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; gap: 16px;
+  padding: 32px 0;
+}
+.ask-left-footer {
+  position: relative; z-index: 1;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 22px;
+  padding: 22px 26px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+
+/* Right skeleton panel — white, mirrors real right panel */
+.ask-right {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 40px;
+  position: relative;
+}
+/* dot-grid bg same as real panel */
+.ask-right::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(0,0,0,.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none; opacity: .5;
+}
+.ask-right-inner {
+  width: 100%; max-width: 400px;
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; gap: 16px;
+}
+/* title placeholder — uses dark shimmer */
+.ask-box-dark {
+  background: linear-gradient(90deg, #ebebeb 25%, #f5f5f5 50%, #ebebeb 75%);
+  background-size: 600px 100%;
+  animation: ask-shimmer-light 1.4s ease-in-out infinite;
+  display: block;
+  border-radius: 8px;
+}
+@keyframes ask-shimmer-light {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+/* Glass card skeleton */
+.ask-card {
+  background: rgba(255,255,255,.72);
+  border: 1px solid rgba(255,255,255,.85);
+  border-radius: 22px;
+  padding: 28px 32px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.07), 0 12px 48px rgba(0,0,0,.08);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.ask-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Mobile layout */
+@media (max-width: 860px) {
+  .ask-overlay {
+    display: flex;
+    flex-direction: column;
+    background: #111;
+  }
+  .ask-left {
+    height: 220px;
+    flex-shrink: 0;
+    padding: 0 24px 28px;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  .ask-left-top  { display: none; }
+  .ask-left-body { padding: 0; align-items: center; gap: 10px; }
+  .ask-left-footer { display: none; }
+  .ask-right {
+    flex: 1;
+    background: var(--surface);
+    border-radius: 24px 24px 0 0;
+    margin-top: -24px;
+    padding: 32px 24px 40px;
+    align-items: flex-start;
+    box-shadow: 0 -8px 40px rgba(0,0,0,.18);
+  }
+  .ask-right-inner { max-width: 440px; }
+}
+@media (max-width: 400px) {
+  .ask-right { padding: 28px 16px 36px; }
+  .ask-left  { height: 200px; }
 }

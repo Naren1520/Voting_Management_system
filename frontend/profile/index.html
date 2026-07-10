@@ -13,6 +13,68 @@
 </head>
 <body>
 
+  <!-- ═══════════════════════════════════════════════════
+       SKELETON LOADER — dismissed after Auth.user() populates
+  ════════════════════════════════════════════════════ -->
+  <div id="profSkeletonOverlay" class="psk-overlay" aria-hidden="true">
+
+    <!-- Fake header -->
+    <div class="psk-header">
+      <div class="psk-header-inner">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="psk-box" style="width:32px;height:32px;border-radius:50%"></div>
+          <div class="psk-box" style="width:96px;height:18px;border-radius:6px"></div>
+        </div>
+        <div class="psk-box" style="width:104px;height:34px;border-radius:8px"></div>
+      </div>
+    </div>
+
+    <div class="psk-page">
+
+      <!-- Hero -->
+      <div class="psk-hero">
+        <div class="psk-box" style="width:120px;height:120px;border-radius:50%;margin:0 auto 24px"></div>
+        <div class="psk-box" style="width:200px;height:28px;border-radius:8px;margin:0 auto 12px"></div>
+        <div class="psk-box" style="width:100px;height:14px;border-radius:6px;margin:0 auto"></div>
+      </div>
+
+      <!-- Account card -->
+      <div class="psk-card">
+        <div class="psk-box" style="width:130px;height:11px;border-radius:4px;margin-bottom:28px"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="psk-box" style="width:80px;height:11px;border-radius:4px"></div>
+            <div class="psk-box" style="width:100%;height:44px;border-radius:12px"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="psk-box" style="width:110px;height:11px;border-radius:4px"></div>
+            <div class="psk-box" style="width:100%;height:44px;border-radius:12px"></div>
+          </div>
+        </div>
+        <div class="psk-box" style="width:100%;height:68px;border-radius:20px"></div>
+      </div>
+
+      <!-- Security card -->
+      <div class="psk-card">
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:32px">
+          <div class="psk-box" style="width:48px;height:48px;border-radius:12px;flex-shrink:0"></div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="psk-box" style="width:90px;height:18px;border-radius:6px"></div>
+            <div class="psk-box" style="width:150px;height:13px;border-radius:6px"></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div class="psk-box" style="width:100%;height:50px;border-radius:12px"></div>
+          <div class="psk-box" style="width:100%;height:50px;border-radius:12px"></div>
+          <div class="psk-box" style="width:100%;height:50px;border-radius:12px"></div>
+          <div class="psk-box" style="width:100%;height:50px;border-radius:12px;opacity:.6"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- END SKELETON -->
+
   <!-- Background decoration -->
   <div class="prof-bg-shapes">
     <div class="prof-shape prof-shape-1"></div>
@@ -37,7 +99,7 @@
   </header>
 
   <!-- Page -->
-  <main class="prof-page">
+  <main class="prof-page" id="profPage">
 
     <!-- Hero -->
     <div class="prof-hero">
