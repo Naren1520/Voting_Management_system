@@ -21,11 +21,10 @@ let pendingDeleteId = null;
    Load + render elections
  */
 async function loadElections() {
-  showLoading(true);
   const res = await API.getElections();
-  showLoading(false);
 
   if (!res.success) {
+    hideDashSkeleton();
     showToast('Failed to load elections', 'error');
     return;
   }
@@ -33,6 +32,7 @@ async function loadElections() {
   elections = res.elections || [];
   updateStats();
   renderElections();
+  hideDashSkeleton();
 }
 
 function updateStats() {
@@ -352,9 +352,16 @@ function hideModalMsg(id) {
 /* 
    Helpers
  */
-function showLoading(show) {
-  const el = document.getElementById('loadingState');
-  if (el) el.style.display = show ? 'block' : 'none';
+function hideDashSkeleton() {
+  const sk   = document.getElementById('dashSkeletonOverlay');
+  const page = document.getElementById('dashPage');
+
+  // Reveal real content first (behind the fading skeleton)
+  if (page) page.classList.add('dash-ready');
+
+  if (!sk) return;
+  sk.classList.add('dsk-hidden');
+  sk.addEventListener('transitionend', () => sk.remove(), { once: true });
 }
 
 function setEl(id, val) {

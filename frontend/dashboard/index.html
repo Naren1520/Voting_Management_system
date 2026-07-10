@@ -13,6 +13,79 @@
 </head>
 <body>
 
+  <!-- ═══════════════════════════════════════════════════
+       SKELETON LOADER
+  ════════════════════════════════════════════════════ -->
+  <div id="dashSkeletonOverlay" class="dsk-overlay" aria-hidden="true">
+
+    <!-- Fake header -->
+    <div class="dsk-header">
+      <div class="dsk-header-inner">
+        <div class="dsk-brand">
+          <div class="dsk-box" style="width:32px;height:32px;border-radius:50%"></div>
+          <div class="dsk-box" style="width:96px;height:18px;border-radius:6px"></div>
+        </div>
+        <div class="dsk-header-right">
+          <div class="dsk-box" style="width:100px;height:16px;border-radius:6px"></div>
+          <div class="dsk-box" style="width:34px;height:34px;border-radius:50%"></div>
+          <div class="dsk-box" style="width:90px;height:34px;border-radius:8px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dsk-page">
+
+      <!-- Title row -->
+      <div class="dsk-title-row">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="dsk-box" style="width:160px;height:28px;border-radius:8px"></div>
+          <div class="dsk-box" style="width:260px;height:14px;border-radius:6px"></div>
+        </div>
+        <div class="dsk-box" style="width:140px;height:42px;border-radius:10px"></div>
+      </div>
+
+      <!-- Stats strip -->
+      <div class="dsk-stats">
+        <div class="dsk-stat-card">
+          <div class="dsk-box" style="width:44px;height:44px;border-radius:12px;flex-shrink:0"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+            <div class="dsk-box" style="width:40px;height:26px;border-radius:6px"></div>
+            <div class="dsk-box" style="width:100px;height:12px;border-radius:6px"></div>
+          </div>
+        </div>
+        <div class="dsk-stat-card">
+          <div class="dsk-box" style="width:44px;height:44px;border-radius:12px;flex-shrink:0"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+            <div class="dsk-box" style="width:40px;height:26px;border-radius:6px"></div>
+            <div class="dsk-box" style="width:80px;height:12px;border-radius:6px"></div>
+          </div>
+        </div>
+        <div class="dsk-stat-card">
+          <div class="dsk-box" style="width:44px;height:44px;border-radius:12px;flex-shrink:0"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+            <div class="dsk-box" style="width:40px;height:26px;border-radius:6px"></div>
+            <div class="dsk-box" style="width:70px;height:12px;border-radius:6px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section label -->
+      <div class="dsk-box" style="width:100px;height:12px;border-radius:4px"></div>
+
+      <!-- Election cards grid -->
+      <div class="dsk-grid">
+        <div class="dsk-card dsk-ec" style="opacity:1"></div>
+        <div class="dsk-card dsk-ec" style="opacity:.85"></div>
+        <div class="dsk-card dsk-ec" style="opacity:.7"></div>
+        <div class="dsk-card dsk-ec" style="opacity:.55"></div>
+        <div class="dsk-card dsk-ec" style="opacity:.4"></div>
+        <div class="dsk-card dsk-ec" style="opacity:.25"></div>
+      </div>
+
+    </div>
+  </div>
+  <!-- END SKELETON -->
+
   <!-- 
        HEADER
    -->
@@ -38,7 +111,7 @@
   <!-- 
        PAGE
    -->
-  <main class="dash-page">
+  <main class="dash-page" id="dashPage">
 
     <!-- Title -->
     <div class="dash-title-row">
@@ -108,12 +181,6 @@
 
     <!-- Section label -->
     <div class="dash-section-label">All elections</div>
-
-    <!-- Loading -->
-    <div id="loadingState" class="dash-loading">
-      <div class="dash-spinner"></div>
-      <p>Loading your elections…</p>
-    </div>
 
     <!-- Grid -->
     <div class="elections-grid" id="electionsGrid"></div>

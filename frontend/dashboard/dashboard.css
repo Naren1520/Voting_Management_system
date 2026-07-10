@@ -511,22 +511,6 @@ ul     { list-style: none; }
 .ec-btn-delete:hover { background: var(--danger-light); color: var(--danger); border-color: #fca5a5; }
 
 /* 
-   LOADING STATE
- */
-.dash-loading {
-  text-align: center; padding: 80px 24px;
-  color: var(--ink-4);
-}
-.dash-spinner {
-  width: 32px; height: 32px; margin: 0 auto 16px;
-  border: 3px solid var(--border);
-  border-top-color: var(--blue);
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* 
    EMPTY STATE
  */
 .dash-empty {
@@ -707,4 +691,169 @@ ul     { list-style: none; }
   .dash-greeting { display: none; }
   .elections-grid { grid-template-columns: 1fr; }
   .modal { padding: 24px 20px; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   DASHBOARD SKELETON LOADER
+═══════════════════════════════════════════════════════════ */
+
+@keyframes dsk-shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+/* Shimmer box */
+.dsk-box {
+  background: linear-gradient(90deg, #ebebeb 25%, #f5f5f5 50%, #ebebeb 75%);
+  background-size: 600px 100%;
+  animation: dsk-shimmer 1.4s ease-in-out infinite;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Full-page overlay */
+.dsk-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: var(--surface-3);
+  overflow-y: auto;
+  overscroll-behavior: none;
+  transition: opacity .3s ease, visibility .3s ease;
+}
+.dsk-overlay.dsk-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Skeleton header */
+.dsk-header {
+  height: 66px;
+  background: rgba(255,255,255,.92);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+}
+.dsk-header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 32px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+.dsk-brand       { display: flex; align-items: center; gap: 10px; }
+.dsk-header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+/* Page wrapper */
+.dsk-page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 36px 32px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Title row */
+.dsk-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+/* Stats strip */
+.dsk-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.dsk-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Cards grid — mirrors .elections-grid layout */
+.dsk-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* Generic skeleton card */
+.dsk-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+}
+
+/* Election card skeleton — same height as real cards */
+.dsk-ec {
+  height: 158px;
+  position: relative;
+  overflow: hidden;
+}
+/* Shimmer sweep on the card */
+.dsk-ec::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,.65) 50%,
+    transparent 100%
+  );
+  background-size: 600px 100%;
+  animation: dsk-shimmer 1.4s ease-in-out infinite;
+}
+
+/* ── Real page hidden until ready ── */
+.dash-page {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+.dash-page.dash-ready {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* ── Overscroll background fix ── */
+html { background: var(--surface-3); }
+
+/* ── Header overscroll fill ── */
+.dash-header::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  bottom: 100%;
+  height: 200px;
+  background: #fff;
+  pointer-events: none;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .dsk-grid  { grid-template-columns: repeat(2, 1fr); }
+  .dsk-stats { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 640px) {
+  .dsk-page         { padding: 16px 14px 48px; }
+  .dsk-header-inner { padding: 0 14px; }
+  .dsk-stats        { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .dsk-grid         { grid-template-columns: 1fr; }
+  .dsk-stat-card    { padding: 14px 16px; }
+}
+@media (max-width: 480px) {
+  .dsk-stats { grid-template-columns: 1fr; }
 }
