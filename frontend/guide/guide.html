@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>User Guide — VoteStack</title>
+  <meta name="description" content="Complete guide for voters and administrators on the VoteStack platform." />
+  <link rel="icon" href="/assets/Logo.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="guide.css" />
+</head>
+<body>
+
+  <!-- Reading progress bar -->
+  <div class="progress-bar" id="progressBar"></div>
+
+  <!-- Header -->
+  <header class="guide-header" id="guideHeader">
+    <div class="guide-header-inner">
+      <a class="guide-brand" href="/landing/index.html">
+        <img src="/assets/Logo.png" alt="VoteStack" />
+        <span>VoteStack</span>
+      </a>
+      <span class="guide-header-label">User Guide</span>
+      <a class="guide-back-btn" href="/landing/index.html">
+        <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back to site
+      </a>
+    </div>
+  </header>
+
+  <!-- Page wrapper -->
+  <div class="guide-wrap">
+
+    <!-- Sidebar -->
+    <aside class="guide-sidebar" id="guideSidebar">
+      <nav class="sidebar-nav" id="sidebarNav" aria-label="Guide navigation">
+        <!-- Injected by JS -->
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <main class="guide-main" id="guideMain">
+
+      <!-- Page title -->
+      <div class="guide-page-title">
+        <h1>User Guide</h1>
+        <p>Everything you need to know about using VoteStack — whether you're casting a vote or running an election.</p>
+      </div>
+
+      <!-- Guide toggle -->
+      <div class="guide-toggle-wrap">
+        <div class="guide-toggle" id="guideToggle" role="tablist" aria-label="Select guide">
+          <button class="toggle-btn active" id="toggleVoter" role="tab" aria-selected="true"
+            aria-controls="voterGuide" onclick="switchGuide('voter')">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Voter Guide
+          </button>
+          <button class="toggle-btn" id="toggleAdmin" role="tab" aria-selected="false"
+            aria-controls="adminGuide" onclick="switchGuide('admin')">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Admin Guide
+          </button>
+          <div class="toggle-slider" id="toggleSlider"></div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════
+           VOTER GUIDE
+      ════════════════════════════════════════════ -->
+      <div id="voterGuide" class="guide-content active" role="tabpanel" aria-labelledby="toggleVoter">
+
+        <!-- Section: Getting Started -->
+        <section class="guide-section" id="v-getting-started" data-guide="voter">
+          <div class="section-header">
+            <span class="section-number">01</span>
+            <div>
+              <h2 class="section-title">Getting Started</h2>
+              <p class="section-desc">What you need to know before casting your vote.</p>
+            </div>
+          </div>
+          <div class="cards-grid">
+            <div class="guide-card reveal">
+              <div class="card-icon">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </div>
+              <h3>What is VoteStack?</h3>
+              <p>VoteStack is a secure, enterprise-grade online voting platform. Organisations use it to run elections — you receive a unique voting link or Election ID to participate.</p>
+            </div>
+            <div class="guide-card reveal">
+              <div class="card-icon">
+                <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </div>
+              <h3>What you need</h3>
+              <p>You need two things: an <strong>Election ID</strong> (provided by your organisation) and your <strong>Voter ID</strong> (e.g. student number, employee code, or membership ID).</p>
+              <div class="card-note">
+                <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                No account or registration required to vote.
+              </div>
+            </div>
+            <div class="guide-card reveal">
+              <div class="card-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <h3>Your vote is secure</h3>
+              <p>Votes are encrypted end-to-end with AES-256. Your identity is never linked publicly to your ballot. Each Voter ID can only vote once per election.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section: Casting Your Vote -->
+        <section class="guide-section" id="v-casting-vote" data-guide="voter">
+          <div class="section-header">
+            <span class="section-number">02</span>
+            <div>
+              <h2 class="section-title">Casting Your Vote</h2>
+              <p class="section-desc">Step-by-step walkthrough of the voting process.</p>
+            </div>
+          </div>
+          <div class="steps-list">
+            <div class="step-card reveal">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <h3>Open the voting link</h3>
+                <p>Click the link shared by your organisation, or go to the VoteStack Join page and enter the Election ID manually. The format is typically a short alphanumeric code.</p>
+              </div>
+              <div class="step-icon">
+                <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              </div>
+            </div>
+            <div class="step-card reveal">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <h3>Enter your Voter ID</h3>
+                <p>Type your unique Voter ID exactly as registered by your organisation. This could be a student number, employee code, or any ID your organisation uses. It is case-sensitive.</p>
+                <div class="card-note">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  If your ID is not recognised, contact your election administrator — your ID may not be registered.
+                </div>
+              </div>
+              <div class="step-icon">
+                <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </div>
+            </div>
+            <div class="step-card reveal">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <h3>Face verification (if enabled)</h3>
+                <p>Some elections require face verification. Allow camera access when prompted, then position your face in the frame and click "Capture." The system checks your identity in seconds — your photo is never stored.</p>
+              </div>
+              <div class="step-icon">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><polyline points="16 11 18 13 22 9"/></svg>
+              </div>
+            </div>
+            <div class="step-card reveal">
+              <div class="step-num">4</div>
+              <div class="step-body">
+                <h3>Select your candidate</h3>
+                <p>Review all candidates listed on the ballot. For a standard election, select one candidate. For multi-position elections, you will see separate ballot sections for each position — vote in each one.</p>
+              </div>
+              <div class="step-icon">
+                <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              </div>
+            </div>
+            <div class="step-card reveal">
+              <div class="step-num">5</div>
+              <div class="step-body">
+                <h3>Submit your ballot</h3>
+                <p>Review your selection, then click "Submit Vote." You will receive an on-screen confirmation. Your vote is final — you cannot change it after submission.</p>
+                <div class="card-note card-note--success">
+                  <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  Once submitted, a success screen confirms your vote was recorded.
+                </div>
+              </div>
+              <div class="step-icon">
+                <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section: Voter FAQ -->
+        <section class="guide-section" id="v-faq" data-guide="voter">
+          <div class="section-header">
+            <span class="section-number">03</span>
+            <div>
+              <h2 class="section-title">Frequently Asked Questions</h2>
+              <p class="section-desc">Common questions from voters.</p>
+            </div>
+          </div>
+          <div class="faq-list reveal">
+            <details class="faq-item">
+              <summary class="faq-q"><span>What if I enter the wrong Voter ID?</span><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></summary>
+              <p class="faq-a">The system will show an error. Double-check the ID your organisation gave you — it may include leading zeros or special characters. Contact your administrator if the problem persists.</p>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span>Can I vote more than once?</span><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></summary>
+              <p class="faq-a">No. Once you submit your ballot, your Voter ID is marked as voted. Any further attempts will be rejected immediately and logged in the audit trail.</p>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span>The camera won't open for face verification.</span><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></summary>
+              <p class="faq-a">VoteStack requires HTTPS to access your camera. Click the lock icon (🔒) in your browser's address bar, go to Site Settings, and set Camera to "Allow." Then reload the page.</p>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span>What if the election is not open yet?</span><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></summary>
+              <p class="faq-a">If a schedule is set, the voting page will display when voting opens and closes. You cannot submit a ballot outside the scheduled window.</p>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span>Is my vote anonymous?</span><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></summary>
+              <p class="faq-a">Yes. Your Voter ID confirms eligibility, but your actual candidate choice is never linked to your identity in the results. Administrators only see aggregate vote counts.</p>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span>What if the page shows "Election is closed"?</span><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></summary>
+              <p class="faq-a">The administrator has closed the election. Voting is no longer possible. Contact your organisation for results or further information.</p>
+            </details>
+          </div>
+        </section>
+
+      </div>
+      <!-- END VOTER GUIDE -->
+
+      <!-- ═══════════════════════════════════════════
+           ADMIN GUIDE
+      ════════════════════════════════════════════ -->
+      <div id="adminGuide" class="guide-content" role="tabpanel" aria-labelledby="toggleAdmin">
+
+        <!-- Section: Account Setup -->
+        <section class="guide-section" id="a-account-setup" data-guide="admin">
+          <div class="section-header">
+            <span class="section-number">01</span>
+            <div>
+              <h2 class="section-title">Account Setup</h2>
+              <p class="section-desc">Create your VoteStack account and access your dashboard.</p>
+            </div>
+          </div>
+          <div class="cards-grid">
+            <div class="guide-card reveal">
+              <div class="card-icon">
+                <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+              </div>
+              <h3>Create an account</h3>
+              <p>Go to the VoteStack Sign Up page. Enter your full name, email address, and a password (minimum 6 characters). Your private workspace is created instantly — fully isolated from other organisations.</p>
+            </div>
+            <div class="guide-card reveal">
+              <div class="card-icon">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              </div>
+              <h3>Your dashboard</h3>
+              <p>After signing in you land on the Dashboard. From here you create elections, copy voting links, view live stats, and manage all your elections in one place.</p>
+            </div>
+            <div class="guide-card reveal">
+              <div class="card-icon">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              </div>
+              <h3>Profile &amp; security</h3>
+              <p>Visit your Profile page to update your password. The Active Sessions page shows all devices currently logged in — you can review and manage them there.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section: Creating Elections -->
+        <section class="guide-section" id="a-create-election" data-guide="admin">
+          <div class="section-header">
+            <span class="section-number">02</span>
+            <div>
+              <h2 class="section-title">Creating Elections</h2>
+              <p class="section-desc">Set up your first election in under two minutes.</p>
+            </div>
+          </div>
+          <div class="steps-list">
+            <div class="step-card reveal">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <h3>Choose an election type</h3>
+                <p>Click <strong>New Election</strong> on the dashboard. Choose between:</p>
+                <ul class="step-list">
+                  <li><strong>Standard Election</strong> — one pool of candidates, voters choose one.</li>
+                  <li><strong>Multi-Position Election</strong> — multiple roles (e.g. President, Secretary), each with their own candidates. Voters vote in every position on a single ballot.</li>
+                </ul>
+              </div>
+              <div class="step-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12h6M12 9v6"/></svg></div>
+            </div>
+            <div class="step-card reveal">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <h3>Set a title and schedule</h3>
+                <p>Give the election a clear title (e.g. "Student Council Elections 2025"). Optionally set a voting schedule — a start and end date/time — so voting opens and closes automatically.</p>
+                <div class="card-note">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  Leave the schedule blank for "Always On" — voting stays open until you manually close it.
+                </div>
+              </div>
+              <div class="step-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+            </div>
+            <div class="step-card reveal">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <h3>Add candidates</h3>
+                <p>Inside the Manage page, go to the <strong>Candidates</strong> tab. Type a candidate name and press <strong>Add Candidate</strong>. Repeat for all candidates. For multi-position elections, each position has its own candidate list.</p>
+              </div>
+              <div class="step-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+            </div>
+            <div class="step-card reveal">
+              <div class="step-num">4</div>
+              <div class="step-body">
+                <h3>Register voters</h3>
+                <p>Go to the <strong>Voters</strong> tab. Add voters one at a time (Voter ID, Full Name, optional Email/Phone) or import a list. Only registered Voter IDs can participate — all others are blocked.</p>
+              </div>
+              <div class="step-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+            </div>
+            <div class="step-card reveal">
+              <div class="step-num">5</div>
+              <div class="step-body">
+                <h3>Share the voting link</h3>
+                <p>Copy the unique voting link from the <strong>Share Banner</strong> at the top of the Manage page, or copy the Election ID. Send either to your voters via email, Slack, WhatsApp, or any other channel.</p>
+                <div class="card-note card-note--success">
+                  <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  Voters only need the link or the Election ID — no account required on their end.
+                </div>
+              </div>
+              <div class="step-icon"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section: Managing an Election -->
+        <section class="guide-section" id="a-manage-election" data-guide="admin">
+          <div class="section-header">
+            <span class="section-number">03</span>
+            <div>
+              <h2 class="section-title">Managing an Election</h2>
+              <p class="section-desc">Monitor, update, and control your election in real time.</p>
+            </div>
+          </div>
+          <div class="cards-grid cards-grid--2">
+            <div class="guide-card reveal">
+              <div class="card-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+              <h3>Live results</h3>
+              <p>The <strong>Results &amp; Analytics</strong> tab shows real-time vote counts, percentages, bar charts, and a doughnut distribution chart. Results update as ballots come in — no refresh needed.</p>
+            </div>
+            <div class="guide-card reveal">
+              <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+              <h3>Voter status</h3>
+              <p>The Voters tab shows who has voted and who hasn't. Use the <strong>All / Voted / Not Voted</strong> filter pills to segment your list. Search by name, email, or Voter ID.</p>
+            </div>
+            <div class="guide-card reveal">
+              <div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><polyline points="16 11 18 13 22 9"/></svg></div>
+              <h3>Face ID enrollment</h3>
+              <p>If you enable Face Verification on an election, voters must verify their face before voting. Enroll faces per voter using the face icon on each voter card. Voters can also self-enroll via a link.</p>
+            </div>
+            <div class="guide-card reveal">
+              <div class="card-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+              <h3>Voting schedule</h3>
+              <p>Use the <strong>Schedule</strong> tab to set or update when voting opens and closes. Changes take effect immediately. The current schedule status is shown in a live banner at the top of the schedule panel.</p>
+            </div>
+            <div class="guide-card reveal">
+              <div class="card-icon"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></div>
+              <h3>Refresh data</h3>
+              <p>The stats strip at the top of the Manage page shows candidate count, voter count, votes cast, and turnout percentage. Click <strong>Refresh</strong> to get the latest numbers at any time.</p>
+            </div>
+            <div class="guide-card reveal">
+              <div class="card-icon"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></div>
+              <h3>Deleting an election</h3>
+              <p>From the Dashboard, click the delete icon on an election card. You will be asked to confirm. Deletion is <strong>permanent</strong> — all candidates, voters, votes, and results are removed immediately.</p>
+              <div class="card-note card-note--danger">
+                <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                This action cannot be undone. Export results before deleting.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section: Face Verification -->
+        <section class="guide-section" id="a-face-verify" data-guide="admin">
+          <div class="section-header">
+            <span class="section-number">04</span>
+            <div>
+              <h2 class="section-title">Face Verification</h2>
+              <p class="section-desc">Add biometric identity checks to your election.</p>
+            </div>
+          </div>
+          <div class="steps-list">
+            <div class="step-card reveal">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <h3>Enable Face ID on an election</h3>
+                <p>In the Manage page hero banner, toggle the <strong>Face ID</strong> switch to ON. This enables face verification for all voters in that election.</p>
+              </div>
+              <div class="step-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><polyline points="16 11 18 13 22 9"/></svg></div>
+            </div>
+            <div class="step-card reveal">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <h3>Enroll voter faces</h3>
+                <p>In the Voters tab, click the face enroll icon (👤✓) on any voter card. On the enrollment page, capture 3 angles — Front, Left, Right — using the camera, or upload photos. Only face embeddings are stored, never photos.</p>
+              </div>
+              <div class="step-icon"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+            </div>
+            <div class="step-card reveal">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <h3>Voter self-enrollment</h3>
+                <p>You can share the enrollment link directly with voters. They access it, authenticate with their Voter ID, and enroll their own face — no admin involvement needed.</p>
+              </div>
+              <div class="step-icon"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section: Admin FAQ -->
+        <section class="guide-section" id="a-faq" data-guide="admin">
+          <div class="section-header">
+            <span class="section-number">05</span>
+            <div>
+              <h2 class="section-title">Frequently Asked Questions</h2>
+              <p class="section-desc">Common questions from election administrators.</p>
+            </div>
+          </div>
+          <div class="faq-list reveal">
+            <details class="faq-item">
+              <summary class="faq-q"><span>How many elections can I run at once?</span><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></summary>
+              <p class="faq-a">There is no limit. You can run as many concurrent elections as needed. Each election has its own candidates, voter list, link, and results dashboard — completely independent.</p>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span>Can I add voters after the election starts?</span><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></summary>
+              <p class="faq-a">Yes. You can add voters at any time, even while voting is open. Newly added voters can vote immediately using their Voter ID.</p>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span>Can I remove a candidate after voting has started?</span><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></summary>
+              <p class="faq-a">Yes, but any votes already cast for that candidate will remain in the audit log. Removing a candidate during an active election is not recommended as it may affect result integrity.</p>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span>What is the difference between Standard and Multi-Position?</span><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></summary>
+              <p class="faq-a">Standard elections have one set of candidates and voters choose one. Multi-Position elections have multiple roles (President, Secretary, Treasurer, etc.) — each with separate candidates — and voters cast one vote per position in a single session.</p>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span>Where can I see who has and hasn't voted?</span><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></summary>
+              <p class="faq-a">The Voters tab shows every registered voter with a "Voted" or "Pending" status badge. Use the filter pills (All / Voted / Not Voted) to sort and the search bar to find specific voters.</p>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span>How do I close an election early?</span><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></summary>
+              <p class="faq-a">Go to the Schedule tab and set an end time in the past, or toggle the election to "Closed" status. All active voting sessions are immediately invalidated.</p>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span>Is my data private from other organisations?</span><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></summary>
+              <p class="faq-a">Yes. Every organisation operates in a completely isolated namespace. No other administrator can see your elections, voters, or results. VoteStack does not sell or share data.</p>
+            </details>
+          </div>
+        </section>
+
+      </div>
+      <!-- END ADMIN GUIDE -->
+
+    </main>
+  </div>
+
+  <!-- Back to top button -->
+  <button class="back-to-top" id="backToTop" aria-label="Back to top">
+    <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+
+  <script src="guide.js"></script>
+</body>
+</html>
