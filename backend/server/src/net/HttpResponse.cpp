@@ -147,13 +147,39 @@ std::string HttpResponse::buildWithCookie(int statusCode, const std::string& jso
     const char* secEnv = std::getenv("SESSION_COOKIE_SECURE");
     if (secEnv && std::string(secEnv) == "0") secureCookie = false;
 
+    // Special case: if the request origin is localhost or 127.0.0.1, the
+    // browser is a local dev frontend. The Secure flag prevents the browser
+    // from storing a cross-site cookie received over a non-HTTPS context
+    // (even though Render itself is HTTPS, the *page* is http://localhost).
+    // Dropping Secure for localhost origins lets the cookie be stored while
+    // keeping it on for all real origins.
+    if (secureCookie) {
+        if (requestOrigin.find("://localhost") != std::string::npos ||
+            requestOrigin.find("://127.0.0.1") != std::string::npos) {
+            secureCookie = false;
+        }
+    }
+
     // SESSION_COOKIE_SAMESITE: "Lax" (default) or "None" (cross-site dev).
     // "None" requires Secure=true — enforce that automatically.
+    // Also auto-detect localhost origins and set None so the cross-site
+    // cookie works when a local frontend hits the Render backend.
     std::string sameSite = "Lax";
     const char* ssEnv = std::getenv("SESSION_COOKIE_SAMESITE");
     if (ssEnv && std::string(ssEnv) == "None") {
-        sameSite     = "None";
-        secureCookie = true;  // SameSite=None is invalid without Secure
+        sameSite = "None";
+        secureCookie = true;
+    }
+
+    // Auto-upgrade to SameSite=None for localhost origins — a local dev
+    // frontend is cross-site relative to Render, so Lax will block the cookie.
+    // We already dropped Secure above for localhost, which is consistent:
+    // browsers accept SameSite=None without Secure only on localhost.
+    if (sameSite == "Lax") {
+        if (requestOrigin.find("://localhost") != std::string::npos ||
+            requestOrigin.find("://127.0.0.1") != std::string::npos) {
+            sameSite = "None";
+        }
     }
 
     std::string cookieLine = "Set-Cookie: vs_session=";
