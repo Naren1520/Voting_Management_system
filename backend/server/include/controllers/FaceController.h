@@ -1,5 +1,6 @@
 #pragma once
 #include "../../third_party/json.hpp"
+#include <array>
 #include <string>
 #include <vector>
 
@@ -14,6 +15,13 @@ using json = nlohmann::json;
  * Two operations:
  *   enroll()  - admin uploads photo(s) → generate embeddings → store encrypted
  *   verify()  - fetch stored embeddings → send to Python service → return result
+ *
+ * Encryption: AES-256-GCM (OpenSSL EVP)
+ *   - Key loaded once from EMBEDDING_ENCRYPTION_KEY env var (64 hex chars = 32 bytes)
+ *   - Server aborts at startup if the key is missing or malformed
+ *   - Each encrypt call uses a fresh 12-byte random IV
+ *   - Ciphertext wire format (all concatenated, then base64-encoded):
+ *       [12 bytes IV] [16 bytes GCM auth tag] [N bytes ciphertext]
  */
 class FaceController {
 public:
@@ -21,7 +29,7 @@ public:
      * enroll - called when admin registers a voter with photos.
      * Change 3: generates embeddings at enrollment, not at verify time.
      * Change 4: accepts up to 3 photos (front/left/right).
-     * Change 6: does not store raw photos - only encrypted embeddings.
+     * Change 6: does not store raw photos - only AES-256-GCM encrypted embeddings.
      *
      * @param userId      election owner's user_id (auth check)
      * @param electionId  election UUID
@@ -49,11 +57,37 @@ public:
                 const std::string& bestFrameBase64,
                 float threshold = 0.0f);
 
+    /**
+     * loadEncryptionKey - called once at server startup.
+     * Reads EMBEDDING_ENCRYPTION_KEY from the environment (64 hex chars = 32 bytes).
+     * Aborts the process with a fatal log if the variable is missing or invalid —
+     * the server must never start without a real key.
+     */
+    static void loadEncryptionKey();
+
 private:
     // Call the Python face service
     json callFaceService(const std::string& endpoint, const json& body);
 
-    // Encrypt/decrypt embedding before storing in DB
-    std::string encryptEmbedding(const std::string& embeddingJson);
-    std::string decryptEmbedding(const std::string& encrypted);
+    /**
+     * encryptEmbedding - AES-256-GCM encrypt.
+     * Returns base64( IV[12] || Tag[16] || Ciphertext[N] ).
+     * Throws std::runtime_error on OpenSSL failure.
+     */
+    std::string encryptEmbedding(const std::string& plain);
+
+    /**
+     * decryptEmbedding - AES-256-GCM decrypt + authenticate.
+     * Expects base64( IV[12] || Tag[16] || Ciphertext[N] ).
+     * Throws std::runtime_error if authentication fails or data is malformed.
+     */
+    std::string decryptEmbedding(const std::string& b64Blob);
+
+    // Base64 helpers (no external dependency)
+    static std::string base64Encode(const unsigned char* data, size_t len);
+    static std::vector<unsigned char> base64Decode(const std::string& b64);
+
+    // 32-byte AES-256 key shared by all instances, set by loadEncryptionKey()
+    static std::array<unsigned char, 32> s_key;
+    static bool                          s_keyLoaded;
 };

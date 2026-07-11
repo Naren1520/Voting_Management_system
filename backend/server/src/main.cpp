@@ -3,6 +3,7 @@
 #include "../include/db/SupabaseClient.h"
 #include "../include/cache/RedisClient.h"
 #include "../include/net/EpollServer.h"
+#include "../include/controllers/FaceController.h"
 #include <iostream>
 #include <cstdlib>
 #include <stdexcept>
@@ -19,6 +20,10 @@ int main() {
 
     std::cout << "[main] Config loaded, port=" << Config::instance().port() << "\n";
     std::cout.flush();
+
+    // Load AES-256-GCM key for biometric embedding encryption.
+    // Aborts if EMBEDDING_ENCRYPTION_KEY is missing or malformed.
+    FaceController::loadEncryptionKey();
 
     std::cout << "[main] Initialising Redis...\n"; std::cout.flush();
     RedisClient::instance().init();

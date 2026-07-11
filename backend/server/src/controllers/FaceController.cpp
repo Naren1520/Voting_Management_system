@@ -3,9 +3,14 @@
 #include "../../include/core/Logger.h"
 #include "../../include/core/Config.h"
 
+#include <openssl/evp.h>
+#include <openssl/rand.h>
+#include <openssl/err.h>
 #include <curl/curl.h>
 #include <cstdlib>
+#include <cstring>
 #include <sstream>
+#include <stdexcept>
 
 // ─────────────────────────────────────────────────────────────────────────────
 // libcurl write callback
@@ -85,25 +90,227 @@ json FaceController::callFaceService(const std::string& endpoint, const json& bo
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// encryptEmbedding / decryptEmbedding
-// Change 6: embeddings stored encrypted in DB.
-// Simple XOR-based placeholder - replace with AES-256-GCM in production.
+// Static key storage
+// ─────────────────────────────────────────────────────────────────────────────
+
+std::array<unsigned char, 32> FaceController::s_key      = {};
+bool                          FaceController::s_keyLoaded = false;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// loadEncryptionKey
+// Call once at startup. Reads EMBEDDING_ENCRYPTION_KEY (64 hex chars = 32 bytes).
+// Aborts if missing or malformed — the server must never run without a real key.
+// ─────────────────────────────────────────────────────────────────────────────
+
+void FaceController::loadEncryptionKey() {
+    const char* hexKey = std::getenv("EMBEDDING_ENCRYPTION_KEY");
+    if (!hexKey || std::strlen(hexKey) == 0) {
+        LOG_ERROR("[FaceController] FATAL: EMBEDDING_ENCRYPTION_KEY env var is not set. "
+                  "Generate one with: openssl rand -hex 32");
+        std::abort();
+    }
+    if (std::strlen(hexKey) != 64) {
+        LOG_ERROR("[FaceController] FATAL: EMBEDDING_ENCRYPTION_KEY must be exactly "
+                  "64 hex characters (32 bytes). Got " +
+                  std::to_string(std::strlen(hexKey)) + " chars.");
+        std::abort();
+    }
+    for (int i = 0; i < 32; ++i) {
+        char byte[3] = { hexKey[i*2], hexKey[i*2+1], '\0' };
+        char* end = nullptr;
+        unsigned long val = std::strtoul(byte, &end, 16);
+        if (end != byte + 2) {
+            LOG_ERROR("[FaceController] FATAL: EMBEDDING_ENCRYPTION_KEY contains "
+                      "invalid hex characters.");
+            std::abort();
+        }
+        s_key[i] = static_cast<unsigned char>(val);
+    }
+    s_keyLoaded = true;
+    LOG_INFO("[FaceController] AES-256-GCM encryption key loaded successfully.");
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Base64 helpers (RFC 4648, no line breaks)
+// ─────────────────────────────────────────────────────────────────────────────
+
+static const char kB64Chars[] =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+std::string FaceController::base64Encode(const unsigned char* data, size_t len) {
+    std::string out;
+    out.reserve(((len + 2) / 3) * 4);
+    for (size_t i = 0; i < len; i += 3) {
+        unsigned int b = (static_cast<unsigned int>(data[i]) << 16);
+        if (i+1 < len) b |= (static_cast<unsigned int>(data[i+1]) << 8);
+        if (i+2 < len) b |= static_cast<unsigned int>(data[i+2]);
+        out += kB64Chars[(b >> 18) & 0x3F];
+        out += kB64Chars[(b >> 12) & 0x3F];
+        out += (i+1 < len) ? kB64Chars[(b >> 6) & 0x3F] : '=';
+        out += (i+2 < len) ? kB64Chars[ b       & 0x3F] : '=';
+    }
+    return out;
+}
+
+std::vector<unsigned char> FaceController::base64Decode(const std::string& b64) {
+    // Build a reverse lookup table
+    static unsigned char table[256];
+    static bool tableBuilt = false;
+    if (!tableBuilt) {
+        std::memset(table, 0xFF, sizeof(table));
+        for (int i = 0; i < 64; ++i)
+            table[static_cast<unsigned char>(kB64Chars[i])] = static_cast<unsigned char>(i);
+        table[static_cast<unsigned char>('=')] = 0;
+        tableBuilt = true;
+    }
+
+    std::vector<unsigned char> out;
+    out.reserve((b64.size() / 4) * 3);
+    for (size_t i = 0; i < b64.size(); i += 4) {
+        if (i + 3 >= b64.size() && b64.size() % 4 != 0)
+            throw std::runtime_error("base64Decode: invalid input length");
+        unsigned char a = table[static_cast<unsigned char>(b64[i])];
+        unsigned char b = table[static_cast<unsigned char>(b64[i+1])];
+        unsigned char c = table[static_cast<unsigned char>(b64[i+2])];
+        unsigned char d = table[static_cast<unsigned char>(b64[i+3])];
+        if (a == 0xFF || b == 0xFF || c == 0xFF || d == 0xFF)
+            throw std::runtime_error("base64Decode: invalid character");
+        out.push_back(static_cast<unsigned char>((a << 2) | (b >> 4)));
+        if (b64[i+2] != '=') out.push_back(static_cast<unsigned char>((b << 4) | (c >> 2)));
+        if (b64[i+3] != '=') out.push_back(static_cast<unsigned char>((c << 6) | d));
+    }
+    return out;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// encryptEmbedding - AES-256-GCM
+// Wire format (before base64): [IV: 12 bytes][Tag: 16 bytes][Ciphertext: N bytes]
 // ─────────────────────────────────────────────────────────────────────────────
 
 std::string FaceController::encryptEmbedding(const std::string& plain) {
-    // TODO: replace with AES-256-GCM using OpenSSL EVP_EncryptInit_ex
-    // For now, base64-encode as a placeholder (not real encryption)
-    // Real implementation:
-    //   EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
-    //   EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr, key, iv);
-    //   ...
-    LOG_WARN("[FaceController] encryptEmbedding: using placeholder (implement AES-256-GCM)");
-    return plain; // placeholder - implement before production
+    if (!s_keyLoaded)
+        throw std::runtime_error("encryptEmbedding: encryption key not loaded");
+
+    constexpr int IV_LEN  = 12;  // 96-bit IV recommended for GCM
+    constexpr int TAG_LEN = 16;  // 128-bit authentication tag
+
+    // Generate a cryptographically random IV for each encryption
+    unsigned char iv[IV_LEN];
+    if (RAND_bytes(iv, IV_LEN) != 1)
+        throw std::runtime_error("encryptEmbedding: failed to generate random IV");
+
+    const auto* plainData = reinterpret_cast<const unsigned char*>(plain.data());
+    const int   plainLen  = static_cast<int>(plain.size());
+
+    std::vector<unsigned char> ciphertext(plainLen + EVP_MAX_BLOCK_LENGTH);
+    int cipherLen = 0;
+    int finalLen  = 0;
+    unsigned char tag[TAG_LEN];
+
+    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+    if (!ctx)
+        throw std::runtime_error("encryptEmbedding: EVP_CIPHER_CTX_new failed");
+
+    auto cleanup = [&]() { EVP_CIPHER_CTX_free(ctx); };
+
+    if (EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr, nullptr, nullptr) != 1) {
+        cleanup(); throw std::runtime_error("encryptEmbedding: EVP_EncryptInit_ex (cipher) failed");
+    }
+    if (EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, IV_LEN, nullptr) != 1) {
+        cleanup(); throw std::runtime_error("encryptEmbedding: set IV length failed");
+    }
+    if (EVP_EncryptInit_ex(ctx, nullptr, nullptr, s_key.data(), iv) != 1) {
+        cleanup(); throw std::runtime_error("encryptEmbedding: EVP_EncryptInit_ex (key/iv) failed");
+    }
+    if (EVP_EncryptUpdate(ctx, ciphertext.data(), &cipherLen, plainData, plainLen) != 1) {
+        cleanup(); throw std::runtime_error("encryptEmbedding: EVP_EncryptUpdate failed");
+    }
+    if (EVP_EncryptFinal_ex(ctx, ciphertext.data() + cipherLen, &finalLen) != 1) {
+        cleanup(); throw std::runtime_error("encryptEmbedding: EVP_EncryptFinal_ex failed");
+    }
+    if (EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG, TAG_LEN, tag) != 1) {
+        cleanup(); throw std::runtime_error("encryptEmbedding: failed to get GCM tag");
+    }
+    cleanup();
+
+    const int totalCipherLen = cipherLen + finalLen;
+
+    // Pack: IV || Tag || Ciphertext
+    std::vector<unsigned char> blob;
+    blob.reserve(IV_LEN + TAG_LEN + totalCipherLen);
+    blob.insert(blob.end(), iv,                        iv + IV_LEN);
+    blob.insert(blob.end(), tag,                       tag + TAG_LEN);
+    blob.insert(blob.end(), ciphertext.begin(),        ciphertext.begin() + totalCipherLen);
+
+    return base64Encode(blob.data(), blob.size());
 }
 
-std::string FaceController::decryptEmbedding(const std::string& encrypted) {
-    LOG_WARN("[FaceController] decryptEmbedding: using placeholder (implement AES-256-GCM)");
-    return encrypted; // placeholder
+// ─────────────────────────────────────────────────────────────────────────────
+// decryptEmbedding - AES-256-GCM
+// Expects base64( IV[12] || Tag[16] || Ciphertext[N] )
+// Throws if authentication fails (data was tampered or wrong key).
+// ─────────────────────────────────────────────────────────────────────────────
+
+std::string FaceController::decryptEmbedding(const std::string& b64Blob) {
+    if (!s_keyLoaded)
+        throw std::runtime_error("decryptEmbedding: encryption key not loaded");
+
+    constexpr int IV_LEN  = 12;
+    constexpr int TAG_LEN = 16;
+    constexpr int MIN_LEN = IV_LEN + TAG_LEN;  // minimum valid blob
+
+    std::vector<unsigned char> blob;
+    try {
+        blob = base64Decode(b64Blob);
+    } catch (const std::exception& e) {
+        throw std::runtime_error(std::string("decryptEmbedding: base64 decode failed: ") + e.what());
+    }
+
+    if (static_cast<int>(blob.size()) < MIN_LEN)
+        throw std::runtime_error("decryptEmbedding: blob too short to contain IV + tag");
+
+    const unsigned char* iv         = blob.data();
+    unsigned char        tag[TAG_LEN];
+    std::memcpy(tag, blob.data() + IV_LEN, TAG_LEN);
+    const unsigned char* cipherData = blob.data() + MIN_LEN;
+    const int            cipherLen  = static_cast<int>(blob.size()) - MIN_LEN;
+
+    std::vector<unsigned char> plaintext(cipherLen + EVP_MAX_BLOCK_LENGTH);
+    int plainLen  = 0;
+    int finalLen  = 0;
+
+    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+    if (!ctx)
+        throw std::runtime_error("decryptEmbedding: EVP_CIPHER_CTX_new failed");
+
+    auto cleanup = [&]() { EVP_CIPHER_CTX_free(ctx); };
+
+    if (EVP_DecryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr, nullptr, nullptr) != 1) {
+        cleanup(); throw std::runtime_error("decryptEmbedding: EVP_DecryptInit_ex (cipher) failed");
+    }
+    if (EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, IV_LEN, nullptr) != 1) {
+        cleanup(); throw std::runtime_error("decryptEmbedding: set IV length failed");
+    }
+    if (EVP_DecryptInit_ex(ctx, nullptr, nullptr, s_key.data(), iv) != 1) {
+        cleanup(); throw std::runtime_error("decryptEmbedding: EVP_DecryptInit_ex (key/iv) failed");
+    }
+    if (EVP_DecryptUpdate(ctx, plaintext.data(), &plainLen, cipherData, cipherLen) != 1) {
+        cleanup(); throw std::runtime_error("decryptEmbedding: EVP_DecryptUpdate failed");
+    }
+    // Set the expected tag before calling Final
+    if (EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, TAG_LEN, tag) != 1) {
+        cleanup(); throw std::runtime_error("decryptEmbedding: failed to set GCM tag");
+    }
+    // Final returns -1 if tag verification fails
+    if (EVP_DecryptFinal_ex(ctx, plaintext.data() + plainLen, &finalLen) != 1) {
+        cleanup();
+        throw std::runtime_error("decryptEmbedding: GCM authentication failed - "
+                                 "data may be corrupt or tampered");
+    }
+    cleanup();
+
+    const int totalPlain = plainLen + finalLen;
+    return std::string(reinterpret_cast<const char*>(plaintext.data()), totalPlain);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

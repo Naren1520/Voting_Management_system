@@ -15,7 +15,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pthread")
 find_package(CURL REQUIRED)
 find_package(OpenSSL REQUIRED)
 
-# ── Sources ───────────────────────────────────────────────────────────────────
+#  Sources 
 set(SOURCES
     src/main.cpp
     src/core/Config.cpp
@@ -34,9 +34,10 @@ set(SOURCES
     src/controllers/PositionController.cpp
     src/controllers/PublicVoteController.cpp
     src/controllers/PublicMultiVoteController.cpp
+    src/controllers/FaceController.cpp
 )
 
-# ── Target ────────────────────────────────────────────────────────────────────
+#  Target 
 add_executable(voting_server ${SOURCES})
 
 target_include_directories(voting_server PRIVATE
