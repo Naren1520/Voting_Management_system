@@ -18,7 +18,10 @@ x-server-env: &server-env
   LOG_FILE:              "/app/logs/server.log"
   # Restrict CORS to your actual frontend origin(s).
   # Override in .env: ALLOWED_ORIGINS=https://your-app.netlify.app
-  ALLOWED_ORIGINS:       ${ALLOWED_ORIGINS:-https://votestack.netlify.app,http://localhost:3000}
+  ALLOWED_ORIGINS:       ${ALLOWED_ORIGINS:-https://votestack.netlify.app,http://localhost:3000,http://localhost,http://127.0.0.1}
+  # Set to 0 only when running behind plain HTTP (local dev without TLS).
+  # Must be unset or "1" in any HTTPS deployment.
+  SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-1}
 
 services:
 

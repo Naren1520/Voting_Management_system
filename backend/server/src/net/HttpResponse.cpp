@@ -122,15 +122,19 @@ std::string HttpResponse::build(int statusCode, const std::string& jsonBody,
 // for the vs_session token.
 //
 // Cookie attributes:
-//   HttpOnly  - JavaScript cannot read it, blocking XSS token theft.
-//   Secure    - Only sent over HTTPS (omitted in non-HTTPS dev environments
-//               when the SESSION_COOKIE_SECURE env var is "0").
-//   SameSite=Lax - Sent on top-level navigations and same-site requests;
-//                  blocks CSRF from third-party sites while allowing normal
-//                  browser-initiated requests.
-//   Path=/    - Cookie valid for all API paths.
-//   Max-Age   - Matches the server-side session TTL (86400 s = 24 h).
-//               Pass 0 to immediately expire/clear the cookie.
+//   HttpOnly    - JS cannot read it, blocking XSS token theft.
+//   Secure      - Only sent over HTTPS. Disabled via SESSION_COOKIE_SECURE=0
+//                 for plain http://localhost dev.
+//   SameSite    - Controlled by SESSION_COOKIE_SAMESITE env var:
+//                   Lax  (default) — same-site requests only. Use when the
+//                         frontend and backend share a domain (production).
+//                   None — required for cross-site cookies, e.g. a local
+//                         frontend (http://localhost) hitting the Render
+//                         backend (https://...onrender.com). Must be paired
+//                         with Secure=true (enforced automatically).
+//   Path=/      - Cookie valid for all API paths.
+//   Max-Age     - Matches the server-side session TTL (86400 s = 24 h).
+//                 Pass 0 to immediately expire/clear the cookie.
 
 std::string HttpResponse::buildWithCookie(int statusCode, const std::string& jsonBody,
                                           const std::string& requestOrigin,
@@ -138,15 +142,24 @@ std::string HttpResponse::buildWithCookie(int statusCode, const std::string& jso
                                           int maxAge) {
     std::string origin = resolveOrigin(requestOrigin);
 
-    // Determine whether to add the Secure attribute.
-    // Default ON; set SESSION_COOKIE_SECURE=0 only for local HTTP dev.
+    // SESSION_COOKIE_SECURE: default ON; set to "0" only for plain HTTP dev.
     bool secureCookie = true;
     const char* secEnv = std::getenv("SESSION_COOKIE_SECURE");
     if (secEnv && std::string(secEnv) == "0") secureCookie = false;
 
+    // SESSION_COOKIE_SAMESITE: "Lax" (default) or "None" (cross-site dev).
+    // "None" requires Secure=true — enforce that automatically.
+    std::string sameSite = "Lax";
+    const char* ssEnv = std::getenv("SESSION_COOKIE_SAMESITE");
+    if (ssEnv && std::string(ssEnv) == "None") {
+        sameSite     = "None";
+        secureCookie = true;  // SameSite=None is invalid without Secure
+    }
+
     std::string cookieLine = "Set-Cookie: vs_session=";
     cookieLine += token;
-    cookieLine += "; Path=/; HttpOnly; SameSite=Lax";
+    cookieLine += "; Path=/; HttpOnly; SameSite=";
+    cookieLine += sameSite;
     if (secureCookie) cookieLine += "; Secure";
     cookieLine += "; Max-Age=";
     cookieLine += std::to_string(maxAge);

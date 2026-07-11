@@ -1,29 +1,27 @@
 // config.js - API base URL
 //
-// Production (Render):
-//   Set VITE_API_BASE or just update the URL below after your
-//   first Render deploy. Netlify serves this as a static file
-//   so environment variables are not available at runtime -
-//   the URL must be baked in at deploy time.
+// Production (Render + Netlify):
+//   Both isLocal=false branches use PRODUCTION_URL.
 //
-// Local development:
-//   Change the URL to http://localhost:8080 while developing,
-//   then change it back before committing for production.
-// 
+// Local frontend → Render backend (hybrid dev):
+//   Leave isLocal pointing at PRODUCTION_URL (the default below).
+//   On Render, set:  SESSION_COOKIE_SAMESITE=None
+//   This allows the cross-site cookie to be stored by the browser.
+//
+// Local frontend → local backend:
+//   Change isLocal branch to 'http://localhost:8080'.
+//   Run the backend with SESSION_COOKIE_SECURE=0 (run_local.sh does this).
 
 (function () {
-  // Detect localhost automatically so you never need to manually
   var isLocal =
     location.hostname === 'localhost' ||
     location.hostname === '127.0.0.1' ||
     location.hostname === '';
 
-  // Replace this with your actual Render service URL.
-  // Find it in: Render dashboard -> your service -> the URL at the top.
-  // Example: 'https://voting-system-backend-ab12.onrender.com'
+  // Replace with your actual Render service URL.
   var PRODUCTION_URL = 'https://votestack-cjom.onrender.com';
 
-  window.API_BASE = isLocal ? 'https://votestack-cjom.onrender.com' : PRODUCTION_URL;
-
-  //http://localhost:8080
+  // Default: local frontend talks to the Render backend (hybrid dev mode).
+  // Switch to 'http://localhost:8080' only when running the backend locally.
+  window.API_BASE = isLocal ? PRODUCTION_URL : PRODUCTION_URL;
 })();
