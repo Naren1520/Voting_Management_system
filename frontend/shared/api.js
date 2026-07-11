@@ -43,6 +43,35 @@ const API = (() => {
     }
   };
 
+  // reqWithTimeout - like req() but with a custom timeout in milliseconds.
+  // Used for face verification: Modal cold starts can take 30-60s, and the
+  // C++ backend waits up to 90s for the Python service — 35s is not enough.
+  const reqWithTimeout = async (timeoutMs, method, path, body = null) => {
+    const opts = {
+      method,
+      headers: headers(),
+      credentials: 'include',
+    };
+    if (body) opts.body = JSON.stringify(body);
+
+    const controller = new AbortController();
+    const timeoutId  = setTimeout(() => controller.abort(), timeoutMs);
+    opts.signal = controller.signal;
+
+    try {
+      const res = await fetch(base() + path, opts);
+      clearTimeout(timeoutId);
+      const data = await res.json();
+      return data;
+    } catch (e) {
+      clearTimeout(timeoutId);
+      if (e.name === 'AbortError') {
+        return { success: false, message: 'Face service is waking up — please try again in a moment.' };
+      }
+      return { success: false, message: 'Network error - is the server running?' };
+    }
+  };
+
   return {
     // Auth
     signup:  (name, email, password) =>
@@ -101,8 +130,10 @@ const API = (() => {
       req('POST', `/api/elections/${elecId}/voters/${encodeURIComponent(voterId)}/enroll-face`, { photos }),
     checkFaceEnrolled: (elecId, voterId) =>
       req('GET', `/api/elections/${elecId}/voters/${encodeURIComponent(voterId)}/enroll-face`),
+    // Face verify uses a 120s timeout — Modal cold starts can take 30-60s,
+    // and the C++ backend waits up to 90s for the Python service to respond.
     verifyFace: (elecId, voterId, frames, threshold) =>
-      req('POST', `/api/vote/${elecId}/verify-face`, { voter_id: voterId, frames, ...(threshold ? { threshold } : {}) }),
+      reqWithTimeout(120000, 'POST', `/api/vote/${elecId}/verify-face`, { voter_id: voterId, frames, ...(threshold ? { threshold } : {}) }),
     publicCandidates: (elecId) =>
       req('GET',  `/api/vote/${elecId}/candidates`),
     getElectionInfo: (elecId) =>

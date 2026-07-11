@@ -193,7 +193,7 @@ async function startCapture() {
   btn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>Start Face Verification';
 
   if (!res || !res.success) {
-    showMsg('Face verification service error. Please try again or contact the organiser.', 'error');
+    showMsg(res?.message || 'Face verification service error. Please try again or contact the organiser.', 'error');
     await openCamera();
     return;
   }
