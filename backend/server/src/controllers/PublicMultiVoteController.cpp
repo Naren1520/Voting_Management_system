@@ -75,9 +75,9 @@ json PublicMultiVoteController::checkVoter(const std::string& electionId,
         if (arr.is_array()) totalPositions = static_cast<int>(arr.size());
     } catch (...) {}
 
-    // Count voted positions
+    // Count voted positions - use vote_ledger (no candidate info leaked)
     auto votedRes = supabaseRequest("GET",
-        "multi_votes_cast?select=position_id&election_id=eq."+electionId+
+        "multi_vote_ledger?select=position_id&election_id=eq."+electionId+
         "&voter_id=eq."+SupabaseClient::urlEncode(voterId));
     int  votedCount     = 0;
     json votedPositions = json::array();
@@ -98,7 +98,20 @@ json PublicMultiVoteController::checkVoter(const std::string& electionId,
     return res;
 }
 
-// castVotes
+// castVotes - secret ballot via Supabase RPC.
+//
+// The old flow inserted (voter_id, candidate_name) into multi_votes_cast —
+// a single table where every admin could see exactly who chose whom.
+//
+// The new flow calls cast_multi_vote_secret(), a SECURITY DEFINER Postgres
+// function that for each position inserts into TWO tables in one transaction:
+//
+//   multi_vote_ledger  (election_id, voter_id, position_id, ballot_id)
+//   multi_vote_ballots (ballot_id, election_id, position_id, candidate_name)
+//
+// ballot_id is a random UUID generated INSIDE the function per position vote.
+// The two tables share ballot_id but never have voter_id and candidate_name
+// in the same row.
 
 json PublicMultiVoteController::castVotes(const std::string& electionId,
                                           const std::string& voterId,
@@ -127,46 +140,28 @@ json PublicMultiVoteController::castVotes(const std::string& electionId,
         res["success"]=false; res["message"]="Election not found"; return res;
     }
 
-    // Verify voter is registered
-    auto reg = supabaseRequest("GET",
-        "voters?select=voter_id&election_id=eq."+electionId+
-        "&voter_id=eq."+SupabaseClient::urlEncode(voterId)+"&limit=1");
+    // ── Atomic secret-ballot multi-vote via RPC ───────────────────────────
+    json rpcBody;
+    rpcBody["p_election_id"] = electionId;
+    rpcBody["p_voter_id"]    = voterId;
+    rpcBody["p_votes"]       = votes;   // JSON array forwarded verbatim
+
+    auto rpcResult = SupabaseClient::instance().request(
+        "POST", "rpc/cast_multi_vote_secret", rpcBody.dump());
+
     try {
-        auto arr = json::parse(reg.body);
-        if (!arr.is_array() || arr.empty()) {
-            res["success"]=false; res["registered"]=false;
-            res["message"]="Voter ID not registered for this election";
-            return res;
+        auto rpcJson = json::parse(rpcResult.body);
+        bool success = rpcJson.value("success", false);
+        std::string message = rpcJson.value("message", "Unknown error");
+        if (!success) {
+            res["success"]=false; res["message"]=message; return res;
         }
     } catch (...) {
-        res["success"]=false; res["message"]="Database error"; return res;
-    }
-
-    // Check if already fully voted
-    auto chk = checkVoter(electionId, voterId);
-    if (chk["fully_voted"].get<bool>()) {
+        LOG_ERROR("[castVotes] RPC cast_multi_vote_secret failed or not found. "
+                  "Run the SQL migration in supabase_schema.sql.");
         res["success"]=false;
-        res["message"]="You have already voted in all positions";
+        res["message"]="Vote service unavailable - please contact the administrator";
         return res;
-    }
-
-    json votedPositions = chk["voted_positions"];
-    std::set<std::string> alreadyVoted;
-    for (auto& p : votedPositions) alreadyVoted.insert(p.get<std::string>());
-
-    // Insert votes one by one (ON CONFLICT via unique constraint)
-    for (const auto& v : votes) {
-        std::string posId    = v.value("position_id","");
-        std::string candName = v.value("candidate_name","");
-        if (posId.empty() || candName.empty()) continue;
-        if (alreadyVoted.count(posId)) continue;
-
-        json voteBody;
-        voteBody["election_id"]    = electionId;
-        voteBody["voter_id"]       = voterId;
-        voteBody["position_id"]    = posId;
-        voteBody["candidate_name"] = candName;
-        supabaseRequest("POST","multi_votes_cast",voteBody.dump());
     }
 
     res["success"] = true;
@@ -184,9 +179,9 @@ json PublicMultiVoteController::getResults(const std::string& electionId) {
     json positions = json::array();
     try { positions = json::parse(posRes.body); } catch (...) {}
 
-    // Fetch all votes for this election
+    // Fetch all anonymous ballots for this election (no voter_id column here)
     auto votesRes = supabaseRequest("GET",
-        "multi_votes_cast?select=position_id,candidate_name&election_id=eq."+electionId);
+        "multi_vote_ballots?select=position_id,candidate_name&election_id=eq."+electionId);
 
     // Count votes per position+candidate
     std::map<std::string, std::map<std::string,int>> counts;

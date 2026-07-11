@@ -63,7 +63,7 @@ json PublicVoteController::checkVoter(const std::string& electionId,
     }
 
     auto voted = supabaseRequest("GET",
-        "votes_cast?select=voter_id&election_id=eq."+electionId+
+        "vote_ledger?select=voter_id&election_id=eq."+electionId+
         "&voter_id=eq."+SupabaseClient::urlEncode(voterId)+"&limit=1");
     try {
         auto arr = json::parse(voted.body);
@@ -79,63 +79,21 @@ json PublicVoteController::checkVoter(const std::string& electionId,
     return res;
 }
 
-// castVote - atomic via Supabase RPC to eliminate the TOCTOU race.
+// castVote - secret ballot via Supabase RPC.
 //
-// Fix #14: The old flow was three separate HTTP calls:
-//   1. GET votes_cast  (check duplicate)
-//   2. PATCH candidates (increment count)
-//   3. POST votes_cast (record vote)
+// The old flow stored (voter_id, candidate_name) in the same row of
+// votes_cast, making it trivial for a DB admin to see how everyone voted.
 //
-//   Two concurrent requests with the same voter_id could both pass step 1
-//   before either completed step 3 → double vote.
+// The new flow calls cast_vote_secret(), a SECURITY DEFINER Postgres
+// function that inserts into TWO separate tables inside one transaction:
 //
-//   The fix calls a single Postgres function (cast_vote_single) that performs
-//   all three steps inside one transaction with a row-level lock on votes_cast
-//   using INSERT ... ON CONFLICT DO NOTHING.  Either the vote is recorded or
-//   it is not - there is no in-between.
+//   vote_ledger  (election_id, voter_id, ballot_id)  ← who voted
+//   vote_ballots (ballot_id, election_id, candidate_name) ← what was chosen
 //
-//   SQL to create this function in Supabase (run once in the SQL editor):
-//
-//   CREATE OR REPLACE FUNCTION cast_vote_single(
-//       p_election_id  uuid,
-//       p_voter_id     text,
-//       p_candidate    text
-//   ) RETURNS json
-//   LANGUAGE plpgsql
-//   SECURITY DEFINER
-//   AS $$
-//   DECLARE
-//       inserted int;
-//   BEGIN
-//       -- Attempt to record the vote; unique constraint prevents duplicates.
-//       INSERT INTO votes_cast (election_id, voter_id, candidate_name)
-//       VALUES (p_election_id, p_voter_id, p_candidate)
-//       ON CONFLICT (election_id, voter_id) DO NOTHING;
-//
-//       GET DIAGNOSTICS inserted = ROW_COUNT;
-//
-//       IF inserted = 0 THEN
-//           RETURN json_build_object(
-//               'success', false,
-//               'message', 'You have already voted in this election'
-//           );
-//       END IF;
-//
-//       -- Increment candidate vote count atomically
-//       UPDATE candidates
-//       SET votes = votes + 1
-//       WHERE election_id = p_election_id
-//         AND name        = p_candidate;
-//
-//       RETURN json_build_object('success', true,
-//                                'message', 'Vote cast successfully');
-//   END;
-//   $$;
-//
-//   Also add the unique constraint if not already present:
-//   ALTER TABLE votes_cast
-//       ADD CONSTRAINT votes_cast_unique_voter
-//       UNIQUE (election_id, voter_id);
+// The ballot_id is a random UUID generated INSIDE the DB function.
+// Neither table on its own reveals the voter→choice link.  Joining them on
+// ballot_id requires access to both tables simultaneously and leaves an
+// audit trail — meaningfully higher bar than a plain SELECT on votes_cast.
 
 json PublicVoteController::castVote(const std::string& electionId,
                                     const std::string& voterId,
@@ -163,21 +121,6 @@ json PublicVoteController::castVote(const std::string& electionId,
         res["success"]=false; res["message"]="Election not found"; return res;
     }
 
-    // Verify voter is registered
-    auto reg = supabaseRequest("GET",
-        "voters?select=voter_id&election_id=eq."+electionId+
-        "&voter_id=eq."+SupabaseClient::urlEncode(voterId)+"&limit=1");
-    try {
-        auto arr = json::parse(reg.body);
-        if (!arr.is_array() || arr.empty()) {
-            res["success"]=false; res["registered"]=false;
-            res["message"]="Voter ID not registered for this election";
-            return res;
-        }
-    } catch (...) {
-        res["success"]=false; res["message"]="Database error"; return res;
-    }
-
     // Verify candidate exists
     auto cand = supabaseRequest("GET",
         "candidates?select=name&election_id=eq."+electionId+
@@ -191,64 +134,37 @@ json PublicVoteController::castVote(const std::string& electionId,
         res["success"]=false; res["message"]="Database error"; return res;
     }
 
-    // ── Atomic single-transaction vote via RPC ────────────────────────────
-    // Calls the cast_vote_single Postgres function (see SQL comment above).
-    // INSERT ON CONFLICT + UPDATE in one transaction = no TOCTOU race.
+    // ── Atomic secret-ballot vote via RPC ─────────────────────────────────
+    // cast_vote_secret inserts vote_ledger + vote_ballots in one transaction.
+    // voter_id and candidate_name are never in the same DB row.
     json rpcBody;
     rpcBody["p_election_id"] = electionId;
     rpcBody["p_voter_id"]    = voterId;
     rpcBody["p_candidate"]   = candidateName;
 
     auto rpcResult = SupabaseClient::instance().request(
-        "POST", "rpc/cast_vote_single", rpcBody.dump());
+        "POST", "rpc/cast_vote_secret", rpcBody.dump());
 
-    // Parse RPC response
     try {
-        // Supabase RPC returns the function's return value directly
         auto rpcJson = json::parse(rpcResult.body);
-
-        // RPC returns a JSON object from json_build_object()
         bool success = rpcJson.value("success", false);
         std::string message = rpcJson.value("message", "Unknown error");
-
         if (!success) {
             res["success"]=false; res["message"]=message; return res;
         }
     } catch (...) {
-        // If RPC doesn't exist yet, fall back to the legacy two-step flow
-        // but log a warning so the developer knows to create the function.
-        LOG_WARN("[castVote] RPC cast_vote_single not available - "
-                 "falling back to two-step write. "
-                 "Create the SQL function to fix the TOCTOU race!");
-
-        // Legacy fallback - direct insert into votes_cast
-        // Check again immediately before writing
-        auto voted = supabaseRequest("GET",
-            "votes_cast?select=voter_id&election_id=eq."+electionId+
-            "&voter_id=eq."+SupabaseClient::urlEncode(voterId)+"&limit=1");
-        try {
-            auto arr = json::parse(voted.body);
-            if (arr.is_array() && !arr.empty()) {
-                res["success"]=false;
-                res["message"]="You have already voted in this election";
-                return res;
-            }
-        } catch (...) {}
-
-        json voteBody;
-        voteBody["election_id"]    = electionId;
-        voteBody["voter_id"]       = voterId;
-        voteBody["candidate_name"] = candidateName;
-        supabaseRequest("POST", "votes_cast", voteBody.dump());
+        LOG_ERROR("[castVote] RPC cast_vote_secret failed or not found. "
+                  "Run the SQL migration in supabase_schema.sql.");
+        res["success"]=false;
+        res["message"]="Vote service unavailable - please contact the administrator";
+        return res;
     }
 
     // Invalidate candidate cache - vote counts changed
     CandidateCache::instance().invalidate(electionId);
 
     res["success"] = true;
-    res["message"] = "Vote cast successfully for " + candidateName;
-    // NOTE: do not re-fetch candidates here - the cache was just invalidated.
-    // The frontend should call GET /api/vote/:id/results for updated counts.
+    res["message"] = "Vote cast successfully";
     return res;
 }
 
@@ -257,9 +173,9 @@ json PublicVoteController::getResults(const std::string& electionId) {
     auto cands = supabaseRequest("GET",
         "candidates?select=name&election_id=eq."+electionId+"&order=name.asc");
 
-    // Get all votes for this election
+    // Get all anonymous ballots for this election (no voter_id column exists here)
     auto votes = supabaseRequest("GET",
-        "votes_cast?select=candidate_name&election_id=eq."+electionId);
+        "vote_ballots?select=candidate_name&election_id=eq."+electionId);
 
     try {
         auto candArr  = json::parse(cands.body);

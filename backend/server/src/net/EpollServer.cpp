@@ -517,8 +517,10 @@ std::string EpollServer::route(const HttpRequest& req) {
             } catch (...) {}
             if (!owns) return HttpResponse::buildError(403, "Unauthorized");
 
-            // Query correct table based on election type
-            std::string table = (elecType == "multi") ? "multi_votes_cast" : "votes_cast";
+            // Query participation ledger based on election type.
+            // These tables only contain voter_id (no candidate choice),
+            // so the admin can see who has voted without seeing how they voted.
+            std::string table = (elecType == "multi") ? "multi_vote_ledger" : "vote_ledger";
             auto r = supabaseRequest("GET",
                 table+"?select=voter_id&election_id=eq."+segs[2]);
             try {
