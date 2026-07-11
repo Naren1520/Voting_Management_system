@@ -124,7 +124,7 @@ async function checkVoter() {
 /* ─────────────────────────────────────────────────────
    Step 1.5 - Face Verification
 ───────────────────────────────────────────────────── */
-let faceStream = null;
+let _faceCapture = null;
 
 async function openCamera() {
   if (!window.isSecureContext) {
@@ -136,8 +136,9 @@ async function openCamera() {
     return;
   }
   try {
-    faceStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
-    document.getElementById('faceVideo').srcObject = faceStream;
+    if (_faceCapture) { _faceCapture.stop(); }
+    _faceCapture = new FaceCapture('faceVideo', 'faceCanvas', 'faceOverlay');
+    await _faceCapture.start();
     document.getElementById('faceOverlay').textContent = 'Look at the camera and blink naturally';
     document.getElementById('captureBtn').disabled = false;
     document.getElementById('captureBtn').innerHTML =
@@ -159,7 +160,7 @@ async function openCamera() {
         msg = 'Camera is in use by another app. Close it and try again.';
         break;
       default:
-        msg = `Camera error (${e.name}): ${e.message}. Please allow camera access and refresh.`;
+        msg = e.message || `Camera error (${e.name}). Please allow camera access and refresh.`;
     }
     showMsg(msg, 'error');
     console.error('[Camera]', e.name, e.message);
@@ -168,7 +169,7 @@ async function openCamera() {
 }
 
 function stopCamera() {
-  if (faceStream) { faceStream.getTracks().forEach(t => t.stop()); faceStream = null; }
+  if (_faceCapture) { _faceCapture.stop(); _faceCapture = null; }
 }
 
 async function startCapture() {
@@ -176,25 +177,36 @@ async function startCapture() {
   const overlay = document.getElementById('faceOverlay');
   btn.disabled  = true;
   btn.innerHTML = '<span class="spinner" style="width:14px;height:14px;display:inline-block;margin-right:8px;"></span>Capturing…';
-  overlay.textContent = 'Hold still… capturing frames';
 
-  const video  = document.getElementById('faceVideo');
-  const canvas = document.getElementById('faceCanvas');
-  canvas.width  = video.videoWidth  || 640;
-  canvas.height = video.videoHeight || 480;
+  // Run client-side liveness (MediaPipe blink + head-movement).
+  // The server independently re-runs liveness on the full frame sequence,
+  // so bypassing the client check does not bypass verification.
+  let capture;
+  try {
+    capture = await _faceCapture.captureAndVerify();
+  } catch (e) {
+    showMsg('Capture error: ' + e.message, 'error');
+    btn.disabled  = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>Start Face Verification';
+    return;
+  }
 
-  // Capture best frame from 10 samples
-  let bestFrame = null, bestSize = 0;
-  for (let i = 0; i < 10; i++) {
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0);
-    const b64 = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
-    if (b64.length > bestSize) { bestSize = b64.length; bestFrame = b64; }
-    await new Promise(r => setTimeout(r, 80));
+  if (!capture.success) {
+    showMsg(
+      capture.reason === 'liveness_failed'
+        ? 'Liveness check failed. Please blink or move your head slightly and try again.'
+        : (capture.reason || 'Capture failed. Please try again.'),
+      'error'
+    );
+    btn.disabled  = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>Start Face Verification';
+    return;
   }
 
   overlay.textContent = 'Verifying identity…';
-  const res = await API.verifyFace(electionId, currentVoterId, bestFrame);
+
+  // Send all frames so the server can enforce liveness independently.
+  const res = await API.verifyFace(electionId, currentVoterId, capture.frames);
   stopCamera();
 
   btn.disabled  = false;
@@ -207,7 +219,11 @@ async function startCapture() {
   }
 
   if (!res.verified) {
-    showMsg('Face verification failed (score: ' + (res.score || 0).toFixed(2) + '). Your face does not match. Please try again.', 'error');
+    const reason = res.message || '';
+    const msg = reason.toLowerCase().includes('liveness')
+      ? reason
+      : 'Face verification failed (score: ' + (res.score || 0).toFixed(2) + '). Your face does not match. Please try again.';
+    showMsg(msg, 'error');
     await openCamera();
     return;
   }

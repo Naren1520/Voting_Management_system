@@ -748,16 +748,28 @@ std::string EpollServer::route(const HttpRequest& req) {
 
         // POST /api/vote/:id/verify-face
         // Voter verifies face before ballot - C++ fetches embeddings (Change 1)
+        // The full frame sequence is forwarded to the Python service so that
+        // server-side liveness.analyse_frames() can validate blink / head-movement.
         if (segs.size()==4 && segs[1]=="vote" && segs[3]=="verify-face" && method=="POST") {
             try {
                 auto rb = json::parse(body);
-                std::string voterId   = rb.value("voter_id","");
-                std::string bestFrame = rb.value("best_frame","");
-                float threshold       = rb.value("threshold", 0.0f);
-                if (voterId.empty() || bestFrame.empty()) {
-                    return HttpResponse::buildError(400, "voter_id and best_frame required");
+                std::string voterId = rb.value("voter_id","");
+                float threshold     = rb.value("threshold", 0.0f);
+
+                // Accept either a frame sequence (new) or a legacy single best_frame
+                std::vector<std::string> frames;
+                if (rb.contains("frames") && rb["frames"].is_array()) {
+                    for (auto& f : rb["frames"])
+                        frames.push_back(f.get<std::string>());
+                } else if (rb.contains("best_frame")) {
+                    // Legacy fallback: wrap single frame so Python gets at least 1
+                    frames.push_back(rb["best_frame"].get<std::string>());
                 }
-                auto r = g_face.verify(segs[2], voterId, bestFrame, threshold);
+
+                if (voterId.empty() || frames.empty()) {
+                    return HttpResponse::buildError(400, "voter_id and frames required");
+                }
+                auto r = g_face.verify(segs[2], voterId, frames, threshold);
                 return HttpResponse::build(r["success"].get<bool>() ? 200 : 400, r.dump(), origin);
             } catch (...) {
                 return HttpResponse::buildError(400, "Invalid request body");

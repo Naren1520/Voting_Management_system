@@ -114,11 +114,11 @@ class FaceCapture {
 
       if (!blink && !headMove) {
         this._setOverlay('Please blink or move your head slightly', 'warn');
-        return { success: false, bestFrame: null, reason: 'liveness_failed' };
+        return { success: false, frames: null, bestFrame: null, reason: 'liveness_failed' };
       }
     }
 
-    // Select best frame - sharpest with eyes open
+    // Select best frame index - sharpest with eyes open
     let bestIdx = 0;
     let bestScore = -1;
     for (let i = 0; i < frames.length; i++) {
@@ -129,7 +129,9 @@ class FaceCapture {
     }
 
     this._setOverlay('✓ Liveness verified', 'success');
-    return { success: true, bestFrame: frames[bestIdx], reason: null };
+    // Return the full frame sequence so the server can run its own liveness check,
+    // plus the client-selected best frame index as a hint.
+    return { success: true, frames, bestFrame: frames[bestIdx], reason: null };
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
@@ -178,9 +180,55 @@ class FaceCapture {
   }
 
   _sharpness(b64) {
-    // Approximate sharpness from JPEG file size (larger = more detail = sharper)
-    // Real implementation would use Laplacian variance on pixel data
-    return b64.length;
+    // Compute Laplacian variance on a downsampled luma channel as a sharpness proxy.
+    // We draw the frame into an OffscreenCanvas (or a regular canvas), sample pixels,
+    // and compute the variance of a 3×3 Laplacian kernel response.
+    // Falls back to JPEG byte-length when OffscreenCanvas is unavailable.
+    try {
+      const SIZE = 64; // downsample for speed
+      let canvas, ctx;
+      if (typeof OffscreenCanvas !== 'undefined') {
+        canvas = new OffscreenCanvas(SIZE, SIZE);
+        ctx    = canvas.getContext('2d');
+      } else {
+        canvas        = document.createElement('canvas');
+        canvas.width  = SIZE;
+        canvas.height = SIZE;
+        ctx           = canvas.getContext('2d');
+      }
+
+      // Draw the already-captured video frame that's sitting in this._canvas
+      ctx.drawImage(this._canvas, 0, 0, SIZE, SIZE);
+      const data = ctx.getImageData(0, 0, SIZE, SIZE).data;
+
+      // Convert to grayscale luma array
+      const gray = new Float32Array(SIZE * SIZE);
+      for (let i = 0; i < SIZE * SIZE; i++) {
+        const r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2];
+        gray[i] = 0.299 * r + 0.587 * g + 0.114 * b;
+      }
+
+      // Apply 3×3 Laplacian kernel: [0,1,0 / 1,-4,1 / 0,1,0]
+      let sum = 0, sumSq = 0, n = 0;
+      for (let y = 1; y < SIZE - 1; y++) {
+        for (let x = 1; x < SIZE - 1; x++) {
+          const lap =
+            gray[(y - 1) * SIZE + x] +
+            gray[(y + 1) * SIZE + x] +
+            gray[y * SIZE + (x - 1)] +
+            gray[y * SIZE + (x + 1)] -
+            4 * gray[y * SIZE + x];
+          sum   += lap;
+          sumSq += lap * lap;
+          n++;
+        }
+      }
+      const mean = sum / n;
+      return sumSq / n - mean * mean; // variance
+    } catch (_) {
+      // Fallback: JPEG byte-length is a weak proxy but better than nothing
+      return b64.length;
+    }
   }
 
   _setOverlay(msg, type) {

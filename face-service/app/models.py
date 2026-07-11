@@ -40,10 +40,17 @@ class EmbeddingResponse(BaseModel):
 class VerifyRequest(BaseModel):
     """
     Change 1: C++ backend fetches embedding from DB and passes it here.
-    Change 5: C++ backend sends best frame (selected from 20–30 captured frames).
+    Change 5: Browser sends the full liveness frame sequence (20-30 frames).
+              Server-side liveness.analyse_frames() validates the sequence and
+              selects the best frame - the browser no longer does either job.
     """
-    # Live capture - best frame selected from liveness sequence (Change 5)
-    best_frame: str = Field(..., description="Base64-encoded best frame from liveness sequence")
+    # Full frame sequence from the browser (20-30 base64 JPEG frames).
+    # Server-side liveness analysis runs on this sequence.
+    frames: List[str] = Field(
+        ...,
+        min_items=3,
+        description="Ordered sequence of 20-30 base64-encoded JPEG frames captured by the browser"
+    )
 
     # Change 1: C++ backend owns the DB; it fetches and sends embeddings here
     # Change 4: list of stored embeddings (one per enrollment photo)

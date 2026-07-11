@@ -130,9 +130,7 @@ void FaceController::loadEncryptionKey() {
     LOG_INFO("[FaceController] AES-256-GCM encryption key loaded successfully.");
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Base64 helpers (RFC 4648, no line breaks)
-// ─────────────────────────────────────────────────────────────────────────────
 
 static const char kB64Chars[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -182,10 +180,8 @@ std::vector<unsigned char> FaceController::base64Decode(const std::string& b64) 
     return out;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // encryptEmbedding - AES-256-GCM
 // Wire format (before base64): [IV: 12 bytes][Tag: 16 bytes][Ciphertext: N bytes]
-// ─────────────────────────────────────────────────────────────────────────────
 
 std::string FaceController::encryptEmbedding(const std::string& plain) {
     if (!s_keyLoaded)
@@ -245,11 +241,9 @@ std::string FaceController::encryptEmbedding(const std::string& plain) {
     return base64Encode(blob.data(), blob.size());
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // decryptEmbedding - AES-256-GCM
 // Expects base64( IV[12] || Tag[16] || Ciphertext[N] )
 // Throws if authentication fails (data was tampered or wrong key).
-// ─────────────────────────────────────────────────────────────────────────────
 
 std::string FaceController::decryptEmbedding(const std::string& b64Blob) {
     if (!s_keyLoaded)
@@ -420,14 +414,22 @@ json FaceController::enroll(const std::string& userId,
 // verify
 // Change 1: C++ fetches embeddings from DB, Python service stays stateless.
 // Change 2: configurable threshold.
-// Change 5: best_frame already selected by browser liveness logic.
+// Change 5: browser sends all captured frames; server-side liveness.analyse_frames()
+//           validates the sequence and selects the best frame.
 // ─────────────────────────────────────────────────────────────────────────────
 
 json FaceController::verify(const std::string& electionId,
                             const std::string& voterId,
-                            const std::string& bestFrameBase64,
+                            const std::vector<std::string>& frames,
                             float threshold) {
     json res;
+
+    if (frames.empty()) {
+        res["success"]  = false;
+        res["verified"] = false;
+        res["message"]  = "No frames received for verification";
+        return res;
+    }
 
     // Change 1: fetch stored embeddings from Supabase (not done in Python service)
     auto emRes = supabaseRequest("GET",
@@ -458,12 +460,13 @@ json FaceController::verify(const std::string& electionId,
         res["success"] = false; res["message"] = "Corrupted face data"; return res;
     }
 
-    // Build request for Python service
+    // Build request for Python service.
+    // Send the full frame sequence - liveness.analyse_frames() runs server-side.
     json reqBody;
-    reqBody["best_frame"]         = bestFrameBase64;
-    reqBody["stored_embeddings"]  = storedEmbeddings;  // Change 1: passed from C++
+    reqBody["frames"]            = frames;           // full sequence for liveness check
+    reqBody["stored_embeddings"] = storedEmbeddings; // Change 1: passed from C++
     if (threshold > 0.0f) {
-        reqBody["threshold"] = threshold;  // Change 2: optional override
+        reqBody["threshold"] = threshold;            // Change 2: optional override
     }
 
     auto faceRes = callFaceService("/verify", reqBody);

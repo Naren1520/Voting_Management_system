@@ -45,16 +45,19 @@ public:
      * verify - called when voter enters voter ID on ballot page.
      * Change 1: fetches embeddings from Supabase here, passes to Python.
      * Change 2: threshold from config, optional per-request override.
-     * Change 5: receives best_frame already selected by browser liveness logic.
+     * Change 5: receives the full frame sequence captured by the browser.
+     *           Server-side liveness.analyse_frames() validates the sequence
+     *           and selects the best frame — the browser is no longer trusted
+     *           to do either job.
      *
-     * @param electionId       election UUID
-     * @param voterId          voter's voter_id string
-     * @param bestFrameBase64  best frame from browser liveness sequence (base64)
-     * @param threshold        optional threshold override (0 = use default)
+     * @param electionId  election UUID
+     * @param voterId     voter's voter_id string
+     * @param frames      ordered list of 20-30 base64-encoded JPEG frames
+     * @param threshold   optional threshold override (0 = use default)
      */
     json verify(const std::string& electionId,
                 const std::string& voterId,
-                const std::string& bestFrameBase64,
+                const std::vector<std::string>& frames,
                 float threshold = 0.0f);
 
     /**
