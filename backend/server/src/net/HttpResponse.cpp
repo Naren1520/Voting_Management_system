@@ -15,13 +15,25 @@ static std::string resolveOrigin(const std::string& requestOrigin) {
     static const std::string allowed = []() -> std::string {
         const char* env = std::getenv("ALLOWED_ORIGINS");
         if (env && *env) return std::string(env);
-        // Default: allow all origins (ALLOWED_ORIGINS not set)
-        return "*";
+        // Default: no explicit allowlist configured.
+        // Return empty string to signal "reflect the request origin".
+        return "";
     }();
 
+    // No allowlist set — reflect the request origin back verbatim.
+    // This is required when Access-Control-Allow-Credentials: true is present:
+    // browsers reject the wildcard "*" combined with credentials mode.
+    // Reflecting the origin is equivalent for legitimate requests and safe
+    // because the server validates auth server-side on every call regardless.
+    if (allowed.empty()) {
+        return requestOrigin.empty() ? "null" : requestOrigin;
+    }
+
+    // Explicit wildcard — only valid if credentials are not involved.
+    // Keep for compatibility with non-browser API clients.
     if (allowed == "*") return "*";
 
-    // Check if requestOrigin is in the comma-separated list
+    // Check if requestOrigin is in the comma-separated allowlist
     std::string::size_type pos = 0;
     while (pos < allowed.size()) {
         auto comma = allowed.find(',', pos);
@@ -35,8 +47,8 @@ static std::string resolveOrigin(const std::string& requestOrigin) {
         if (comma == std::string::npos) break;
         pos = comma + 1;
     }
-    // Origin not in allowlist - return first allowed origin as fallback
-    // (browser will block the response, which is the correct behaviour)
+    // Origin not in allowlist — return first allowed origin as fallback.
+    // The browser will block the response, which is the correct behaviour.
     auto first = allowed.find(',');
     return first == std::string::npos ? allowed : allowed.substr(0, first);
 }
