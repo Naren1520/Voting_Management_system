@@ -334,19 +334,32 @@ std::string EpollServer::route(const HttpRequest& req) {
             auto r = g_auth.signup(rb.value("name",""), rb.value("email",""),
                                    rb.value("password",""),
                                    req.getUserAgent(), req.getClientIP());
-            return HttpResponse::build(r["success"].get<bool>() ? 201 : 400, r.dump());
+            bool ok = r["success"].get<bool>();
+            // Strip token from response body — it travels as an HttpOnly cookie only.
+            std::string rawToken = r.value("token", "");
+            r.erase("token");
+            if (ok && !rawToken.empty())
+                return HttpResponse::buildWithCookie(201, r.dump(), origin, rawToken, 86400);
+            return HttpResponse::build(400, r.dump(), origin);
         }
 
         if (path == "/api/auth/login" && method == "POST") {
             auto rb = json::parse(body);
             auto r = g_auth.login(rb.value("email",""), rb.value("password",""),
                                   req.getUserAgent(), req.getClientIP());
-            return HttpResponse::build(r["success"].get<bool>() ? 200 : 401, r.dump());
+            bool ok = r["success"].get<bool>();
+            // Strip token from response body — it travels as an HttpOnly cookie only.
+            std::string rawToken = r.value("token", "");
+            r.erase("token");
+            if (ok && !rawToken.empty())
+                return HttpResponse::buildWithCookie(200, r.dump(), origin, rawToken, 86400);
+            return HttpResponse::build(401, r.dump(), origin);
         }
 
         if (path == "/api/auth/logout" && method == "POST") {
             auto r = g_auth.logout(token);
-            return HttpResponse::build(200, r.dump());
+            // Clear the session cookie by setting Max-Age=0.
+            return HttpResponse::buildWithCookie(200, r.dump(), origin, "", 0);
         }
 
         if (path == "/api/auth/ping" && method == "GET") {

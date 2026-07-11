@@ -169,12 +169,46 @@ std::string HttpRequest::getHeader(const std::string& name) const {
     return (it != headers.end()) ? it->second : "";
 }
 
-// getToken - Bearer token from Authorization header
+// getToken - Bearer token from Authorization header, with fallback to
+// the vs_session HttpOnly cookie (set by login/signup responses).
+// Checking the header first preserves backwards-compat with API clients
+// (e.g. the load test) that still send Bearer tokens.
 
 std::string HttpRequest::getToken() const {
+    // 1. Try Authorization header first (Bearer scheme)
     std::string auth = getHeader("authorization");
     if (auth.size() > 7 && auth.substr(0, 7) == "Bearer ") {
         return auth.substr(7);
+    }
+
+    // 2. Fall back to the HttpOnly session cookie
+    return getCookieValue("vs_session");
+}
+
+// getCookieValue - parse a single cookie value from the Cookie header.
+
+std::string HttpRequest::getCookieValue(const std::string& name) const {
+    std::string cookieHeader = getHeader("cookie");
+    if (cookieHeader.empty()) return "";
+
+    // Cookie header format: "key1=val1; key2=val2; ..."
+    std::string search = name + "=";
+    std::size_t pos = 0;
+    while (pos < cookieHeader.size()) {
+        // Skip leading spaces/semicolons
+        while (pos < cookieHeader.size() &&
+               (cookieHeader[pos] == ' ' || cookieHeader[pos] == ';'))
+            ++pos;
+
+        std::size_t semi = cookieHeader.find(';', pos);
+        std::string pair = cookieHeader.substr(pos,
+            semi == std::string::npos ? std::string::npos : semi - pos);
+
+        if (pair.substr(0, search.size()) == search) {
+            return pair.substr(search.size());
+        }
+        if (semi == std::string::npos) break;
+        pos = semi + 1;
     }
     return "";
 }

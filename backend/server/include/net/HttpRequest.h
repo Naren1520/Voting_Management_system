@@ -27,8 +27,11 @@ public:
     // Case-insensitive header lookup
     std::string getHeader(const std::string& name) const;
 
-    // Extract Bearer token from Authorization header
+    // Extract Bearer token from Authorization header, with cookie fallback
     std::string getToken() const;
+
+    // Parse a single cookie value from the Cookie header
+    std::string getCookieValue(const std::string& name) const;
 
     // Client IP from X-Forwarded-For or X-Real-IP (normalized)
     std::string getClientIP() const;

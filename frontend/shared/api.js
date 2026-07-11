@@ -6,16 +6,20 @@
 const API = (() => {
   const base = () => window.API_BASE || 'http://localhost:8080';
 
-  const token = () => localStorage.getItem('vs_token') || '';
+  // Auth token now lives in an HttpOnly cookie set by the server.
+  // We never read or write it from JS — the browser sends it automatically
+  // on every same-origin / credentialed request.
 
-  const headers = (auth = true) => {
-    const h = { 'Content-Type': 'application/json' };
-    if (auth && token()) h['Authorization'] = 'Bearer ' + token();
-    return h;
-  };
+  const headers = () => ({ 'Content-Type': 'application/json' });
 
-  const req = async (method, path, body = null, auth = true) => {
-    const opts = { method, headers: headers(auth) };
+  const req = async (method, path, body = null) => {
+    const opts = {
+      method,
+      headers: headers(),
+      // Required: tells the browser to send the HttpOnly session cookie
+      // on cross-origin requests to the API server.
+      credentials: 'include',
+    };
     if (body) opts.body = JSON.stringify(body);
 
     // 35-second timeout - enough for Render free tier cold start (~30s).
@@ -42,9 +46,9 @@ const API = (() => {
   return {
     // Auth
     signup:  (name, email, password) =>
-      req('POST', '/api/auth/signup', { name, email, password }, false),
+      req('POST', '/api/auth/signup', { name, email, password }),
     login:   (email, password) =>
-      req('POST', '/api/auth/login', { email, password }, false),
+      req('POST', '/api/auth/login', { email, password }),
     logout:  () => req('POST', '/api/auth/logout'),
     changePassword: (currentPassword, newPassword) =>
       req('POST', '/api/auth/change-password', { current_password: currentPassword, new_password: newPassword }),
@@ -73,16 +77,15 @@ const API = (() => {
     delPosCandidate: (elecId, posId, name)=> req('DELETE', `/api/elections/${elecId}/positions/${posId}/candidates`, { name }),
 
     // Public multi-vote (no auth)
-    getMultiBallot:  (elecId)             => req('GET',  `/api/multi-vote/${elecId}/positions`, null, false),
-    getMultiInfo:    (elecId)             => req('GET',  `/api/multi-vote/${elecId}/info`,      null, false),
-    checkMultiVoter: (elecId, voter_id)   => req('POST', `/api/multi-vote/${elecId}/check`,     { voter_id }, false),
-    castMultiVotes:  (elecId, voter_id, votes) => req('POST', `/api/multi-vote/${elecId}/cast`, { voter_id, votes }, false),
-    getMultiResults: (elecId)             => req('GET',  `/api/multi-vote/${elecId}/results`,   null, false),
+    getMultiBallot:  (elecId)             => req('GET',  `/api/multi-vote/${elecId}/positions`),
+    getMultiInfo:    (elecId)             => req('GET',  `/api/multi-vote/${elecId}/info`),
+    checkMultiVoter: (elecId, voter_id)   => req('POST', `/api/multi-vote/${elecId}/check`,     { voter_id }),
+    castMultiVotes:  (elecId, voter_id, votes) => req('POST', `/api/multi-vote/${elecId}/cast`, { voter_id, votes }),
+    getMultiResults: (elecId)             => req('GET',  `/api/multi-vote/${elecId}/results`),
 
     // Candidates
     getCandidates:   (elecId)      => req('GET',    `/api/elections/${elecId}/candidates`),
     addCandidate:    (elecId, name)=> req('POST',   `/api/elections/${elecId}/candidates`, { name }),
-    // DELETE with body - use POST with _method override handled server-side
     deleteCandidate: (elecId, name)=> req('DELETE', `/api/elections/${elecId}/candidates`, { name }),
 
     // Voters (admin)
@@ -99,31 +102,40 @@ const API = (() => {
     checkFaceEnrolled: (elecId, voterId) =>
       req('GET', `/api/elections/${elecId}/voters/${encodeURIComponent(voterId)}/enroll-face`),
     verifyFace: (elecId, voterId, frames, threshold) =>
-      req('POST', `/api/vote/${elecId}/verify-face`, { voter_id: voterId, frames, ...(threshold ? { threshold } : {}) }, false),
+      req('POST', `/api/vote/${elecId}/verify-face`, { voter_id: voterId, frames, ...(threshold ? { threshold } : {}) }),
     publicCandidates: (elecId) =>
-      req('GET',  `/api/vote/${elecId}/candidates`, null, false),
+      req('GET',  `/api/vote/${elecId}/candidates`),
     getElectionInfo: (elecId) =>
-      req('GET',  `/api/vote/${elecId}/info`, null, false),
+      req('GET',  `/api/vote/${elecId}/info`),
     checkVoter: (elecId, voter_id) =>
-      req('POST', `/api/vote/${elecId}/check`, { voter_id }, false),
+      req('POST', `/api/vote/${elecId}/check`, { voter_id }),
     castVote:   (elecId, voter_id, candidate_name) =>
-      req('POST', `/api/vote/${elecId}/cast`, { voter_id, candidate_name }, false),
+      req('POST', `/api/vote/${elecId}/cast`, { voter_id, candidate_name }),
     getResults: (elecId) =>
-      req('GET',  `/api/vote/${elecId}/results`, null, false),
+      req('GET',  `/api/vote/${elecId}/results`),
   };
 })();
 
 // Auth helpers
+//
+// The session token is now stored exclusively in an HttpOnly cookie managed
+// by the server. JS never touches it, which eliminates XSS-based token theft.
+//
+// We still keep a small, non-sensitive user object (id, name, email) in
+// localStorage so the dashboard can greet the user and show their profile
+// without an extra round-trip. Losing this data on XSS is harmless — it
+// contains no credentials and no session material.
 const Auth = {
-  save(token, user) {
-    localStorage.setItem('vs_token', token);
+  save(user) {
+    // token is intentionally NOT stored here — it lives in the HttpOnly cookie.
     localStorage.setItem('vs_user', JSON.stringify(user));
   },
   clear() {
-    localStorage.removeItem('vs_token');
     localStorage.removeItem('vs_user');
   },
-  isLoggedIn() { return !!localStorage.getItem('vs_token'); },
+  // isLoggedIn checks for the presence of the cached user object.
+  // The cookie itself is validated server-side on every API call.
+  isLoggedIn() { return !!localStorage.getItem('vs_user'); },
   user() {
     try { return JSON.parse(localStorage.getItem('vs_user')); } catch { return null; }
   },

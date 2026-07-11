@@ -120,16 +120,27 @@ function authScenario() {
   loginLatency.add(loginRes.timings.duration);
 
   const loginOk = check(loginRes, {
-    'login: status 200':    (r) => r.status === 200,
-    'login: returns token': (r) => {
-      try { return !!JSON.parse(r.body).token; } catch { return false; }
+    'login: status 200':      (r) => r.status === 200,
+    'login: sets session cookie': (r) => {
+      // Token is now in HttpOnly Set-Cookie, not the JSON body.
+      // k6 exposes Set-Cookie via r.headers['Set-Cookie'].
+      const sc = r.headers['Set-Cookie'] || '';
+      return sc.includes('vs_session=');
     },
   });
   errorRate.add(!loginOk);
   if (!loginOk) return;
 
-  let token;
-  try { token = JSON.parse(loginRes.body).token; } catch { return; }
+  // Extract the session token from the Set-Cookie header so we can send it
+  // as a Bearer token in subsequent requests (k6 is not a browser and cannot
+  // use cookie jars for cross-origin requests).
+  let token = '';
+  try {
+    const setCookie = loginRes.headers['Set-Cookie'] || '';
+    const match = setCookie.match(/vs_session=([^;]+)/);
+    if (match) token = match[1];
+  } catch (_) { return; }
+  if (!token) return;
 
   // List elections (authenticated)
   const electionsRes = http.get(

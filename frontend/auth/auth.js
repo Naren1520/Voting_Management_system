@@ -118,7 +118,7 @@ async function handleLogin(e) {
   const res = await API.login(email, password);
 
   if (res.success) {
-    Auth.save(res.token, res.user);
+    Auth.save(res.user);
     showMsg('Welcome back! Redirecting…', 'success');
     setTimeout(() => window.location.href = '/dashboard/index.html', 900);
   } else {
@@ -154,7 +154,7 @@ async function handleSignup(e) {
   const res = await API.signup(name, email, password);
 
   if (res.success) {
-    Auth.save(res.token, res.user);
+    Auth.save(res.user);
     showMsg('Account created! Redirecting to your dashboard…', 'success');
     setTimeout(() => window.location.href = '/dashboard/index.html', 1000);
   } else {

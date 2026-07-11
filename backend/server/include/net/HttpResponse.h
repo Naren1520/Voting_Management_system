@@ -16,6 +16,14 @@ public:
     static std::string build(int statusCode, const std::string& jsonBody,
                              const std::string& requestOrigin = "");
 
+    // Build a response that also sets an HttpOnly session cookie.
+    // token    - the session token value (written to vs_session cookie).
+    // maxAge   - Max-Age in seconds; pass 0 to expire (clear) the cookie.
+    static std::string buildWithCookie(int statusCode, const std::string& jsonBody,
+                                       const std::string& requestOrigin,
+                                       const std::string& token,
+                                       int maxAge = 86400);
+
     // CORS preflight response
     static std::string buildOptions(const std::string& requestOrigin = "");
 
@@ -25,4 +33,6 @@ public:
 
 private:
     static const char* statusText(int code);
+    // Shared CORS header block (without trailing \r\n)
+    static std::string corsHeaders(const std::string& origin);
 };

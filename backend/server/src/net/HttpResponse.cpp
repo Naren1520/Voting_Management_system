@@ -61,6 +61,25 @@ const char* HttpResponse::statusText(int code) {
     }
 }
 
+// corsHeaders - shared CORS header block used by all response builders.
+// Returns the complete set of CORS headers as a header-folded string
+// (each line ends with \r\n).
+
+std::string HttpResponse::corsHeaders(const std::string& origin) {
+    std::string h;
+    h += "Access-Control-Allow-Origin: ";
+    h += origin;
+    h += "\r\n";
+    h += "Access-Control-Allow-Methods: GET, POST, DELETE, PATCH, OPTIONS\r\n";
+    // Include Cookie in exposed headers so JS can read it if needed,
+    // and allow Content-Type + Authorization for legacy API clients.
+    h += "Access-Control-Allow-Headers: Content-Type, Authorization\r\n";
+    // Required for the browser to send cookies on cross-origin requests.
+    h += "Access-Control-Allow-Credentials: true\r\n";
+    h += "Vary: Origin\r\n";
+    return h;
+}
+
 // build
 
 std::string HttpResponse::build(int statusCode, const std::string& jsonBody,
@@ -76,12 +95,62 @@ std::string HttpResponse::build(int statusCode, const std::string& jsonBody,
     response += statusText(statusCode);
     response += "\r\n";
     response += "Content-Type: application/json\r\n";
-    response += "Access-Control-Allow-Origin: ";
-    response += origin;
+    response += corsHeaders(origin);
+    response += "Content-Length: ";
+    response += std::to_string(jsonBody.size());
     response += "\r\n";
-    response += "Access-Control-Allow-Methods: GET, POST, DELETE, PATCH, OPTIONS\r\n";
-    response += "Access-Control-Allow-Headers: Content-Type, Authorization\r\n";
-    response += "Vary: Origin\r\n";
+    response += "Connection: close\r\n";
+    response += "\r\n";
+    response += jsonBody;
+
+    return response;
+}
+
+// buildWithCookie - same as build() but also emits a Set-Cookie header
+// for the vs_session token.
+//
+// Cookie attributes:
+//   HttpOnly  - JavaScript cannot read it, blocking XSS token theft.
+//   Secure    - Only sent over HTTPS (omitted in non-HTTPS dev environments
+//               when the SESSION_COOKIE_SECURE env var is "0").
+//   SameSite=Lax - Sent on top-level navigations and same-site requests;
+//                  blocks CSRF from third-party sites while allowing normal
+//                  browser-initiated requests.
+//   Path=/    - Cookie valid for all API paths.
+//   Max-Age   - Matches the server-side session TTL (86400 s = 24 h).
+//               Pass 0 to immediately expire/clear the cookie.
+
+std::string HttpResponse::buildWithCookie(int statusCode, const std::string& jsonBody,
+                                          const std::string& requestOrigin,
+                                          const std::string& token,
+                                          int maxAge) {
+    std::string origin = resolveOrigin(requestOrigin);
+
+    // Determine whether to add the Secure attribute.
+    // Default ON; set SESSION_COOKIE_SECURE=0 only for local HTTP dev.
+    bool secureCookie = true;
+    const char* secEnv = std::getenv("SESSION_COOKIE_SECURE");
+    if (secEnv && std::string(secEnv) == "0") secureCookie = false;
+
+    std::string cookieLine = "Set-Cookie: vs_session=";
+    cookieLine += token;
+    cookieLine += "; Path=/; HttpOnly; SameSite=Lax";
+    if (secureCookie) cookieLine += "; Secure";
+    cookieLine += "; Max-Age=";
+    cookieLine += std::to_string(maxAge);
+    cookieLine += "\r\n";
+
+    std::string response;
+    response.reserve(400 + jsonBody.size());
+
+    response  = "HTTP/1.1 ";
+    response += std::to_string(statusCode);
+    response += " ";
+    response += statusText(statusCode);
+    response += "\r\n";
+    response += "Content-Type: application/json\r\n";
+    response += corsHeaders(origin);
+    response += cookieLine;
     response += "Content-Length: ";
     response += std::to_string(jsonBody.size());
     response += "\r\n";
@@ -96,13 +165,8 @@ std::string HttpResponse::buildOptions(const std::string& requestOrigin) {
     std::string origin = resolveOrigin(requestOrigin);
     std::string response;
     response  = "HTTP/1.1 200 OK\r\n";
-    response += "Access-Control-Allow-Origin: ";
-    response += origin;
-    response += "\r\n";
-    response += "Access-Control-Allow-Methods: GET, POST, DELETE, PATCH, OPTIONS\r\n";
-    response += "Access-Control-Allow-Headers: Content-Type, Authorization\r\n";
+    response += corsHeaders(origin);
     response += "Access-Control-Max-Age: 86400\r\n";
-    response += "Vary: Origin\r\n";
     response += "Content-Length: 0\r\n";
     response += "Connection: close\r\n";
     response += "\r\n";
