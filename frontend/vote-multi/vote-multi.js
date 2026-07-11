@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('electionTitleDisplay').textContent = infoRes.title;
   document.getElementById('electionSubtitle').textContent     = 'Multi-position election';
-  document.title = infoRes.title + ' — VoteStack';
+  document.title = infoRes.title + ' - VoteStack';
 
   // Store face verify flag
   window._faceVerifyEnabled = !!infoRes.face_verify_enabled;
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 /* 
-   Step 1 — Verify voter
+   Step 1 - Verify voter
  */
 async function checkVoter() {
   const voterId = document.getElementById('voterIdInput').value.trim();
@@ -122,13 +122,13 @@ async function checkVoter() {
 }
 
 /* ─────────────────────────────────────────────────────
-   Step 1.5 — Face Verification
+   Step 1.5 - Face Verification
 ───────────────────────────────────────────────────── */
 let faceStream = null;
 
 async function openCamera() {
   if (!window.isSecureContext) {
-    showMsg('Camera requires HTTPS. If testing locally, use http://localhost — not an IP address.', 'error');
+    showMsg('Camera requires HTTPS. If testing locally, use http://localhost - not an IP address.', 'error');
     return;
   }
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -163,7 +163,7 @@ async function openCamera() {
     }
     showMsg(msg, 'error');
     console.error('[Camera]', e.name, e.message);
-    // Do NOT proceed — face verification is required
+    // Do NOT proceed - face verification is required
   }
 }
 
@@ -223,7 +223,7 @@ function proceedToBallot() {
 }
 
 /* ─────────────────────────────────────────────────────
-   Step 2 — Vote per position
+   Step 2 - Vote per position
 ───────────────────────────────────────────────────── */
 function showVoteStep(idx) {
   currentStep = idx;
@@ -241,7 +241,7 @@ function showVoteStep(idx) {
   document.getElementById('posVoteTitle').textContent = pos.title;
   document.getElementById('voterIdLabel').textContent = currentVoterId;
 
-  // Back button — hide on first position
+  // Back button - hide on first position
   const backBtn = document.getElementById('backBtn');
   backBtn.style.display = idx === 0 ? 'none' : 'inline-flex';
 
@@ -297,7 +297,7 @@ function selectCandidate(stepIdx, candIdx, name) {
 function goNext() {
   const pos = positions[currentStep];
 
-  // If no candidates for this position, selections[pos.id] stays undefined — that's ok
+  // If no candidates for this position, selections[pos.id] stays undefined - that's ok
   if (!selections[pos.id] && pos.candidates && pos.candidates.length) {
     showMsg('Please select a candidate.', 'error');
     return;
@@ -323,7 +323,7 @@ function goBack() {
 }
 
 /* ─────────────────────────────────────────────────────
-   Step 3 — Review & Submit
+   Step 3 - Review & Submit
 ───────────────────────────────────────────────────── */
 function showReview() {
   const list = document.getElementById('summaryList');
@@ -352,7 +352,7 @@ async function submitAllVotes() {
   btn.disabled  = true;
   btn.innerHTML = '<span class="spinner" style="width:14px;height:14px;display:inline-block;margin-right:8px;"></span>Submitting…';
 
-  // Build votes array — only include positions where a candidate was selected
+  // Build votes array - only include positions where a candidate was selected
   const votes = positions
     .filter(pos => selections[pos.id])
     .map(pos => ({

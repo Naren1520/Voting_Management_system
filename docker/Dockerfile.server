@@ -1,5 +1,5 @@
 # ============================================================
-# Dockerfile.server — C++ voting server (Step 10)
+# Dockerfile.server - C++ voting server (Step 10)
 # Multi-stage: build on full Debian, run on slim
 # ============================================================
 

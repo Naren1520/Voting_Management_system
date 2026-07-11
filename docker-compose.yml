@@ -1,5 +1,5 @@
 # ============================================================
-# docker-compose.yml — VoteStack full-stack orchestration
+# docker-compose.yml - VoteStack full-stack orchestration
 # Step 10: Containerize C++ server, Redis, nginx
 # Step 11: Multiple backend instances (4 replicas)
 # Step 11: Prometheus + node_exporter + redis_exporter + nginx-exporter
@@ -23,7 +23,7 @@ x-server-env: &server-env
 services:
 
   # ──────────────────────────────────────────────────────────────────────────
-  # Step 10: Redis — session cache, candidate cache, rate limiting
+  # Step 10: Redis - session cache, candidate cache, rate limiting
   # ──────────────────────────────────────────────────────────────────────────
   redis:
     image: redis:7.2-alpine
@@ -54,7 +54,7 @@ services:
 
   # ──────────────────────────────────────────────────────────────────────────
   # Step 11: C++ voting server instances (scale with least_conn upstream)
-  # Run 4 replicas — nginx distributes with least_conn.
+  # Run 4 replicas - nginx distributes with least_conn.
   # Each instance uses SO_REUSEPORT so they can all bind port 8080 internally.
   # ──────────────────────────────────────────────────────────────────────────
   voting_server_1:

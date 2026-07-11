@@ -1,5 +1,5 @@
 """
-Liveness detection — MediaPipe FaceMesh.
+Liveness detection - MediaPipe FaceMesh.
 
 Change 5: Browser captures 20-30 frames, sends them all.
 This module analyses the sequence for:
@@ -40,7 +40,7 @@ def _eye_aspect_ratio(landmarks, indices: List[int]) -> float:
 
 
 def _sharpness(img: np.ndarray) -> float:
-    """Laplacian variance — higher = sharper."""
+    """Laplacian variance - higher = sharper."""
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     return float(cv2.Laplacian(gray, cv2.CV_64F).var())
 
@@ -68,7 +68,7 @@ def analyse_frames(b64_frames: List[str]) -> Tuple[bool, int, str]:
         import mediapipe as mp
         mp_face_mesh = mp.solutions.face_mesh
     except ImportError:
-        logger.warning("MediaPipe not installed — liveness check skipped")
+        logger.warning("MediaPipe not installed - liveness check skipped")
         # Graceful degradation: still pick the sharpest frame
         return _fallback_best_frame(b64_frames)
 
@@ -105,7 +105,7 @@ def analyse_frames(b64_frames: List[str]) -> Tuple[bool, int, str]:
             valid_frames.append(idx)
 
     if len(valid_frames) < 3:
-        return False, 0, "Too few valid frames — ensure your face is visible"
+        return False, 0, "Too few valid frames - ensure your face is visible"
 
     # ── Blink detection ───────────────────────────────────────────────────
     blink_detected = any(e < EAR_BLINK_THRESHOLD for e in ears)
@@ -117,7 +117,7 @@ def analyse_frames(b64_frames: List[str]) -> Tuple[bool, int, str]:
     is_live = blink_detected or head_move
 
     if not is_live:
-        return False, 0, "Liveness check failed — please blink or move your head slightly"
+        return False, 0, "Liveness check failed - please blink or move your head slightly"
 
     # ── Best frame: sharpest with EAR near mean (eyes open) ──────────────
     mean_ear = sum(ears) / len(ears)
@@ -134,7 +134,7 @@ def analyse_frames(b64_frames: List[str]) -> Tuple[bool, int, str]:
 
 
 def _fallback_best_frame(b64_frames: List[str]) -> Tuple[bool, int, str]:
-    """Fallback when MediaPipe is unavailable — pick sharpest frame."""
+    """Fallback when MediaPipe is unavailable - pick sharpest frame."""
     best_idx   = 0
     best_score = -1.0
     for idx, b64 in enumerate(b64_frames):
@@ -145,6 +145,6 @@ def _fallback_best_frame(b64_frames: List[str]) -> Tuple[bool, int, str]:
         if score > best_score:
             best_score = score
             best_idx   = idx
-    # Without liveness we cannot confirm it's live — still return True
+    # Without liveness we cannot confirm it's live - still return True
     # to avoid blocking voters when MediaPipe is not installed.
     return True, best_idx, "mediapipe_unavailable"

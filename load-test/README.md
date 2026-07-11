@@ -10,7 +10,7 @@ Or download from: https://k6.io/docs/get-started/installation/
 
 ---
 
-## Smoke Test — run before every deploy
+## Smoke Test - run before every deploy
 
 5 virtual users, 20 seconds. Confirms health, metrics, auth validation, and public vote endpoints work.
 
@@ -32,7 +32,7 @@ http_req_duration..............: avg=250ms p(95)=800ms
 
 ---
 
-## Load Test — staged ramp
+## Load Test - staged ramp
 
 Ramps from 10 → 50 → 100 virtual users. Tests auth flow, public voting, and health endpoints.
 
@@ -83,5 +83,5 @@ k6 run --vus 10 --duration 30s load-test/load_test.js
 - Render free tier has 0.1 vCPU and 512MB RAM
 - Expect p95 latency of 1-3s under load (normal for free tier)
 - Login is slower (~1-2s) due to PBKDF2 100k iterations being CPU-intensive
-- Rate limit is 100 req/IP/60s — k6 runs from one IP so you may hit this at high VUs
+- Rate limit is 100 req/IP/60s - k6 runs from one IP so you may hit this at high VUs
 - Cold start adds ~30s to first request after inactivity

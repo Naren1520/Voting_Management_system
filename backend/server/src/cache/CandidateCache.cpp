@@ -14,7 +14,7 @@ std::string CandidateCache::makeKey(const std::string& electionId) {
     return "candidates:" + electionId;
 }
 
-// get — returns "" if not cached or Redis unavailable
+// get - returns "" if not cached or Redis unavailable
 
 std::string CandidateCache::get(const std::string& electionId) {
     auto& redis = RedisClient::instance();
@@ -22,7 +22,7 @@ std::string CandidateCache::get(const std::string& electionId) {
     return redis.get(makeKey(electionId));
 }
 
-// set — stores candidatesJson with TTL_SECONDS expiry
+// set - stores candidatesJson with TTL_SECONDS expiry
 
 void CandidateCache::set(const std::string& electionId, const std::string& candidatesJson) {
     auto& redis = RedisClient::instance();
@@ -30,7 +30,7 @@ void CandidateCache::set(const std::string& electionId, const std::string& candi
     redis.set(makeKey(electionId), candidatesJson, TTL_SECONDS);
 }
 
-// invalidate — deletes the cache entry
+// invalidate - deletes the cache entry
 
 void CandidateCache::invalidate(const std::string& electionId) {
     auto& redis = RedisClient::instance();

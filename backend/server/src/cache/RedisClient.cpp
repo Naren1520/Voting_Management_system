@@ -22,7 +22,7 @@ RedisClient& RedisClient::instance() {
     return inst;
 }
 
-// init — parse REDIS_URL, open POOL_SIZE connections (called single-threaded)
+// init - parse REDIS_URL, open POOL_SIZE connections (called single-threaded)
 
 void RedisClient::init() {
     const char* envUrl = std::getenv("REDIS_URL");
@@ -50,7 +50,7 @@ void RedisClient::init() {
     }
     if (host_.empty()) host_ = "127.0.0.1";
 
-    // Open all pool slots — single-threaded here so no mutex needed
+    // Open all pool slots - single-threaded here so no mutex needed
     int opened = 0;
     for (int i = 0; i < POOL_SIZE; ++i) {
         if (connectSlot(i)) ++opened;   // OK: single-threaded init
@@ -64,17 +64,17 @@ void RedisClient::init() {
     } else {
         available_.store(false);
         LOG_WARN("[Redis] Could not connect to " + host_ + ":" +
-                 std::to_string(port_) + " — running without cache/rate-limiting");
+                 std::to_string(port_) + " - running without cache/rate-limiting");
     }
 }
 
-// isAvailable — Fix #6: lock-free atomic read
+// isAvailable - Fix #6: lock-free atomic read
 
 bool RedisClient::isAvailable() const {
     return available_.load();
 }
 
-// connectSlot — Fix #5: MUST be called while poolMutex_ is held (or during
+// connectSlot - Fix #5: MUST be called while poolMutex_ is held (or during
 // single-threaded init).  Opens a new TCP connection for slot idx.
 
 bool RedisClient::connectSlot(int idx) {
@@ -113,7 +113,7 @@ bool RedisClient::connectSlot(int idx) {
         struct timeval tv; tv.tv_sec = 0; tv.tv_usec = 500000;
         int sel = ::select(fd + 1, nullptr, &wfds, nullptr, &tv);
         if (sel <= 0) {
-            // Timeout or error — Redis not available
+            // Timeout or error - Redis not available
             ::close(fd); ::freeaddrinfo(res); return false;
         }
         // Check if connect actually succeeded
@@ -146,7 +146,7 @@ bool RedisClient::connectSlot(int idx) {
     return true;
 }
 
-// disconnectSlot — Fix #5: caller must hold poolMutex_
+// disconnectSlot - Fix #5: caller must hold poolMutex_
 
 void RedisClient::disconnectSlot(int idx) {
     if (conns_[idx].socket >= 0) {
@@ -155,7 +155,7 @@ void RedisClient::disconnectSlot(int idx) {
     }
 }
 
-// reconnectSlot — Fix #5: acquires poolMutex_ internally so two threads can
+// reconnectSlot - Fix #5: acquires poolMutex_ internally so two threads can
 // never race to reconnect the same slot simultaneously.
 // Fix #6: sets available_ atomically on recovery.
 
@@ -173,7 +173,7 @@ bool RedisClient::reconnectSlot(int idx) {
     return false;
 }
 
-// acquireConn / releaseConn — condition variable, no busy-wait
+// acquireConn / releaseConn - condition variable, no busy-wait
 
 int RedisClient::acquireConn() {
     std::unique_lock<std::mutex> lock(poolMutex_);
@@ -228,14 +228,14 @@ bool RedisClient::sendAll(int idx, const std::string& data) {
     return true;
 }
 
-// readLine — reads until \r\n into `line`, stripping the CRLF.
+// readLine - reads until \r\n into `line`, stripping the CRLF.
 // Uses a per-slot 4KB read buffer to avoid one-byte-at-a-time recv() calls.
 
 static constexpr int RBUF_SIZE = 4096;
 
 // Per-slot read buffer state (kept inside Conn would be cleaner but requires
 // header change; a thread_local avoids lock contention at the cost of one
-// buffer per thread rather than per connection — acceptable since each
+// buffer per thread rather than per connection - acceptable since each
 // connection is used by one thread at a time anyway).
 struct SlotBuf {
     char  data[RBUF_SIZE];
@@ -265,7 +265,7 @@ static int readByte(int sockfd, char& out) {
 std::string RedisClient::readResponse(int idx) {
     int sockfd = conns_[idx].socket;
     // Reset buffer position for this response (new slot, new context)
-    // Note: we don't zero t_buf here — leftover bytes from a previous
+    // Note: we don't zero t_buf here - leftover bytes from a previous
     // pipelined response are valid and should be consumed.
 
     // Read first line (type byte + length/value + CRLF)
@@ -328,7 +328,7 @@ std::string RedisClient::readResponse(int idx) {
     return firstLine;
 }
 
-// sendCommand — slot must be acquired (inUse=true) by the caller.
+// sendCommand - slot must be acquired (inUse=true) by the caller.
 // If the socket is dead, calls reconnectSlot() which acquires the mutex.
 
 std::string RedisClient::sendCommand(int idx, const std::vector<std::string>& args) {

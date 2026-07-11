@@ -1,5 +1,5 @@
 #
-# render.yaml — Render.com deployment config
+# render.yaml - Render.com deployment config
 
 services:
 
@@ -35,7 +35,7 @@ services:
       - key: LOG_FILE
         value: ""
 
-      # Face verification service (optional — deploy face-service/ separately)
+      # Face verification service (optional - deploy face-service/ separately)
       - key: FACE_SERVICE_URL
         value: "https://narensonu1520--votestack-face-service-fastapi-app.modal.run"
 

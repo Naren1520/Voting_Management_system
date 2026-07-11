@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Privacy Policy — VoteStack</title>
+  <title>Privacy Policy - VoteStack</title>
   <meta name="description" content="VoteStack Privacy Policy - Learn how we protect your data and respect your privacy." />
   <link rel="icon" href="/assets/Logo.png" type="image/png" />
 
@@ -86,9 +86,9 @@
           <h3>Information You Provide</h3>
           <p>We collect information you give us directly, including:</p>
           <ul>
-            <li>Account details — name, email address, hashed password</li>
-            <li>Election data — titles, candidate names, voter ID lists</li>
-            <li>Voting records — participation status and vote timestamps</li>
+            <li>Account details - name, email address, hashed password</li>
+            <li>Election data - titles, candidate names, voter ID lists</li>
+            <li>Voting records - participation status and vote timestamps</li>
             <li>Profile preferences and settings</li>
           </ul>
 
@@ -110,7 +110,7 @@
           </p>
           <ul>
             <li><strong>Reference photos</strong> submitted by the organizer are processed by our AI service (InsightFace) to generate a mathematical face embedding (512-dimensional vector)</li>
-            <li><strong>Original photos are immediately discarded</strong> — only the mathematical embedding is stored, encrypted, in the database</li>
+            <li><strong>Original photos are immediately discarded</strong> - only the mathematical embedding is stored, encrypted, in the database</li>
             <li>At voting time, a live camera capture is processed to generate a new embedding, which is compared against the stored one using cosine similarity</li>
             <li>The live capture frame is processed in memory and never stored</li>
             <li>Face embeddings cannot be used to reconstruct the original photo</li>
@@ -148,12 +148,12 @@
             data protection laws. As a data subject you hold the following rights:
           </p>
           <ul>
-            <li><strong>Right to Access</strong> — Request a copy of your personal data</li>
-            <li><strong>Right to Rectification</strong> — Request correction of inaccurate data</li>
-            <li><strong>Right to Erasure</strong> — Request deletion of your personal data</li>
-            <li><strong>Right to Restrict Processing</strong> — Request limited processing of your data</li>
-            <li><strong>Right to Data Portability</strong> — Request transfer of your data</li>
-            <li><strong>Right to Object</strong> — Object to processing of your personal data</li>
+            <li><strong>Right to Access</strong> - Request a copy of your personal data</li>
+            <li><strong>Right to Rectification</strong> - Request correction of inaccurate data</li>
+            <li><strong>Right to Erasure</strong> - Request deletion of your personal data</li>
+            <li><strong>Right to Restrict Processing</strong> - Request limited processing of your data</li>
+            <li><strong>Right to Data Portability</strong> - Request transfer of your data</li>
+            <li><strong>Right to Object</strong> - Object to processing of your personal data</li>
           </ul>
           <p>
             To exercise any of these rights, contact us at <strong>privacy@votestack.com</strong>. 
@@ -168,14 +168,14 @@
           </p>
           <ul>
             <li>TLS/HTTPS encryption for all data in transit (enforced by Cloudflare)</li>
-            <li>PBKDF2-SHA256 password hashing (100,000 iterations) via OpenSSL — not plain bcrypt</li>
+            <li>PBKDF2-SHA256 password hashing (100,000 iterations) via OpenSSL - not plain bcrypt</li>
             <li>Session tokens generated via RAND_bytes (32 bytes, 64 hex chars) stored in Redis with 24h TTL</li>
-            <li>Per-user data isolation on every database query — no cross-account data leakage</li>
+            <li>Per-user data isolation on every database query - no cross-account data leakage</li>
             <li>Rate limiting via Redis INCR/EXPIRE (100 requests per IP per 60 seconds)</li>
-            <li>Face embeddings stored encrypted — raw biometric photos are never persisted</li>
-            <li>CORS origin validation — only whitelisted domains can call the API</li>
+            <li>Face embeddings stored encrypted - raw biometric photos are never persisted</li>
+            <li>CORS origin validation - only whitelisted domains can call the API</li>
             <li>Request size cap (1MB) and 5-second receive timeout to prevent abuse</li>
-            <li>INSERT ON CONFLICT DO NOTHING for vote writes — eliminates duplicate-vote races at DB level</li>
+            <li>INSERT ON CONFLICT DO NOTHING for vote writes - eliminates duplicate-vote races at DB level</li>
           </ul>
           <p>
             While we strive to protect your information, no transmission over the Internet is 100% secure. 
@@ -187,10 +187,10 @@
           <h2>Data Retention</h2>
           <p>We retain your data only as long as necessary:</p>
           <ul>
-            <li>Account data — retained while your account is active</li>
-            <li>Election and voter data — per your settings plus any legal requirements</li>
-            <li>Voting records — retained for audit and compliance purposes</li>
-            <li>Server logs — typically 90 days for security purposes</li>
+            <li>Account data - retained while your account is active</li>
+            <li>Election and voter data - per your settings plus any legal requirements</li>
+            <li>Voting records - retained for audit and compliance purposes</li>
+            <li>Server logs - typically 90 days for security purposes</li>
           </ul>
           <p>You may request deletion of your account and data at any time, subject to legal obligations.</p>
         </section>
@@ -201,11 +201,11 @@
             We do not sell, trade, or rent your personal data. We share information only in these limited cases:
           </p>
           <ul>
-            <li><strong>With Your Consent</strong> — When you explicitly authorise sharing</li>
-            <li><strong>Service Providers</strong> — Trusted vendors under strict confidentiality agreements</li>
-            <li><strong>Legal Requirements</strong> — When required by law or valid government order</li>
-            <li><strong>Business Transfers</strong> — In connection with a merger, acquisition, or asset sale</li>
-            <li><strong>Rights Protection</strong> — To enforce our terms or protect user safety</li>
+            <li><strong>With Your Consent</strong> - When you explicitly authorise sharing</li>
+            <li><strong>Service Providers</strong> - Trusted vendors under strict confidentiality agreements</li>
+            <li><strong>Legal Requirements</strong> - When required by law or valid government order</li>
+            <li><strong>Business Transfers</strong> - In connection with a merger, acquisition, or asset sale</li>
+            <li><strong>Rights Protection</strong> - To enforce our terms or protect user safety</li>
           </ul>
         </section>
 
@@ -213,9 +213,9 @@
           <h2>Cookies and Tracking</h2>
           <p>We use cookies strictly for platform operation:</p>
           <ul>
-            <li><strong>Essential Cookies</strong> — Required for authentication and core functionality</li>
-            <li><strong>Security Cookies</strong> — Protect against fraudulent activity</li>
-            <li><strong>Performance Cookies</strong> — Help us understand usage patterns to improve the platform</li>
+            <li><strong>Essential Cookies</strong> - Required for authentication and core functionality</li>
+            <li><strong>Security Cookies</strong> - Protect against fraudulent activity</li>
+            <li><strong>Performance Cookies</strong> - Help us understand usage patterns to improve the platform</li>
           </ul>
           <p>You can manage cookies through your browser settings. Disabling essential cookies may affect functionality.</p>
         </section>
@@ -224,7 +224,7 @@
           <h2>International Data Transfers</h2>
           <p>
             Your data may be transferred to and processed in countries outside your country of residence. 
-            We ensure appropriate safeguards — including standard contractual clauses — are in place for all 
+            We ensure appropriate safeguards - including standard contractual clauses - are in place for all 
             such transfers in compliance with applicable law.
           </p>
         </section>

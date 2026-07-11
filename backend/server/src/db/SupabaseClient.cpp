@@ -27,7 +27,7 @@ SupabaseClient& SupabaseClient::instance() {
     return client;
 }
 
-// init — build handle pool sized to match the thread pool.
+// init - build handle pool sized to match the thread pool.
 // Fix #6: pool size matches thread count so workers never spin-wait.
 
 void SupabaseClient::init(int poolSize) {
@@ -43,7 +43,7 @@ void SupabaseClient::init(int poolSize) {
     for (int i = 0; i < poolSize; ++i) {
         CURL* h = curl_easy_init();
         if (!h) {
-            std::cerr << "[FATAL] curl_easy_init() returned null — libcurl init failed\n";
+            std::cerr << "[FATAL] curl_easy_init() returned null - libcurl init failed\n";
             std::cerr.flush();
             throw std::runtime_error("curl_easy_init failed");
         }
@@ -92,7 +92,7 @@ size_t SupabaseClient::writeCallback(char* ptr, size_t size,
     return size * nmemb;
 }
 
-// request — main entry point
+// request - main entry point
 
 HttpResult SupabaseClient::request(const std::string& method,
                                    const std::string& endpoint,
@@ -162,9 +162,9 @@ HttpResult SupabaseClient::request(const std::string& method,
     return {static_cast<int>(httpCode), responseBody};
 }
 
-// hashPassword — PBKDF2-SHA256 via OpenSSL.
+// hashPassword - PBKDF2-SHA256 via OpenSSL.
 //
-// Fix #3: SHA-256 is a fast hash — trivially brute-forced with a GPU.
+// Fix #3: SHA-256 is a fast hash - trivially brute-forced with a GPU.
 //   PBKDF2 with 100,000 iterations is ~10,000× slower per attempt, making
 //   offline dictionary attacks impractical.
 //
@@ -209,7 +209,7 @@ std::string SupabaseClient::hashPassword(const std::string& password) {
            "$"       + toHex(key,  PBKDF2_KEYLEN);
 }
 
-// verifyPassword — re-derive the key from the stored salt and compare.
+// verifyPassword - re-derive the key from the stored salt and compare.
 // Returns true if the password matches the stored hash.
 // Also handles legacy SHA-256 hashes (plain 64-char hex) for migration.
 
@@ -217,7 +217,7 @@ bool SupabaseClient::verifyPassword(const std::string& password,
                                     const std::string& stored) {
     // ─ Legacy SHA-256 hash (plain 64-char hex, no prefix) 
     if (stored.rfind("pbkdf2$", 0) != 0) {
-        // Old format — just compare SHA-256 directly for migration
+        // Old format - just compare SHA-256 directly for migration
         unsigned char digest[SHA256_DIGEST_LENGTH];
         EVP_MD_CTX* ctx = EVP_MD_CTX_new();
         if (!ctx) return false;
@@ -274,7 +274,7 @@ bool SupabaseClient::verifyPassword(const std::string& password,
     return CRYPTO_memcmp(derivedKey, expectedKey, PBKDF2_KEYLEN) == 0;
 }
 
-// generateToken — 32 random bytes as hex via RAND_bytes
+// generateToken - 32 random bytes as hex via RAND_bytes
 
 std::string SupabaseClient::generateToken() {
     unsigned char buf[32];
@@ -304,7 +304,7 @@ std::string SupabaseClient::urlEncode(const std::string& s) {
     return r;
 }
 
-// getLocation — uses a handle from the shared pool.
+// getLocation - uses a handle from the shared pool.
 // Fix #10: no longer creates/destroys a fresh handle on every call.
 
 std::string SupabaseClient::getLocation(const std::string& ip) {

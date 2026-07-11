@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  document.title = `${e.title} — VoteStack`;
+  document.title = `${e.title} - VoteStack`;
   document.getElementById('electionTitle').textContent = e.title;
   document.getElementById('electionMeta').textContent  = 'Created ' + fmt(e.created_at);
 
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await loadAll();
 
-  // All data fetched — dismiss skeleton with a fade
+  // All data fetched - dismiss skeleton with a fade
   hideSkeleton();
 });
 
@@ -301,7 +301,7 @@ async function loadResults() {
   document.getElementById('totalVotes').textContent  = total;
   document.getElementById('statVotes').textContent   = total;
   document.getElementById('statTurnout').textContent =
-    voters > 0 ? Math.round((total / voters) * 100) + '%' : '—';
+    voters > 0 ? Math.round((total / voters) * 100) + '%' : '-';
 
   const list = document.getElementById('resultsList');
 
@@ -342,7 +342,7 @@ async function loadResults() {
 }
 
 function renderCharts(labels, data) {
-  /* Doughnut — distribution */
+  /* Doughnut - distribution */
   if (doughnutInst) doughnutInst.destroy();
   const dc = document.getElementById('doughnutChart').getContext('2d');
   doughnutInst = new Chart(dc, {
@@ -372,7 +372,7 @@ function renderCharts(labels, data) {
     }
   });
 
-  /* Horizontal bar — vote count per candidate */
+  /* Horizontal bar - vote count per candidate */
   if (barInst) barInst.destroy();
   const bc = document.getElementById('barChart').getContext('2d');
   barInst = new Chart(bc, {

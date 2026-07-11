@@ -217,7 +217,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   border-color: rgba(0,0,0,.18);
 }
 
-/* Three-bar icon — using a single SVG approach via spans */
+/* Three-bar icon - using a single SVG approach via spans */
 .burger-icon {
   display: flex;
   flex-direction: column;
@@ -236,7 +236,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .header.scrolled .burger-icon span { background: var(--ink); }
 
-/* open state — morphs to X */
+/* open state - morphs to X */
 .burger.is-open .burger-icon span:nth-child(1) {
   transform: translateY(6.5px) rotate(45deg);
 }
@@ -248,7 +248,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   transform: translateY(-6.5px) rotate(-45deg);
 }
 
-/* ── Mobile drawer — liquid glass panel ── */
+/* ── Mobile drawer - liquid glass panel ── */
 .mobile-drawer {
   display: flex;
   flex-direction: column;
@@ -307,7 +307,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   border-radius: inherit;
 }
 
-/* Subtle prismatic edge — bottom */
+/* Subtle prismatic edge - bottom */
 .mobile-drawer::after {
   content: '';
   position: absolute;
@@ -839,7 +839,7 @@ details[open] .faq-q i { transform: rotate(45deg); }
   position: relative;
 }
 
-/* CTA primary button — solid dark */
+/* CTA primary button - solid dark */
 .cta-actions .btn-filled.btn-white {
   background: #111;
   color: #fff;
@@ -851,7 +851,7 @@ details[open] .faq-q i { transform: rotate(45deg); }
   transform: translateY(-2px);
 }
 
-/* CTA ghost button — dark glass */
+/* CTA ghost button - dark glass */
 .cta-actions .btn-outline.btn-outline-white {
   background: rgba(0,0,0,.06);
   color: rgba(0,0,0,.7);
@@ -1142,7 +1142,7 @@ details[open] .faq-q i { transform: rotate(45deg); }
    MICRO-INTERACTIONS & SMOOTH TRANSITIONS
  */
 
-/* Smooth page reveal on load — non-hero content fades in gently */
+/* Smooth page reveal on load - non-hero content fades in gently */
 body {
   animation: pageReveal 0.4s ease;
 }
@@ -1337,7 +1337,7 @@ img {
   position: absolute;
   top: 50%;
   left: 50%;
-  /* Center and cover — guaranteed fill regardless of aspect ratio */
+  /* Center and cover - guaranteed fill regardless of aspect ratio */
   transform: translate(-50%, -50%);
   -webkit-transform: translate(-50%, -50%);
   min-width: 100%;
@@ -1348,7 +1348,7 @@ img {
   display: block;
   opacity: .38;
 }
-/* Single dark scrim — no gradients, just a clean tint */
+/* Single dark scrim - no gradients, just a clean tint */
 .hero-bg-overlay {
   position: absolute;
   inset: 0;
@@ -1413,7 +1413,7 @@ img {
   flex-wrap: wrap;
 }
 
-/* Primary — fully liquid glass */
+/* Primary - fully liquid glass */
 .btn-cinema-primary {
   display: inline-flex;
   align-items: center;
@@ -1457,7 +1457,7 @@ img {
     0 12px 40px rgba(0,0,0,.35);
 }
 
-/* Ghost — liquid glass */
+/* Ghost - liquid glass */
 .btn-cinema-secondary {
   display: inline-flex;
   align-items: center;
@@ -1481,7 +1481,7 @@ img {
   transform: translateY(-1px);
 }
 
-/* Ghost — liquid glass */
+/* Ghost - liquid glass */
 .btn-cinema-ghost {
   display: inline-flex;
   align-items: center;
@@ -1512,7 +1512,7 @@ img {
   pointer-events: none;
 }
 
-/* Card base — clean dark glass, no glows */
+/* Card base - clean dark glass, no glows */
 .cinema-card {
   position: absolute;
   border-radius: 18px;
@@ -1526,7 +1526,7 @@ img {
   -webkit-backdrop-filter: blur(4px);
 }
 
-/* Subtle glass sheen — top edge highlight only */
+/* Subtle glass sheen - top edge highlight only */
 .cinema-card::after {
   content: '';
   position: absolute;
@@ -1639,16 +1639,16 @@ img {
 
 
 /* 
-   PREMIUM SCROLL EFFECTS — VoteStack
+   PREMIUM SCROLL EFFECTS - VoteStack
    Luxury reveal, parallax, stagger, counters, shimmer
     */
 
 /* 
-   REVEAL VARIANTS — override base [data-aos]
+   REVEAL VARIANTS - override base [data-aos]
    Each variant starts from a different position/state
  */
 
-/* Fade + rise (default — already defined, enhanced here) */
+/* Fade + rise (default - already defined, enhanced here) */
 [data-aos] {
   opacity: 0;
   transform: translateY(32px);
@@ -1715,7 +1715,7 @@ img {
 
 /* 
    STAGGER CHILDREN
-   Wrap a group in [data-stagger] — children get auto delays
+   Wrap a group in [data-stagger] - children get auto delays
  */
 [data-stagger] > * {
   opacity: 0;
@@ -1774,7 +1774,7 @@ img {
 }
 
 /* 
-   SCROLL PROGRESS BAR — top of page
+   SCROLL PROGRESS BAR - top of page
  */
 .scroll-progress {
   position: fixed;
@@ -1788,7 +1788,7 @@ img {
 }
 
 /* 
-   FLOATING ORBS — ambient depth in sections
+   FLOATING ORBS - ambient depth in sections
    These are purely decorative blurred circles
  */
 .orb {
@@ -1805,7 +1805,7 @@ img {
 .orb.orb-visible { opacity: 1; }
 
 /* 
-   STAT ITEMS — counter pop
+   STAT ITEMS - counter pop
  */
 .stat-item[data-counted] .stat-num {
   transition: transform .3s var(--ease);
@@ -1819,14 +1819,14 @@ img {
 }
 
 /* 
-   FEATURE CARDS — scroll-in with stagger + 3D tilt on hover
+   FEATURE CARDS - scroll-in with stagger + 3D tilt on hover
  */
 .feat-card {
   transform-style: preserve-3d;
   will-change: transform, box-shadow;
   position: relative;
 }
-/* 3D tilt is applied via JS inline style — just make sure transition is set */
+/* 3D tilt is applied via JS inline style - just make sure transition is set */
 .feat-card {
   transition:
     transform .3s var(--ease),
@@ -1836,7 +1836,7 @@ img {
 }
 
 /* 
-   SECURITY CARDS — slide-in from sides alternately
+   SECURITY CARDS - slide-in from sides alternately
  */
 .sec-card {
   transition:
@@ -1846,7 +1846,7 @@ img {
 }
 
 /* 
-   STEPS — left border reveal animation
+   STEPS - left border reveal animation
  */
 .step {
   position: relative;
@@ -1867,7 +1867,7 @@ img {
 }
 
 /* 
-   SPOTLIGHT SECTIONS — slide in from opposite sides
+   SPOTLIGHT SECTIONS - slide in from opposite sides
  */
 .spotlight-content {
   transition:
@@ -1905,7 +1905,7 @@ img {
 }
 
 /* 
-   SECTION LABEL — expand width reveal
+   SECTION LABEL - expand width reveal
  */
 .section-label {
   position: relative;
@@ -1925,14 +1925,14 @@ img {
 }
 
 /* 
-   FAQ ITEMS — cascade open reveal
+   FAQ ITEMS - cascade open reveal
  */
 .faq-item {
   transition: opacity .5s, transform .5s;
 }
 
 /* 
-   CTA — subtle breathing pulse on the card
+   CTA - subtle breathing pulse on the card
  */
 .cta-inner {
   animation: ctaBreathe 5s ease-in-out infinite;
@@ -1949,7 +1949,7 @@ img {
 }
 
 /* 
-   COMPLIANCE BADGES — pop in one by one
+   COMPLIANCE BADGES - pop in one by one
  */
 .compliance-badge {
   opacity: 0;
@@ -1964,7 +1964,7 @@ img {
 }
 
 /* 
-   HERO TEXT — individual word reveal (applied in JS)
+   HERO TEXT - individual word reveal (applied in JS)
  */
 .hero-word {
   display: inline-block;
@@ -1980,7 +1980,7 @@ img {
 }
 
 /* 
-   VIDEO FRAME — scroll-in reveal with scale
+   VIDEO FRAME - scroll-in reveal with scale
  */
 .video-frame {
   opacity: 0;
@@ -2012,7 +2012,7 @@ img {
 }
 
 /* 
-   REDUCED MOTION — all scroll effects off
+   REDUCED MOTION - all scroll effects off
  */
 @media (prefers-reduced-motion: reduce) {
   [data-aos],
@@ -2048,7 +2048,7 @@ img {
   100% { background-position:  700px 0; }
 }
 
-/* Shimmer box — dark on black bg */
+/* Shimmer box - dark on black bg */
 .hsk-box {
   display: block;
   background: linear-gradient(
@@ -2062,7 +2062,7 @@ img {
   flex-shrink: 0;
 }
 
-/* Overlay — sits inside .hero--cinema, fills it exactly */
+/* Overlay - sits inside .hero--cinema, fills it exactly */
 .hero-skeleton {
   position: absolute;
   inset: 0;
@@ -2098,7 +2098,7 @@ img {
   flex-direction: column;
 }
 
-/* Cards column — mirrors .hero-cinema-cards */
+/* Cards column - mirrors .hero-cinema-cards */
 .hsk-cards {
   position: relative;
   height: 520px;
@@ -2161,7 +2161,7 @@ img {
 }
 
 @media (max-width: 480px) {
-  /* On very small screens, hide cards — text skeleton only */
+  /* On very small screens, hide cards - text skeleton only */
   .hsk-cards   { display: none; }
   .hsk-inner   { grid-template-columns: 1fr; }
 }

@@ -7,7 +7,7 @@
 #include <curl/curl.h>
 
 // ==================
-// SupabaseClient — libcurl-based Supabase REST client with handle pool.
+// SupabaseClient - libcurl-based Supabase REST client with handle pool.
 //
 // Fix #5:  acquireHandle() uses a condition variable instead of busy-waiting.
 // Fix #6:  POOL_SIZE is set at init() time to match the thread-pool size so
@@ -36,7 +36,7 @@ public:
                        const std::string& extraHeader = "");
 
     // Crypto helpers (OpenSSL, no popen)
-    // Fix #3: hashPassword uses PBKDF2-SHA256 (100k iterations) — not plain SHA-256.
+    // Fix #3: hashPassword uses PBKDF2-SHA256 (100k iterations) - not plain SHA-256.
     // verifyPassword handles both new PBKDF2 hashes and legacy SHA-256 hashes.
     static std::string hashPassword(const std::string& password);
     static bool        verifyPassword(const std::string& password,
@@ -44,7 +44,7 @@ public:
     static std::string generateToken();
     static std::string urlEncode(const std::string& s);
 
-    // Geolocation via libcurl — uses the shared handle pool (Fix #10)
+    // Geolocation via libcurl - uses the shared handle pool (Fix #10)
     static std::string getLocation(const std::string& ip);
 
     // Timestamp helpers

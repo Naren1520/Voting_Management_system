@@ -1,5 +1,5 @@
 /* ============================================================
-   join.js — VoteStack election entry page
+   join.js - VoteStack election entry page
    ============================================================ */
 
 async function joinElection() {
@@ -25,7 +25,7 @@ async function joinElection() {
 
   setLoading(btn, true);
 
-  // Single call — backend now returns election_type in the response
+  // Single call - backend now returns election_type in the response
   let infoRes;
   try {
     infoRes = await API.getElectionInfo(raw);

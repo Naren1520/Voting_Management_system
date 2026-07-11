@@ -1,4 +1,4 @@
-// smoke_test.js — VoteStack quick sanity check
+// smoke_test.js - VoteStack quick sanity check
 //
 // Run before every deploy to confirm nothing is broken.
 //
@@ -16,7 +16,7 @@ export const options = {
   duration: '20s',
   thresholds: {
     http_req_duration: ['p(95)<2000'],  // p95 under 2s (Render free cold start)
-    // Note: http_req_failed not used — 404s from invalid test IDs are expected
+    // Note: http_req_failed not used - 404s from invalid test IDs are expected
   },
 };
 

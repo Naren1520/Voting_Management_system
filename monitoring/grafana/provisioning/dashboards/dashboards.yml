@@ -1,5 +1,5 @@
 # ============================================================
-# Grafana dashboard provisioning — loads dashboards from disk
+# Grafana dashboard provisioning - loads dashboards from disk
 # ============================================================
 
 apiVersion: 1

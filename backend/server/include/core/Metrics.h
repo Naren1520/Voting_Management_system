@@ -1,13 +1,13 @@
 #pragma once
 // ============================================================
-// Metrics.h — Step 11: Prometheus metrics collector
+// Metrics.h - Step 11: Prometheus metrics collector
 //
 // Tracks (all thread-safe):
-//   http_requests_total{status}      — request count by HTTP status class
-//   http_request_duration_seconds    — latency histogram (bucket + sum + count)
-//   active_connections               — currently open client connections
-//   redis_cache_hits_total           — Redis GET hits
-//   redis_cache_misses_total         — Redis GET misses
+//   http_requests_total{status}      - request count by HTTP status class
+//   http_request_duration_seconds    - latency histogram (bucket + sum + count)
+//   active_connections               - currently open client connections
+//   redis_cache_hits_total           - Redis GET hits
+//   redis_cache_misses_total         - Redis GET misses
 //
 // Expose with:  Metrics::instance().renderPrometheus()
 // Returns Prometheus text exposition format, served from GET /metrics.
@@ -37,7 +37,7 @@ public:
         requestsTotal_.fetch_add(1, std::memory_order_relaxed);
     }
 
-    // Record latency in seconds — updates histogram buckets, sum, count
+    // Record latency in seconds - updates histogram buckets, sum, count
     void recordLatency(double seconds) {
         // Buckets: 1ms,5ms,10ms,25ms,50ms,100ms,250ms,500ms,1s,2.5s,+Inf
         static constexpr double BOUNDS[] = {
@@ -51,7 +51,7 @@ public:
         }
         latencyBuckets_[BUCKET_COUNT - 1].fetch_add(1, std::memory_order_relaxed); // +Inf
 
-        // Accumulate sum with a simple mutex — avoids CAS spin on double
+        // Accumulate sum with a simple mutex - avoids CAS spin on double
         {
             std::lock_guard<std::mutex> lk(sumMutex_);
             latencySumRaw_ += seconds;
@@ -135,7 +135,7 @@ private:
     std::atomic<uint64_t>                requestsTotal_{0};
 
     std::array<std::atomic<uint64_t>, BUCKET_COUNT> latencyBuckets_{};
-    // latencySum_ protected by sumMutex_ — avoids CAS spin on double under load
+    // latencySum_ protected by sumMutex_ - avoids CAS spin on double under load
     mutable std::mutex    sumMutex_;
     double                latencySumRaw_{0.0};
     std::atomic<uint64_t> latencyCount_{0};

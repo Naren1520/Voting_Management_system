@@ -1,5 +1,5 @@
 /* 
-   VoteStack Landing — Premium Scroll Effects
+   VoteStack Landing - Premium Scroll Effects
     */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (typeof lucide !== 'undefined') lucide.createIcons();
 
   initViewportFix();
-  initHeroSkeleton();   // must be early — sets up video listener
+  initHeroSkeleton();   // must be early - sets up video listener
   initHeader();
   initMobileMenu();
   initScrollProgress();
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /*
-   VIEWPORT FIX — iOS Safari reports wrong 100vh on initial load
+   VIEWPORT FIX - iOS Safari reports wrong 100vh on initial load
    because the address bar is still visible. We set --vh as a CSS
    variable matching the real inner height, and update it on resize.
  */
@@ -48,14 +48,14 @@ function initViewportFix() {
   // Run on resize (orientation change, window resize)
   window.addEventListener('resize', setVh, { passive: true });
 
-  // orientationchange fires before the new dimensions settle — delay slightly
+  // orientationchange fires before the new dimensions settle - delay slightly
   window.addEventListener('orientationchange', () => {
     setTimeout(setVh, 300);
   }, { passive: true });
 }
 
 /*
-   HERO SKELETON — dismiss when the bg video has enough data to play,
+   HERO SKELETON - dismiss when the bg video has enough data to play,
    or the poster image loads, whichever comes first.
    Hard fallback: 2.5s max so slow connections never wait forever.
  */
@@ -86,20 +86,20 @@ function initHeroSkeleton() {
     video.addEventListener('error',    dismiss, { once: true });
   }
 
-  // Poster image fallback — if it loads fast, dismiss immediately
+  // Poster image fallback - if it loads fast, dismiss immediately
   if (video && video.poster) {
     const img = new Image();
     img.onload = dismiss;
     img.src = video.poster;
   }
 
-  // Hard timeout — max 2.5s on mobile, 1.5s on fast connections
+  // Hard timeout - max 2.5s on mobile, 1.5s on fast connections
   const isMobile = window.innerWidth <= 800;
   setTimeout(dismiss, isMobile ? 2500 : 1500);
 }
 
 /* 
-   HEADER — scroll shadow + colour swap
+   HEADER - scroll shadow + colour swap
  */
 function initHeader() {
   const header = document.getElementById('header');
@@ -174,7 +174,7 @@ function initScrollProgress() {
 }
 
 /* 
-   AOS — base fade-up + variant support
+   AOS - base fade-up + variant support
  */
 function initAOS() {
   const els = document.querySelectorAll('[data-aos]');
@@ -198,7 +198,7 @@ function initAOS() {
 }
 
 /* 
-   STAGGER — [data-stagger] containers
+   STAGGER - [data-stagger] containers
    Children animate in with cascading delays
  */
 function initStagger() {
@@ -218,7 +218,7 @@ function initStagger() {
 }
 
 /* 
-   SPOTLIGHT SLIDE — content in from left, image from right
+   SPOTLIGHT SLIDE - content in from left, image from right
    (and reverse for the alternating spotlight)
  */
 function initSpotlightSlide() {
@@ -253,7 +253,7 @@ function initSpotlightSlide() {
 }
 
 /* 
-   STEP REVEAL — left border line draws down
+   STEP REVEAL - left border line draws down
  */
 function initStepReveal() {
   const steps = document.querySelectorAll('.step');
@@ -272,7 +272,7 @@ function initStepReveal() {
 }
 
 /* 
-   SECTION LABELS — wipe reveal effect
+   SECTION LABELS - wipe reveal effect
  */
 function initSectionLabels() {
   const labels = document.querySelectorAll('.section-label');
@@ -291,7 +291,7 @@ function initSectionLabels() {
 }
 
 /* 
-   SECTION TITLE LINES — underline expands on scroll
+   SECTION TITLE LINES - underline expands on scroll
  */
 function initSectionTitleLines() {
   document.querySelectorAll('.section-title').forEach(title => {
@@ -314,7 +314,7 @@ function initSectionTitleLines() {
 }
 
 /* 
-   VIDEO FRAME — scale + fade reveal
+   VIDEO FRAME - scale + fade reveal
  */
 function initVideoReveal() {
   const frame = document.querySelector('.video-frame');
@@ -333,7 +333,7 @@ function initVideoReveal() {
 }
 
 /* 
-   COMPLIANCE BADGES — staggered pop in
+   COMPLIANCE BADGES - staggered pop in
  */
 function initComplianceBadges() {
   const row = document.querySelector('.compliance-row');
@@ -356,7 +356,7 @@ function initComplianceBadges() {
 }
 
 /* 
-   FEAT CARDS — 3D tilt on mouse move (desktop only)
+   FEAT CARDS - 3D tilt on mouse move (desktop only)
  */
 function initFeatCards3D() {
   if (window.matchMedia('(hover: none)').matches) return; // skip touch
@@ -383,7 +383,7 @@ function initFeatCards3D() {
 }
 
 /* 
-   PARALLAX — [data-parallax] elements
+   PARALLAX - [data-parallax] elements
  */
 function initParallax() {
   const els = document.querySelectorAll('[data-parallax]');
@@ -412,7 +412,7 @@ function initParallax() {
 }
 
 /* 
-   COUNTERS — animate stat numbers when they scroll into view
+   COUNTERS - animate stat numbers when they scroll into view
  */
 function initCounters() {
   // Map display text → target number + suffix
@@ -461,7 +461,7 @@ function animateCounter(el, { end, decimals = 0, prefix = '', suffix = '' }) {
 }
 
 /* 
-   FAQ — native <details>, refresh icons
+   FAQ - native <details>, refresh icons
  */
 function initFAQ() {
   document.querySelectorAll('.faq-item').forEach(item => {
@@ -472,7 +472,7 @@ function initFAQ() {
 }
 
 /* 
-   VIDEO — play/pause toggle
+   VIDEO - play/pause toggle
  */
 function initVideo() {
   const video   = document.querySelector('.video-frame video');
@@ -505,7 +505,7 @@ function initVideo() {
 }
 
 /* 
-   AUTH STATE — swap CTA if already logged in
+   AUTH STATE - swap CTA if already logged in
  */
 function initAuthState() {
   if (typeof Auth === 'undefined' || !Auth.isLoggedIn()) return;

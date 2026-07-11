@@ -1,5 +1,5 @@
 /**
- * vote.js — Standard single-candidate election ballot
+ * vote.js - Standard single-candidate election ballot
  * Matches vote-multi flow: Voter ID → Face Verify → Select → Done
  */
 
@@ -27,11 +27,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!infoRes.success) { showError(infoRes.message || 'Election not found.'); return; }
 
   document.getElementById('electionTitleDisplay').textContent = infoRes.title;
-  document.title = infoRes.title + ' — VoteStack';
+  document.title = infoRes.title + ' - VoteStack';
 
   if (!infoRes.is_active) { showError('This election is closed.'); return; }
 
-  // Store face verify flag — used when routing from voter ID step
+  // Store face verify flag - used when routing from voter ID step
   window._faceVerifyEnabled = !!infoRes.face_verify_enabled;
 
   // Schedule check
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 /* ─────────────────────────────────────────────────────
-   Step 1 — Verify Voter ID
+   Step 1 - Verify Voter ID
 ───────────────────────────────────────────────────── */
 async function checkVoter() {
   const voterId = document.getElementById('voterIdInput').value.trim();
@@ -104,11 +104,11 @@ async function checkVoter() {
 }
 
 /* ─────────────────────────────────────────────────────
-   Step 2 — Face Verification
+   Step 2 - Face Verification
 ───────────────────────────────────────────────────── */
 async function openCamera() {
   if (!window.isSecureContext) {
-    showMsg('Camera requires HTTPS. If testing locally, use http://localhost — not an IP address.', 'error');
+    showMsg('Camera requires HTTPS. If testing locally, use http://localhost - not an IP address.', 'error');
     return;
   }
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -188,7 +188,7 @@ async function startCapture() {
     return;
   }
 
-  // Verified — show ballot
+  // Verified - show ballot
   hide('stepFace');
   hideMsg();
   show('stepVote');
@@ -196,7 +196,7 @@ async function startCapture() {
 }
 
 /* ─────────────────────────────────────────────────────
-   Step 3 — Select Candidate
+   Step 3 - Select Candidate
 ───────────────────────────────────────────────────── */
 function renderCandidates() {
   const wrap = document.getElementById('candidateOptions');

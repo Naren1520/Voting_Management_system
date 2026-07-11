@@ -140,7 +140,7 @@ A production-grade online voting platform with a high-performance C++ backend, b
 │    │  Fetches stored embedding from Supabase (DB owner)         │
 │    │  Forwards: { best_frame, stored_embeddings }               │
 │    ▼                                                            │
-│  Modal Python Service  (stateless — no DB access)               │
+│  Modal Python Service  (stateless - no DB access)               │
 │    │  InsightFace → live 512-dim face embedding                 │
 │    │  Cosine similarity vs stored embeddings                    │
 │    │  score ≥ threshold (0.82) ?                                │
@@ -164,22 +164,22 @@ A production-grade online voting platform with a high-performance C++ backend, b
 - Standard (single candidate) and multi-position ballot types
 - Scheduled elections with timezone support
 - Shareable per-election voting link and Election ID
-- Join page — voters enter Election ID to access their ballot
+- Join page - voters enter Election ID to access their ballot
 
 **Biometric face verification**
 - Admin enrolls voter photos via file upload or live webcam capture (3 angles: front/left/right)
 - InsightFace ArcFace model generates 512-dim face embeddings at enrollment time
 - MediaPipe FaceMesh liveness detection (blink / head-movement) prevents photo spoofing
-- Cosine similarity comparison at voting time — configurable threshold (default 0.82)
+- Cosine similarity comparison at voting time - configurable threshold (default 0.82)
 - Embeddings stored encrypted in DB; raw photos are never persisted
-- Stateless Python microservice on Modal.com — C++ backend owns all DB access
-- Graceful re-enrollment — admin can update photos at any time
+- Stateless Python microservice on Modal.com - C++ backend owns all DB access
+- Graceful re-enrollment - admin can update photos at any time
 
 **Voting**
 - Face verification required before ballot is shown
 - Voter ID verification before face step
 - Duplicate vote prevention enforced at the database level
-- Atomic vote writes via `INSERT ON CONFLICT DO NOTHING` — no TOCTOU race possible
+- Atomic vote writes via `INSERT ON CONFLICT DO NOTHING` - no TOCTOU race possible
 - Live results with per-candidate vote counts
 
 **Auth**
@@ -387,9 +387,9 @@ VotingSystem using cpp/
 | GCC / G++      | 12+     | Local C++ build only (no Docker)               |
 | Python         | 3.11+   | Serve frontend locally + deploy face service   |
 | pip / modal    | latest  | Deploy face-service to Modal.com               |
-| Supabase       | —       | Free PostgreSQL DB (supabase.com)              |
-| Redis Cloud    | —       | Free Redis instance (redis.io/try-free)        |
-| Modal.com      | —       | Free serverless Python for face service        |
+| Supabase       | -       | Free PostgreSQL DB (supabase.com)              |
+| Redis Cloud    | -       | Free Redis instance (redis.io/try-free)        |
+| Modal.com      | -       | Free serverless Python for face service        |
 
 ---
 
@@ -401,7 +401,7 @@ VotingSystem using cpp/
 git clone <repo-url>
 cd "VotingSystem using cpp"
 cp .env.example .env
-# Edit .env — fill in SUPABASE_URL and SUPABASE_KEY
+# Edit .env - fill in SUPABASE_URL and SUPABASE_KEY
 ```
 
 ### 2 - Start the full stack
@@ -458,11 +458,11 @@ make run        # build + start with env vars from shell
 
 ## Production Deployment
 
-### Render — Backend
+### Render - Backend
 
 Render reads `render.yaml` from the repo root and builds the `Dockerfile` automatically.
 
-**Step 1 — Connect the repo**
+**Step 1 - Connect the repo**
 
 1. Go to [render.com](https://render.com) and create a new account or sign in.
 2. Click **New > Blueprint** and connect your GitHub repository.
@@ -471,7 +471,7 @@ Render reads `render.yaml` from the repo root and builds the `Dockerfile` automa
    - `voting-redis` (managed Redis)
 4. Click **Apply** to create both.
 
-**Step 2 — Set secret environment variables**
+**Step 2 - Set secret environment variables**
 
 In the Render dashboard, open the `voting-backend` service and go to **Environment**.
 Add these two variables manually (they are marked `sync: false` in `render.yaml`):
@@ -483,16 +483,16 @@ Add these two variables manually (they are marked `sync: false` in `render.yaml`
 | `ALLOWED_ORIGINS`| your Netlify site URL, e.g. `https://votestack.netlify.app` |
 
 All other variables (`REDIS_URL`, `RATE_LIMIT_REQUESTS`, etc.) are already set in `render.yaml`.
-`REDIS_URL` is automatically wired from the managed Redis service — no manual copy needed.
+`REDIS_URL` is automatically wired from the managed Redis service - no manual copy needed.
 
-**Step 3 — Deploy**
+**Step 3 - Deploy**
 
 Click **Manual Deploy > Deploy latest commit** or just push to `main`.
 The build takes 2-4 minutes. Watch the logs in the Render dashboard.
 
 When the status shows **Live**, copy the service URL (e.g. `https://voting-backend.onrender.com`).
 
-**Step 4 — Update frontend config**
+**Step 4 - Update frontend config**
 
 Open `frontend/config.js` and set your Render URL:
 
@@ -512,40 +512,40 @@ Render pings `GET /health` every 30 seconds. The endpoint returns:
 
 If it fails 3 times the service is restarted automatically.
 
-> **Free tier note** — Render free web services spin down after 15 minutes of inactivity
+> **Free tier note** - Render free web services spin down after 15 minutes of inactivity
 > and take ~30 seconds to cold start on the next request. Upgrade to the Starter plan
 > ($7/month) to keep it always on.
 
 ---
 
-### Netlify — Frontend
+### Netlify - Frontend
 
-**Step 1 — Connect the repo**
+**Step 1 - Connect the repo**
 
 1. Go to [netlify.com](https://netlify.com) and sign in.
 2. Click **Add new site > Import an existing project**.
 3. Choose GitHub and select your repository.
 
-**Step 2 — Configure build settings**
+**Step 2 - Configure build settings**
 
 Set these in the Netlify UI:
 
 | Setting           | Value        |
 |-------------------|--------------|
 | Base directory    | `frontend`   |
-| Build command     | _(leave empty — no build step)_ |
+| Build command     | _(leave empty - no build step)_ |
 | Publish directory | `frontend`   |
 
 > If Netlify auto-detects a framework, clear any auto-filled build command.
 > This is a plain static site.
 
-**Step 3 — Deploy**
+**Step 3 - Deploy**
 
 Click **Deploy site**. It finishes in under 30 seconds.
 
-Netlify reads `frontend/netlify.toml` automatically for redirect rules and security headers — no extra dashboard configuration needed.
+Netlify reads `frontend/netlify.toml` automatically for redirect rules and security headers - no extra dashboard configuration needed.
 
-**Step 4 — Set your custom domain (optional)**
+**Step 4 - Set your custom domain (optional)**
 
 In the Netlify dashboard go to **Domain settings** and add your domain.
 Netlify provisions a free TLS certificate via Let's Encrypt automatically.
@@ -606,7 +606,7 @@ curl -X POST https://voting-backend.onrender.com/api/auth/login \
 | `FACE_API_SECRET`      | no       | -                              | Shared secret for face service auth       |
 | `FACE_THRESHOLD`       | no       | `0.82`                         | Face similarity threshold (0.0–1.0)       |
 
-### Face Service (Modal secrets — `votestack-face-secrets`)
+### Face Service (Modal secrets - `votestack-face-secrets`)
 
 | Variable               | Required | Default         | Description                                |
 |------------------------|----------|-----------------|--------------------------------------------|
@@ -679,7 +679,7 @@ Authorization: Bearer <token>
 | POST   | `/api/multi-vote/:id/cast`      | Cast all position votes atomically       |
 | GET    | `/api/multi-vote/:id/results`   | Multi-position live results              |
 
-### Face Service (Modal — called by C++ backend only)
+### Face Service (Modal - called by C++ backend only)
 
 | Method | Endpoint                   | Auth   | Description                          |
 |--------|----------------------------|--------|--------------------------------------|
@@ -734,8 +734,8 @@ GET /api/vote/:id/results
 | Face biometrics           | Embeddings stored encrypted; raw photos never persisted (Change 6)      |
 | Face liveness             | MediaPipe blink/head-movement check prevents static photo spoofing      |
 | Face service auth         | Shared secret in `Authorization: Bearer` header between C++ and Modal   |
-| Stateless face service    | Python service never accesses DB — C++ owns all data (Change 1)         |
-| Configurable threshold    | `FACE_THRESHOLD` env var — no code change needed to tune accuracy        |
+| Stateless face service    | Python service never accesses DB - C++ owns all data (Change 1)         |
+| Configurable threshold    | `FACE_THRESHOLD` env var - no code change needed to tune accuracy        |
 
 ---
 
@@ -779,7 +779,7 @@ Requires [k6](https://k6.io/docs/get-started/installation/).
 # Install k6 on Windows
 winget install k6 --source winget
 
-# Smoke test — 5 VUs, 20s (run before every deploy)
+# Smoke test - 5 VUs, 20s (run before every deploy)
 k6 run load-test/smoke_test.js
 
 # Full staged load test (ramps 10 → 50 → 100 VUs)

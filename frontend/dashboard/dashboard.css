@@ -782,7 +782,7 @@ ul     { list-style: none; }
   gap: 14px;
 }
 
-/* Cards grid — mirrors .elections-grid layout */
+/* Cards grid - mirrors .elections-grid layout */
 .dsk-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -796,7 +796,7 @@ ul     { list-style: none; }
   border-radius: var(--radius-xl);
 }
 
-/* Election card skeleton — same height as real cards */
+/* Election card skeleton - same height as real cards */
 .dsk-ec {
   height: 158px;
   position: relative;

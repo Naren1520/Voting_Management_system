@@ -18,7 +18,7 @@ static size_t faceWriteCallback(char* ptr, size_t size, size_t nmemb, void* user
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// callFaceService — direct libcurl call to Modal (or any external URL)
+// callFaceService - direct libcurl call to Modal (or any external URL)
 // Change 1: Python service never calls Supabase.
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -56,7 +56,7 @@ json FaceController::callFaceService(const std::string& endpoint, const json& bo
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER,     headers);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,  faceWriteCallback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA,      &responseBody);
-    curl_easy_setopt(curl, CURLOPT_TIMEOUT,        90L);   // 90s — Modal cold start
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT,        90L);   // 90s - Modal cold start
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 
     CURLcode res = curl_easy_perform(curl);
@@ -87,7 +87,7 @@ json FaceController::callFaceService(const std::string& endpoint, const json& bo
 // ─────────────────────────────────────────────────────────────────────────────
 // encryptEmbedding / decryptEmbedding
 // Change 6: embeddings stored encrypted in DB.
-// Simple XOR-based placeholder — replace with AES-256-GCM in production.
+// Simple XOR-based placeholder - replace with AES-256-GCM in production.
 // ─────────────────────────────────────────────────────────────────────────────
 
 std::string FaceController::encryptEmbedding(const std::string& plain) {
@@ -98,7 +98,7 @@ std::string FaceController::encryptEmbedding(const std::string& plain) {
     //   EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr, key, iv);
     //   ...
     LOG_WARN("[FaceController] encryptEmbedding: using placeholder (implement AES-256-GCM)");
-    return plain; // placeholder — implement before production
+    return plain; // placeholder - implement before production
 }
 
 std::string FaceController::decryptEmbedding(const std::string& encrypted) {
@@ -202,7 +202,7 @@ json FaceController::enroll(const std::string& userId,
         return res;
     }
 
-    // Change 6: photos are NOT stored — only embeddings reach the DB
+    // Change 6: photos are NOT stored - only embeddings reach the DB
     res["success"] = true;
     res["message"] = (alreadyExists ? "Face re-enrolled successfully (" : "Face enrolled successfully (") +
                      std::to_string(faceRes.value("count",1)) + " embedding(s) stored)";

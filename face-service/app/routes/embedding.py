@@ -3,7 +3,7 @@ POST /generate-embedding
 
 Change 3: Generate embeddings at enrollment time (admin upload).
 Change 4: Accept up to 3 photos (front/left/right).
-Change 6: Service never stores photos — only returns embeddings.
+Change 6: Service never stores photos - only returns embeddings.
           C++ backend stores the encrypted embeddings; photos are discarded.
 
 Flow:

@@ -42,7 +42,7 @@ class VerifyRequest(BaseModel):
     Change 1: C++ backend fetches embedding from DB and passes it here.
     Change 5: C++ backend sends best frame (selected from 20–30 captured frames).
     """
-    # Live capture — best frame selected from liveness sequence (Change 5)
+    # Live capture - best frame selected from liveness sequence (Change 5)
     best_frame: str = Field(..., description="Base64-encoded best frame from liveness sequence")
 
     # Change 1: C++ backend owns the DB; it fetches and sends embeddings here

@@ -3,7 +3,7 @@
 #include "../../include/db/SupabaseClient.h"
 #include "../../include/core/Logger.h"
 
-// getCandidates — with candidate cache
+// getCandidates - with candidate cache
 
 json PublicVoteController::getCandidates(const std::string& electionId) {
     auto elec = supabaseRequest("GET",
@@ -26,7 +26,7 @@ json PublicVoteController::getCandidates(const std::string& electionId) {
     if (!cached.empty()) {
         try {
             json r; r["success"]=true; r["candidates"]=json::parse(cached); return r;
-        } catch (...) { /* corrupt cache entry — fall through */ }
+        } catch (...) { /* corrupt cache entry - fall through */ }
     }
 
     auto res = supabaseRequest("GET",
@@ -40,7 +40,7 @@ json PublicVoteController::getCandidates(const std::string& electionId) {
     }
 }
 
-// checkVoter — read-only eligibility check (does NOT cast a vote)
+// checkVoter - read-only eligibility check (does NOT cast a vote)
 
 json PublicVoteController::checkVoter(const std::string& electionId,
                                       const std::string& voterId) {
@@ -79,7 +79,7 @@ json PublicVoteController::checkVoter(const std::string& electionId,
     return res;
 }
 
-// castVote — atomic via Supabase RPC to eliminate the TOCTOU race.
+// castVote - atomic via Supabase RPC to eliminate the TOCTOU race.
 //
 // Fix #14: The old flow was three separate HTTP calls:
 //   1. GET votes_cast  (check duplicate)
@@ -92,7 +92,7 @@ json PublicVoteController::checkVoter(const std::string& electionId,
 //   The fix calls a single Postgres function (cast_vote_single) that performs
 //   all three steps inside one transaction with a row-level lock on votes_cast
 //   using INSERT ... ON CONFLICT DO NOTHING.  Either the vote is recorded or
-//   it is not — there is no in-between.
+//   it is not - there is no in-between.
 //
 //   SQL to create this function in Supabase (run once in the SQL editor):
 //
@@ -217,11 +217,11 @@ json PublicVoteController::castVote(const std::string& electionId,
     } catch (...) {
         // If RPC doesn't exist yet, fall back to the legacy two-step flow
         // but log a warning so the developer knows to create the function.
-        LOG_WARN("[castVote] RPC cast_vote_single not available — "
+        LOG_WARN("[castVote] RPC cast_vote_single not available - "
                  "falling back to two-step write. "
                  "Create the SQL function to fix the TOCTOU race!");
 
-        // Legacy fallback — direct insert into votes_cast
+        // Legacy fallback - direct insert into votes_cast
         // Check again immediately before writing
         auto voted = supabaseRequest("GET",
             "votes_cast?select=voter_id&election_id=eq."+electionId+
@@ -242,12 +242,12 @@ json PublicVoteController::castVote(const std::string& electionId,
         supabaseRequest("POST", "votes_cast", voteBody.dump());
     }
 
-    // Invalidate candidate cache — vote counts changed
+    // Invalidate candidate cache - vote counts changed
     CandidateCache::instance().invalidate(electionId);
 
     res["success"] = true;
     res["message"] = "Vote cast successfully for " + candidateName;
-    // NOTE: do not re-fetch candidates here — the cache was just invalidated.
+    // NOTE: do not re-fetch candidates here - the cache was just invalidated.
     // The frontend should call GET /api/vote/:id/results for updated counts.
     return res;
 }

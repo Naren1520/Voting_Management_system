@@ -1,5 +1,5 @@
 # ============================================================
-# alert_rules.yml — Prometheus alerting rules for VoteStack
+# alert_rules.yml - Prometheus alerting rules for VoteStack
 # ============================================================
 
 groups:

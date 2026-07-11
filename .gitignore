@@ -14,12 +14,12 @@ backend/voting_server_linux.cpp
 # Canonical copy is backend/server/third_party/json.hpp
 backend/json.hpp
 
-# ── Root Dockerfile — needed by Render.com for deployment ─────
+# ── Root Dockerfile - needed by Render.com for deployment ─────
 # Keep tracked. The docker/ folder has separate images for
 # local Docker Compose (Dockerfile.server, Dockerfile.nginx).
 # Dockerfile   <-- intentionally tracked, do NOT add here
 
-# ── render.yaml — needed by Render.com for deployment ─────────
+# ── render.yaml - needed by Render.com for deployment ─────────
 # Keep tracked. Defines the web service + managed Redis.
 # render.yaml   <-- intentionally tracked, do NOT add here
 

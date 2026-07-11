@@ -4,7 +4,7 @@
 #include <fstream>
 
 // ==================
-// Logger — thread-safe logger writing to stdout AND an optional log file.
+// Logger - thread-safe logger writing to stdout AND an optional log file.
 //
 // Fix #7: Logs are written to a file (LOG_FILE env var, default server.log)
 //   so they survive a crash. Without a file, stdout logs are lost on the
@@ -18,7 +18,7 @@ public:
     static Logger& instance();
 
     // Open the log file. Call once from main() after Config::load().
-    // path — file path; if empty, logs to stdout only.
+    // path - file path; if empty, logs to stdout only.
     void openFile(const std::string& path);
 
     void log(LogLevel level, const std::string& msg);

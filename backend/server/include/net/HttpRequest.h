@@ -3,7 +3,7 @@
 #include <map>
 
 // ==================
-// HttpRequest — parses a raw HTTP/1.1 request from a client fd.
+// HttpRequest - parses a raw HTTP/1.1 request from a client fd.
 //
 // Fix #1 / #7: parse() sets SO_RCVTIMEO (5 s) on the fd so it handles
 //   split TCP packets correctly without busy-spinning on EAGAIN, and

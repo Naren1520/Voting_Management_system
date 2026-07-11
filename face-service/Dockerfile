@@ -1,5 +1,5 @@
 # ============================================================
-# Dockerfile — VoteStack Face Service
+# Dockerfile - VoteStack Face Service
 # Python 3.11 slim + InsightFace + MediaPipe
 # ============================================================
 

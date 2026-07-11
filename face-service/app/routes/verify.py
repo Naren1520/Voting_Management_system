@@ -3,7 +3,7 @@ POST /verify
 
 Full verification flow (all 6 improvements applied).
 
-Change 1: C++ backend fetches embedding from DB — service is stateless.
+Change 1: C++ backend fetches embedding from DB - service is stateless.
 Change 2: Configurable threshold via env var or per-request override.
 Change 4: Compare against all stored embeddings, take best score.
 Change 5: Browser sends best frame from 20-30 frame liveness sequence.

@@ -1,15 +1,15 @@
 /**
  * face-enroll.js
  * Supports two enrollment methods:
- *   1. Upload Photos — file input (existing flow)
- *   2. Use Camera   — live webcam capture per angle
+ *   1. Upload Photos - file input (existing flow)
+ *   2. Use Camera   - live webcam capture per angle
  */
 
 const params     = new URLSearchParams(location.search);
 const electionId = params.get('election');
 const voterId    = params.get('voter');
 
-// Shared photo data — indexed 0=front, 1=left, 2=right
+// Shared photo data - indexed 0=front, 1=left, 2=right
 const photoData = [null, null, null];
 
 // Current active tab
@@ -65,7 +65,7 @@ function switchTab(tab) {
 }
 
 /* ─────────────────────────────────────────────────────
-   Upload tab — file input
+   Upload tab - file input
 ───────────────────────────────────────────────────── */
 function handleUpload(idx, input) {
   const file = input.files[0];
@@ -89,7 +89,7 @@ async function openEnrollCamera() {
   if (!window.isSecureContext) {
     showMsg(
       'Camera requires a secure connection (HTTPS). ' +
-      'If you\'re testing locally, use http://localhost — not an IP address or http://.',
+      'If you\'re testing locally, use http://localhost - not an IP address or http://.',
       'error'
     );
     return;
@@ -118,7 +118,7 @@ async function openEnrollCamera() {
     document.getElementById('angleRow').style.display    = 'flex';
     document.getElementById('angleTip').style.display    = 'flex';
     setAngleTip(0);
-    removeCameraNotice(); // camera opened fine — remove any previous notice
+    removeCameraNotice(); // camera opened fine - remove any previous notice
   } catch (e) {
     let msg = '';
     const isPermissionDenied = e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError';
@@ -183,7 +183,7 @@ async function openEnrollCamera() {
   }
 }
 
-/* Inject a camera fix-it notice below the hint — only on permission denial */
+/* Inject a camera fix-it notice below the hint - only on permission denial */
 function showCameraNotice() {
   if (document.getElementById('cameraNotice')) return; // already shown
   const notice = document.createElement('div');

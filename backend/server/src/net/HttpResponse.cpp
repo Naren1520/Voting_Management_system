@@ -5,7 +5,7 @@
 
 using json = nlohmann::json;
 
-// allowedOrigin — returns the CORS origin header value for the request origin.
+// allowedOrigin - returns the CORS origin header value for the request origin.
 // Restricts to ALLOWED_ORIGINS env var (comma-separated) or falls back to
 // a wildcard only if the env var is explicitly set to "*".
 // Default (no env var) allows the known production origins only.
@@ -35,7 +35,7 @@ static std::string resolveOrigin(const std::string& requestOrigin) {
         if (comma == std::string::npos) break;
         pos = comma + 1;
     }
-    // Origin not in allowlist — return first allowed origin as fallback
+    // Origin not in allowlist - return first allowed origin as fallback
     // (browser will block the response, which is the correct behaviour)
     auto first = allowed.find(',');
     return first == std::string::npos ? allowed : allowed.substr(0, first);

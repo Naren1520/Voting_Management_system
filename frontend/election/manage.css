@@ -133,7 +133,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .mn-page {
   max-width: 1280px; margin: 0 auto;
   padding: 36px 32px 64px;
-  /* hidden until skeleton dismissed — prevents flash of 0s */
+  /* hidden until skeleton dismissed - prevents flash of 0s */
   visibility: hidden;
   opacity: 0;
   transition: opacity .3s ease;
@@ -609,7 +609,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   flex-shrink: 0;
 }
 
-/* Mobile voter card — 2 rows: [avatar + name] then [chips + actions] */
+/* Mobile voter card - 2 rows: [avatar + name] then [chips + actions] */
 @media (max-width: 600px) {
   .voter-card {
     flex-wrap: wrap;
@@ -665,7 +665,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 @media (max-width: 960px) { .results-grid { grid-template-columns: 1fr; } }
 
-/* Charts sit side by side — each takes full column */
+/* Charts sit side by side - each takes full column */
 .charts-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -862,7 +862,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .filter-pill:hover { border-color: #aaa; color: var(--ink); }
 
-/* Active — All */
+/* Active - All */
 .filter-pill.active {
   background: var(--ink); color: #fff;
   border-color: var(--ink);
@@ -972,7 +972,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   flex-shrink: 0;
 }
 
-/* Full-page overlay — sits on top of real content */
+/* Full-page overlay - sits on top of real content */
 .sk-overlay {
   position: fixed;
   inset: 0;
@@ -1096,7 +1096,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   margin-bottom: 24px;
 }
 
-/* List item placeholder — mimics candidate/voter card */
+/* List item placeholder - mimics candidate/voter card */
 .sk-list-item {
   height: 68px;
   border-radius: var(--radius-md) !important;

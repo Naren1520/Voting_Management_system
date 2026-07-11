@@ -2,7 +2,7 @@
 #include <string>
 
 // ==================
-// HttpResponse — builds HTTP/1.1 responses with origin-validated CORS headers.
+// HttpResponse - builds HTTP/1.1 responses with origin-validated CORS headers.
 //
 // CORS origins are controlled by the ALLOWED_ORIGINS env var (comma-separated).
 // Default allows the known Netlify frontend + localhost dev origins.
@@ -12,7 +12,7 @@
 class HttpResponse {
 public:
     // Build a complete HTTP response string.
-    // requestOrigin — value of the request's Origin header (used for CORS).
+    // requestOrigin - value of the request's Origin header (used for CORS).
     static std::string build(int statusCode, const std::string& jsonBody,
                              const std::string& requestOrigin = "");
 

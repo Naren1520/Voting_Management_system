@@ -9,19 +9,19 @@ using json = nlohmann::json;
  * FaceController
  *
  * Implements Change 1: C++ backend owns all DB access.
- * Python service is stateless — it never touches the database.
+ * Python service is stateless - it never touches the database.
  *
  * Two operations:
- *   enroll()  — admin uploads photo(s) → generate embeddings → store encrypted
- *   verify()  — fetch stored embeddings → send to Python service → return result
+ *   enroll()  - admin uploads photo(s) → generate embeddings → store encrypted
+ *   verify()  - fetch stored embeddings → send to Python service → return result
  */
 class FaceController {
 public:
     /**
-     * enroll — called when admin registers a voter with photos.
+     * enroll - called when admin registers a voter with photos.
      * Change 3: generates embeddings at enrollment, not at verify time.
      * Change 4: accepts up to 3 photos (front/left/right).
-     * Change 6: does not store raw photos — only encrypted embeddings.
+     * Change 6: does not store raw photos - only encrypted embeddings.
      *
      * @param userId      election owner's user_id (auth check)
      * @param electionId  election UUID
@@ -34,7 +34,7 @@ public:
                 const std::vector<std::string>& photos);
 
     /**
-     * verify — called when voter enters voter ID on ballot page.
+     * verify - called when voter enters voter ID on ballot page.
      * Change 1: fetches embeddings from Supabase here, passes to Python.
      * Change 2: threshold from config, optional per-request override.
      * Change 5: receives best_frame already selected by browser liveness logic.

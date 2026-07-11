@@ -34,7 +34,7 @@
 
 using json = nlohmann::json;
 
-// Controller instances (stateless — safe to share across threads)
+// Controller instances (stateless - safe to share across threads)
 static AuthController            g_auth;
 static ElectionController        g_election;
 static CandidateController       g_candidate;
@@ -116,7 +116,7 @@ void EpollServer::startCleanupTimer() {
     cleanupThread_ = std::thread([this] { cleanupLoop(); });
 }
 
-// start — epoll loop
+// start - epoll loop
 
 bool EpollServer::start() {
     ::signal(SIGPIPE, SIG_IGN);
@@ -159,7 +159,7 @@ bool EpollServer::start() {
         return false;
     }
 
-    // Thread pool — handler set in constructor (Fix #3).
+    // Thread pool - handler set in constructor (Fix #3).
     // Pool size also passed to SupabaseClient so curl handles match workers.
     // Cap at 4 threads on free-tier hosts (limited memory/CPU).
     // Override with WORKER_THREADS env var if needed.
@@ -227,7 +227,7 @@ bool EpollServer::start() {
                             "{\"success\":false,\"message\":\"Server busy\"}";
                         ::send(clientFd, busy, strlen(busy), MSG_NOSIGNAL);
                         ::close(clientFd);
-                        LOG_WARN("Queue full — rejected connection with 503");
+                        LOG_WARN("Queue full - rejected connection with 503");
                     }
                 }
             }
@@ -236,7 +236,7 @@ bool EpollServer::start() {
     return true;
 }
 
-// handleClient — called by thread-pool workers
+// handleClient - called by thread-pool workers
 
 void EpollServer::handleClient(int fd) {
     LatencyTimer timer;   // Step 11: starts clock + increments active_connections
@@ -276,19 +276,19 @@ void EpollServer::handleClient(int fd) {
     ::close(fd);
 }
 
-// route — full request router (all original routes preserved)
+// route - full request router (all original routes preserved)
 
 std::string EpollServer::route(const HttpRequest& req) {
     const std::string& method = req.method;
     const std::string& path   = req.path;
     const std::string& body   = req.body;
     std::string token         = req.getToken();
-    // Origin extracted once — passed to all HttpResponse builders for validated CORS
+    // Origin extracted once - passed to all HttpResponse builders for validated CORS
     const std::string  origin = req.getHeader("origin");
     auto segs = splitPath(path);
 
     try {
-        // ── Health check (always pass — before rate limiting) ─────────────────
+        // ── Health check (always pass - before rate limiting) ─────────────────
         if (path == "/health" && method == "GET") {
             json h; h["status"] = "ok";
             return HttpResponse::build(200, h.dump());
@@ -402,7 +402,7 @@ std::string EpollServer::route(const HttpRequest& req) {
             return HttpResponse::build(r["success"].get<bool>() ? 201 : 400, r.dump());
         }
 
-        // PATCH /api/elections/:id/face-verify — toggle face verification on/off
+        // PATCH /api/elections/:id/face-verify - toggle face verification on/off
         if (segs.size()==4 && segs[1]=="elections" && segs[3]=="face-verify" && method=="PATCH") {
             std::string uid = g_auth.validateToken(token);
             if (uid.empty()) return HttpResponse::buildError(401, "Unauthorized");
@@ -697,7 +697,7 @@ std::string EpollServer::route(const HttpRequest& req) {
 
         // ── FACE VERIFICATION ────────────────────────────────────────────────
 
-        // GET /api/elections/:id/voters/:voterId/enroll-face — check enrollment status
+        // GET /api/elections/:id/voters/:voterId/enroll-face - check enrollment status
         if (segs.size()==6 && segs[1]=="elections" && segs[3]=="voters" &&
             segs[5]=="enroll-face" && method=="GET") {
             std::string uid = g_auth.validateToken(token);
@@ -747,7 +747,7 @@ std::string EpollServer::route(const HttpRequest& req) {
         }
 
         // POST /api/vote/:id/verify-face
-        // Voter verifies face before ballot — C++ fetches embeddings (Change 1)
+        // Voter verifies face before ballot - C++ fetches embeddings (Change 1)
         if (segs.size()==4 && segs[1]=="vote" && segs[3]=="verify-face" && method=="POST") {
             try {
                 auto rb = json::parse(body);

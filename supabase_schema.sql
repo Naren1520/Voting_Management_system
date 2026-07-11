@@ -1,6 +1,6 @@
--- VoteStack — Full reset + schema
+-- VoteStack - Full reset + schema
 
--- Drop everything (order matters — child tables first)
+-- Drop everything (order matters - child tables first)
 DROP TABLE IF EXISTS public.multi_votes_cast    CASCADE;
 DROP TABLE IF EXISTS public.position_candidates CASCADE;
 DROP TABLE IF EXISTS public.positions           CASCADE;
@@ -149,7 +149,7 @@ GRANT ALL ON public.multi_votes_cast    TO anon, authenticated;
 
 -- ── Voter face embeddings (biometric verification) 
 -- Stores AES-256-GCM encrypted InsightFace embeddings.
--- Raw photos are NEVER stored — only embeddings (Change 6).
+-- Raw photos are NEVER stored - only embeddings (Change 6).
 CREATE TABLE IF NOT EXISTS public.voter_embeddings (
     id              UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
     election_id     UUID        NOT NULL REFERENCES public.elections(id) ON DELETE CASCADE,

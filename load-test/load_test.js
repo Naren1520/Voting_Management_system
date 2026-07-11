@@ -1,5 +1,5 @@
 // ============================================================
-// load_test.js — VoteStack staged load test
+// load_test.js - VoteStack staged load test
 //
 // Tests the full request lifecycle under increasing concurrency:
 //   - Anonymous public voting (60% of traffic)
@@ -32,7 +32,7 @@ const rateLimited      = new Counter('rate_limited_429');
 const BASE_URL    = __ENV.BASE_URL    || 'https://votestack-cjom.onrender.com';
 const ELECTION_ID = __ENV.ELECTION_ID || '00000000-0000-0000-0000-000000000000';
 
-// Pre-registered voter IDs — replace with real IDs from your election
+// Pre-registered voter IDs - replace with real IDs from your election
 const VOTER_IDS = ['V001', 'V002', 'V003', 'V004', 'V005',
                    'V006', 'V007', 'V008', 'V009', 'V010'];
 
@@ -40,7 +40,7 @@ const VOTER_IDS = ['V001', 'V002', 'V003', 'V004', 'V005',
 export const options = {
   stages: [
     { duration: '30s', target: 10  },   // warm-up (Render free cold start)
-    { duration: '60s', target: 50  },   // steady load — free tier limit
+    { duration: '60s', target: 50  },   // steady load - free tier limit
     { duration: '60s', target: 100 },   // push it
     { duration: '30s', target: 0   },   // ramp down
   ],

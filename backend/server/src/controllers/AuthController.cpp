@@ -135,7 +135,7 @@ json AuthController::login(const std::string& email, const std::string& password
     return res;
 }
 
-// validateToken — returns user_id or empty string
+// validateToken - returns user_id or empty string
 // Checks Redis first; falls back to Supabase on cache miss.
 
 std::string AuthController::validateToken(const std::string& token) {
@@ -145,10 +145,10 @@ std::string AuthController::validateToken(const std::string& token) {
     auto& redis = RedisClient::instance();
     if (redis.isAvailable()) {
         std::string cached = redis.get("session:" + token);
-        if (!cached.empty()) return cached;  // cache hit — no DB round-trip
+        if (!cached.empty()) return cached;  // cache hit - no DB round-trip
     }
 
-    // 2. Cache miss — query Supabase for the session
+    // 2. Cache miss - query Supabase for the session
     // Fix #1: Do NOT run DELETE on every cache miss. Expired-session cleanup
     // is now handled by a background timer in the server (runs every 10 min),
     // not on the hot path of every authenticated request.
@@ -161,7 +161,7 @@ std::string AuthController::validateToken(const std::string& token) {
             // Check expiry client-side to avoid a wasted cache write
             std::string expiresAt = arr[0].value("expires_at", "");
             if (!expiresAt.empty() && expiresAt < SupabaseClient::currentTimestamp()) {
-                // Expired — delete just this one session and return empty
+                // Expired - delete just this one session and return empty
                 supabaseRequest("DELETE",
                     "sessions?token=eq." + SupabaseClient::urlEncode(token));
                 return "";
@@ -264,7 +264,7 @@ json AuthController::getSessions(const std::string& token) {
     if (userId.empty()) {
         res["success"] = false; res["message"] = "Unauthorized"; return res;
     }
-    // Fix #1: don't DELETE expired sessions on every view — background cleanup handles this
+    // Fix #1: don't DELETE expired sessions on every view - background cleanup handles this
 
     auto r = supabaseRequest("GET",
         "sessions?select=token,user_agent,ip_address,location,created_at,expires_at"
@@ -397,7 +397,7 @@ std::string AuthController::createSession(const std::string& userId,
     return token;
 }
 
-// cacheSession — store token → userId in Redis
+// cacheSession - store token → userId in Redis
 
 void AuthController::cacheSession(const std::string& token,
                                   const std::string& userId,
@@ -407,7 +407,7 @@ void AuthController::cacheSession(const std::string& token,
     redis.set("session:" + token, userId, ttlSeconds);
 }
 
-// invalidateSession — remove token from Redis cache
+// invalidateSession - remove token from Redis cache
 
 void AuthController::invalidateSession(const std::string& token) {
     auto& redis = RedisClient::instance();

@@ -1,5 +1,5 @@
 """
-modal_app.py — VoteStack Face Service on Modal.com
+modal_app.py - VoteStack Face Service on Modal.com
 Modal v1.5+ compatible.
 
 All app code is embedded directly in this file so Modal doesn't need

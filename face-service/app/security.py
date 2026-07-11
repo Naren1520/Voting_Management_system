@@ -10,7 +10,7 @@ from app.config import settings
 
 async def verify_api_secret(authorization: str = Header(...)) -> None:
     """
-    Dependency — inject into any route that should only be called by the
+    Dependency - inject into any route that should only be called by the
     C++ backend. Rejects all other callers.
 
     Expected header:  Authorization: Bearer <FACE_API_SECRET>

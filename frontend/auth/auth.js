@@ -1,5 +1,5 @@
 /* 
-   VoteStack Auth — Shared JS
+   VoteStack Auth - Shared JS
    login.html + signup.html
     */
 
@@ -9,12 +9,12 @@ document.addEventListener('DOMContentLoaded', () => {
   initInputAnimations();
   if (typeof initStrength === 'function') initStrength();
 
-  // Dismiss skeleton — DOM is ready, layout is painted
+  // Dismiss skeleton - DOM is ready, layout is painted
   hideAuthSkeleton();
 
   // Ping the server as soon as the page loads so Render's free tier
   // starts waking up before the user clicks the submit button.
-  // The result is ignored — this is purely a warm-up call.
+  // The result is ignored - this is purely a warm-up call.
   fetch((window.API_BASE || 'http://localhost:8080') + '/health', {
     method: 'GET',
     signal: AbortSignal.timeout ? AbortSignal.timeout(35000) : undefined

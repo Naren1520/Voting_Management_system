@@ -165,7 +165,7 @@ function checkEmpty() {
 }
 
 /* 
-   Device icon helper — picks desktop, mobile, or tablet SVG
+   Device icon helper - picks desktop, mobile, or tablet SVG
  */
 function getDeviceIcon(device) {
   const d = device.toLowerCase();
@@ -206,7 +206,7 @@ function showToast(msg, type = 'success') {
    Helpers
  */
 function formatDate(d) {
-  if (!d) return '—';
+  if (!d) return '-';
   return new Date(d).toLocaleString('en-GB', {
     day: 'numeric', month: 'short', year: 'numeric',
     hour: '2-digit', minute: '2-digit'

@@ -18,7 +18,7 @@ const API = (() => {
     const opts = { method, headers: headers(auth) };
     if (body) opts.body = JSON.stringify(body);
 
-    // 35-second timeout — enough for Render free tier cold start (~30s).
+    // 35-second timeout - enough for Render free tier cold start (~30s).
     // AbortController lets us cancel the fetch after the timeout.
     const controller = new AbortController();
     const timeoutId  = setTimeout(() => controller.abort(), 35000);
@@ -33,9 +33,9 @@ const API = (() => {
       clearTimeout(timeoutId);
       // AbortError = our timeout fired = server still waking up
       if (e.name === 'AbortError') {
-        return { success: false, message: 'Server is waking up — please try again in a moment.' };
+        return { success: false, message: 'Server is waking up - please try again in a moment.' };
       }
-      return { success: false, message: 'Network error — is the server running?' };
+      return { success: false, message: 'Network error - is the server running?' };
     }
   };
 
@@ -82,7 +82,7 @@ const API = (() => {
     // Candidates
     getCandidates:   (elecId)      => req('GET',    `/api/elections/${elecId}/candidates`),
     addCandidate:    (elecId, name)=> req('POST',   `/api/elections/${elecId}/candidates`, { name }),
-    // DELETE with body — use POST with _method override handled server-side
+    // DELETE with body - use POST with _method override handled server-side
     deleteCandidate: (elecId, name)=> req('DELETE', `/api/elections/${elecId}/candidates`, { name }),
 
     // Voters (admin)
@@ -249,7 +249,7 @@ const SessionGuard = (() => {
       const res = await API.ping();
       if (!res.success) showSignedOut();
     } catch (_) {
-      // network error — don't show overlay, try again next tick
+      // network error - don't show overlay, try again next tick
     }
   }
 

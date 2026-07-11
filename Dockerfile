@@ -1,11 +1,11 @@
-# Dockerfile — VoteStack backend (Render.com deployment)
+# Dockerfile - VoteStack backend (Render.com deployment)
 
 #  Build stage 
 FROM debian:bookworm AS builder
 
 WORKDIR /app
 
-# Install build deps (cached — only re-runs if this layer changes)
+# Install build deps (cached - only re-runs if this layer changes)
 RUN apt-get update && \
     apt-get install -y \
         g++ \
@@ -15,12 +15,12 @@ RUN apt-get update && \
         ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy source — Docker invalidates cache here when any source file changes
+# Copy source - Docker invalidates cache here when any source file changes
 COPY backend/server/include/     ./include/
 COPY backend/server/src/         ./src/
 COPY backend/server/third_party/ ./third_party/
 
-# Compile — runs whenever source files above change
+# Compile - runs whenever source files above change
 RUN mkdir -p bin && \
     g++ -std=c++17 -O2 -Wall -pthread \
         src/main.cpp \

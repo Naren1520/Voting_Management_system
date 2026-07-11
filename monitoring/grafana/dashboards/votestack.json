@@ -17,7 +17,7 @@
     { "type": "panel", "id": "gauge",      "name": "Gauge",       "version": "" }
   ],
   "annotations": { "list": [] },
-  "description": "VoteStack — C++ backend, Redis, nginx, host metrics",
+  "description": "VoteStack - C++ backend, Redis, nginx, host metrics",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,

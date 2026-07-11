@@ -1,5 +1,5 @@
 /* ==
-   schedule.css — scheduling UI component
+   schedule.css - scheduling UI component
 == */
 
 /* ── Section wrapper ── */
@@ -78,7 +78,7 @@
   white-space: nowrap; flex-shrink: 0;
 }
 
-/* ── Timezone modal overlay — centered, matches calendar popover ── */
+/* ── Timezone modal overlay - centered, matches calendar popover ── */
 .sched-tz-popover {
   display: none;
   position: fixed;
@@ -331,7 +331,7 @@
   transition: transform .2s;
 }
 
-/* Popover wrapper — centered overlay */
+/* Popover wrapper - centered overlay */
 .sched-cal-popover {
   display: none;
   position: fixed;

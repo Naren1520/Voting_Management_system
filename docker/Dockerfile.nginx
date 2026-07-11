@@ -1,5 +1,5 @@
 # ============================================================
-# Dockerfile.nginx — nginx reverse proxy (Step 7 & 10)
+# Dockerfile.nginx - nginx reverse proxy (Step 7 & 10)
 # Uses the official nginx image with our custom config +
 # a self-signed cert for local dev (Certbot for production).
 # ============================================================

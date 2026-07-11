@@ -1,13 +1,13 @@
 """
 VoteStack Face Verification Service
 ====================================
-Stateless FastAPI microservice — no database access.
+Stateless FastAPI microservice - no database access.
 The C++ backend owns all data; this service only computes.
 
 Endpoints:
-  POST /generate-embedding   — enroll: photo -> embedding
-  POST /verify               — voting: live frame + stored embedding -> result
-  GET  /health               — health check
+  POST /generate-embedding   - enroll: photo -> embedding
+  POST /verify               - voting: live frame + stored embedding -> result
+  GET  /health               - health check
 """
 
 from fastapi import FastAPI, HTTPException

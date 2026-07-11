@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>Manage Election — VoteStack</title>
+  <title>Manage Election - VoteStack</title>
   <meta name="description" content="Manage candidates, voters and view live results for your election."/>
   <link rel="icon" href="/assets/Logo.png" type="image/png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -146,7 +146,7 @@
       </div>
       <div class="election-hero-right">
         <span class="status-badge active" id="electionStatus">Active</span>
-        <!-- Face verification toggle — always visible -->
+        <!-- Face verification toggle - always visible -->
         <label class="face-toggle-wrap" title="Enable or disable face verification for voters">
           <span class="face-toggle-label">
             <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><polyline points="16 11 18 13 22 9"/></svg>
@@ -170,10 +170,10 @@
       </div>
       <div class="share-banner-text">
         <h3>Voting Link</h3>
-        <p>Share this with your registered voters — they click, enter their ID and vote.</p>
+        <p>Share this with your registered voters - they click, enter their ID and vote.</p>
         <div class="election-id-row">
           <span class="election-id-label">Election ID:</span>
-          <span class="election-id-value" id="electionIdDisplay">—</span>
+          <span class="election-id-value" id="electionIdDisplay">-</span>
           <button class="election-id-copy" onclick="copyElectionId()" title="Copy Election ID">
             <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           </button>
@@ -193,7 +193,7 @@
           <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </div>
         <div>
-          <div class="mn-stat-num" id="statCandidates">—</div>
+          <div class="mn-stat-num" id="statCandidates">-</div>
           <div class="mn-stat-lbl">Candidates</div>
         </div>
       </div>
@@ -202,7 +202,7 @@
           <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </div>
         <div>
-          <div class="mn-stat-num" id="statVoters">—</div>
+          <div class="mn-stat-num" id="statVoters">-</div>
           <div class="mn-stat-lbl">Registered voters</div>
         </div>
       </div>
@@ -211,7 +211,7 @@
           <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         </div>
         <div>
-          <div class="mn-stat-num" id="statVotes">—</div>
+          <div class="mn-stat-num" id="statVotes">-</div>
           <div class="mn-stat-lbl">Votes cast</div>
         </div>
       </div>
@@ -220,7 +220,7 @@
           <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
         </div>
         <div>
-          <div class="mn-stat-num" id="statTurnout">—</div>
+          <div class="mn-stat-num" id="statTurnout">-</div>
           <div class="mn-stat-lbl">Turnout</div>
         </div>
       </div>
@@ -231,12 +231,12 @@
       <button class="mn-tab active" id="tab-candidates" onclick="switchTab('candidates',this)">
         <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         Candidates
-        <span class="mn-tab-count" id="tcCand">—</span>
+        <span class="mn-tab-count" id="tcCand">-</span>
       </button>
       <button class="mn-tab" id="tab-voters" onclick="switchTab('voters',this)">
         <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         Voters
-        <span class="mn-tab-count" id="tcVoter">—</span>
+        <span class="mn-tab-count" id="tcVoter">-</span>
       </button>
       <button class="mn-tab" id="tab-results" onclick="switchTab('results',this)">
         <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>

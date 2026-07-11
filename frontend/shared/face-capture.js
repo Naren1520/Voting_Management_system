@@ -1,5 +1,5 @@
 /**
- * face-capture.js — Browser-side liveness capture
+ * face-capture.js - Browser-side liveness capture
  *
  * Change 5: Captures 20-30 frames, runs MediaPipe FaceMesh for liveness,
  *           selects the best frame, returns it as base64 to the caller.
@@ -51,7 +51,7 @@ class FaceCapture {
       await new Promise(res => { this._video.onloadedmetadata = res; });
       this._video.play();
     } catch (e) {
-      throw new Error('Camera access denied — please allow camera access and retry.');
+      throw new Error('Camera access denied - please allow camera access and retry.');
     }
 
     // Load MediaPipe FaceMesh
@@ -61,7 +61,7 @@ class FaceCapture {
   async _loadFaceMesh() {
     // MediaPipe is loaded via CDN script tag in the HTML
     if (typeof window.FaceMesh === 'undefined') {
-      console.warn('MediaPipe FaceMesh not loaded — liveness check will be skipped');
+      console.warn('MediaPipe FaceMesh not loaded - liveness check will be skipped');
       return;
     }
     this._faceMesh = new window.FaceMesh({
@@ -118,7 +118,7 @@ class FaceCapture {
       }
     }
 
-    // Select best frame — sharpest with eyes open
+    // Select best frame - sharpest with eyes open
     let bestIdx = 0;
     let bestScore = -1;
     for (let i = 0; i < frames.length; i++) {

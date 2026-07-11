@@ -1,5 +1,5 @@
 /* ==
-   manage-multi.css — additional styles for multi-position page
+   manage-multi.css - additional styles for multi-position page
    Builds on top of manage.css
 == */
 
@@ -146,7 +146,7 @@
 .btn-cancel-mn:hover { background: var(--surface-2); }
 
 /* ==
-   RESPONSIVE — manage-multi.css
+   RESPONSIVE - manage-multi.css
    Breakpoints: 900px (tablet), 640px (large phone), 480px (small phone)
 == */
 

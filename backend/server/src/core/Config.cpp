@@ -34,7 +34,7 @@ void Config::load() {
         if (p > 0) port_ = p;
     }
 
-    // Redis URL — optional, gracefully absent
+    // Redis URL - optional, gracefully absent
     const char* redisEnv = std::getenv("REDIS_URL");
     redisUrl_ = (redisEnv && *redisEnv) ? std::string(redisEnv) : "redis://127.0.0.1:6379";
 

@@ -1,7 +1,3 @@
-/* ═══════════════════════════════════════════════
-   VoteStack User Guide — Premium Enterprise CSS
-   No gradients. No glassmorphism. Clean & refined.
-════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
@@ -443,10 +439,10 @@ details[open] .faq-q svg { transform: rotate(45deg); stroke: var(--blue); }
 .back-to-top svg { width: 18px; height: 18px; }
 
 /* ══════════════════════════════════════════════
-   RESPONSIVE — full coverage across all devices
+   RESPONSIVE - full coverage across all devices
 ══════════════════════════════════════════════ */
 
-/* ── Base overflow guards — must be global ── */
+/* ── Base overflow guards - must be global ── */
 .guide-wrap,
 .guide-sidebar,
 .guide-main,
@@ -478,7 +474,7 @@ details[open] .faq-q svg { transform: rotate(45deg); stroke: var(--blue); }
 /* ── ≤860px : single-column, horizontal sidebar ── */
 @media (max-width: 860px) {
 
-  /* Single column layout — sidebar moves BELOW the page title/toggle */
+  /* Single column layout - sidebar moves BELOW the page title/toggle */
   .guide-wrap {
     grid-template-columns: 1fr;
     gap: 0;
@@ -575,7 +571,7 @@ details[open] .faq-q svg { transform: rotate(45deg); stroke: var(--blue); }
   .guide-page-title h1 { font-size: 1.55rem; letter-spacing: -.02em; }
   .guide-page-title p  { font-size: .875rem; max-width: 100%; }
 
-  /* ── Guide toggle — full width, equal halves ── */
+  /* ── Guide toggle - full width, equal halves ── */
   .guide-toggle-wrap  { margin-bottom: 32px; }
   .guide-toggle       { display: flex; width: 100%; }
   .toggle-btn         {
@@ -596,7 +592,7 @@ details[open] .faq-q svg { transform: rotate(45deg); stroke: var(--blue); }
   .section-title  { font-size: 1.2rem; }
   .section-desc   { font-size: .83rem; }
 
-  /* ── Cards — single column ── */
+  /* ── Cards - single column ── */
   .cards-grid,
   .cards-grid--2    { grid-template-columns: 1fr; gap: 10px; }
   .guide-card       { padding: 18px; gap: 10px; border-radius: var(--radius-lg); min-width: 0; }

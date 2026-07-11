@@ -15,7 +15,7 @@ Logger::~Logger() {
     if (fileStream_.is_open()) fileStream_.close();
 }
 
-// openFile — Fix #7: open log file for persistent logging.
+// openFile - Fix #7: open log file for persistent logging.
 // Called once from main() using LOG_FILE env var (default: server.log).
 
 void Logger::openFile(const std::string& path) {
@@ -24,7 +24,7 @@ void Logger::openFile(const std::string& path) {
     fileStream_.open(path, std::ios::app);
     if (!fileStream_.is_open()) {
         std::cerr << "[Logger] WARNING: could not open log file: " << path
-                  << " — logging to stdout only\n";
+                  << " - logging to stdout only\n";
     } else {
         std::cout << "[Logger] Logging to file: " << path << "\n";
     }
@@ -54,7 +54,7 @@ std::string Logger::timestamp() {
     return std::string(buf);
 }
 
-// log — write to stdout AND file (if open).
+// log - write to stdout AND file (if open).
 // Flush is done every ~100ms in the background (not on every line) to avoid
 // serializing all worker threads on I/O during heavy load.
 
@@ -64,7 +64,7 @@ void Logger::log(LogLevel level, const std::string& msg) {
     std::string line = "[" + timestamp() + "] [" +
                        levelStr(level) + "] " + msg + "\n";
 
-    // Write without flushing — OS buffers handle the rest.
+    // Write without flushing - OS buffers handle the rest.
     // flush() only when it's an error so error lines appear immediately.
     std::cout << line;
     if (level == LogLevel::ERR) std::cout.flush();

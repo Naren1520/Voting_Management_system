@@ -2,7 +2,7 @@
 #include <string>
 
 // ==================
-// CandidateCache — thin wrapper around RedisClient for candidate list caching.
+// CandidateCache - thin wrapper around RedisClient for candidate list caching.
 // Key pattern : candidates:{electionId}
 // TTL         : 30 seconds
 // Gracefully does nothing when Redis is unavailable.

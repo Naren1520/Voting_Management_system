@@ -1,5 +1,5 @@
 # ============================================================
-# Grafana datasource provisioning — auto-connects to Prometheus
+# Grafana datasource provisioning - auto-connects to Prometheus
 # ============================================================
 
 apiVersion: 1

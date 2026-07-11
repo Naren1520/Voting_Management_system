@@ -52,7 +52,7 @@ json CandidateController::addCandidate(const std::string& userId,
     try {
         auto arr = json::parse(r.body);
         if ((r.statusCode==200||r.statusCode==201) && arr.is_array() && !arr.empty()) {
-            // Invalidate candidate cache — list has changed
+            // Invalidate candidate cache - list has changed
             CandidateCache::instance().invalidate(electionId);
             res["success"]=true; res["message"]="Candidate added";
             res["candidates"] = getCandidates(userId,electionId)["candidates"];
@@ -72,7 +72,7 @@ json CandidateController::deleteCandidate(const std::string& userId,
     supabaseRequest("DELETE",
         "candidates?election_id=eq."+electionId+
         "&name=eq."+SupabaseClient::urlEncode(name));
-    // Invalidate candidate cache — list has changed
+    // Invalidate candidate cache - list has changed
     CandidateCache::instance().invalidate(electionId);
     json res; res["success"]=true; res["message"]="Candidate deleted";
     res["candidates"] = getCandidates(userId,electionId)["candidates"];

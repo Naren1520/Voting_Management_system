@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.location.href = `/election/manage.html?id=${electionId}`;
     return;
   }
-  document.title = `${e.title} — VoteStack`;
+  document.title = `${e.title} - VoteStack`;
   document.getElementById('electionTitle').textContent = e.title;
   document.getElementById('electionMeta').textContent  = 'Created ' + fmt(e.created_at);
 
@@ -177,7 +177,7 @@ function renderPositionsAccordion() {
 
 function renderCandidateList(candidates, posId) {
   if (!candidates.length) return `
-    <div class="pos-empty">No candidates yet — add one above.</div>`;
+    <div class="pos-empty">No candidates yet - add one above.</div>`;
   return candidates.map((c, i) => `
     <div class="candidate-card">
       <div class="candidate-avatar">${esc(c.name).charAt(0).toUpperCase()}</div>
@@ -405,7 +405,7 @@ async function loadResults() {
   document.getElementById('totalPositionsResult').textContent =
     positions.filter(p => (p.total_votes || 0) > 0).length;
   document.getElementById('statTurnout').textContent =
-    positions.length > 0 ? avgTurnout + '%' : '—';
+    positions.length > 0 ? avgTurnout + '%' : '-';
 
   const wrap = document.getElementById('multiResultsList');
   if (!positions.length) {

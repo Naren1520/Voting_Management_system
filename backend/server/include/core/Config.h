@@ -2,7 +2,7 @@
 #include <string>
 
 // ==================
-// Config — singleton that loads env vars at startup
+// Config - singleton that loads env vars at startup
 // ==================
 
 class Config {

@@ -1,5 +1,5 @@
 # ============================================================
-# prometheus.yml — Step 11: Prometheus scrape configuration
+# prometheus.yml - Step 11: Prometheus scrape configuration
 # Tracks: requests/sec, active connections, latency, errors,
 #         Redis metrics, memory usage, nginx metrics
 # ============================================================
@@ -13,7 +13,7 @@ global:
     environment: "production"
     project:     "votestack"
 
-# ── Alerting (optional — point to Alertmanager if configured) ────────────────
+# ── Alerting (optional - point to Alertmanager if configured) ────────────────
 # alerting:
 #   alertmanagers:
 #     - static_configs:

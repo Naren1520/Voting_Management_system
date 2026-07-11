@@ -1,9 +1,9 @@
-// config.js — API base URL
+// config.js - API base URL
 //
 // Production (Render):
 //   Set VITE_API_BASE or just update the URL below after your
 //   first Render deploy. Netlify serves this as a static file
-//   so environment variables are not available at runtime —
+//   so environment variables are not available at runtime -
 //   the URL must be baked in at deploy time.
 //
 // Local development:

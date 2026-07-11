@@ -8,21 +8,21 @@
 #include <atomic>
 
 // ==================
-// ThreadPool — fixed-size pool that processes integer file descriptors.
+// ThreadPool - fixed-size pool that processes integer file descriptors.
 //
 // Fix #2: Bounded queue with backpressure.
 //   enqueue() returns false when the queue is full so the caller can
 //   immediately close the fd with a 503 instead of letting it queue forever.
 //
-// Fix #3: Handler set in constructor — no race between setHandler() and
+// Fix #3: Handler set in constructor - no race between setHandler() and
 //   the first worker waking up.
 // ==================
 
 class ThreadPool {
 public:
-    // handler   — called once per fd by a worker thread
-    // numThreads — number of worker threads
-    // maxQueue  — max pending fds; enqueue() returns false when exceeded
+    // handler   - called once per fd by a worker thread
+    // numThreads - number of worker threads
+    // maxQueue  - max pending fds; enqueue() returns false when exceeded
     explicit ThreadPool(size_t numThreads,
                         std::function<void(int)> handler,
                         size_t maxQueue = 0);  // 0 → numThreads * 8

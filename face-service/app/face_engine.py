@@ -1,5 +1,5 @@
 """
-Face engine — InsightFace wrapper.
+Face engine - InsightFace wrapper.
 Singleton pattern: model loads once at startup.
 
 Change 3: Embeddings generated at enrollment, not at verification time.
@@ -49,7 +49,7 @@ class FaceEngine:
         arr = np.frombuffer(raw, dtype=np.uint8)
         img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
         if img is None:
-            raise ValueError("Failed to decode image — invalid base64 or format")
+            raise ValueError("Failed to decode image - invalid base64 or format")
         return img
 
     #  Extract embedding 
@@ -116,7 +116,7 @@ class FaceEngine:
         InsightFace returns L2-normalized embeddings so dot product = cosine similarity.
         """
         live = np.array(live_emb, dtype=np.float32)
-        # Normalize live embedding (safety — InsightFace should already do this)
+        # Normalize live embedding (safety - InsightFace should already do this)
         norm = np.linalg.norm(live)
         if norm > 0:
             live = live / norm

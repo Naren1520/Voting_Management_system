@@ -1,5 +1,5 @@
 /**
- * schedule.js — timezone-aware scheduling
+ * schedule.js - timezone-aware scheduling
  * - Searchable timezone card (no native <select>)
  * - Free-text hour:minute inputs + AM/PM toggle buttons
  * - All storage in UTC ISO; display in selected timezone, 12hr AM/PM
@@ -191,7 +191,7 @@ const Schedule = (() => {
                 <polyline points="6 9 12 15 18 9"/>
               </svg>
             </button>
-            <!-- Calendar popover — centered overlay -->
+            <!-- Calendar popover - centered overlay -->
             <div class="sched-cal-popover" id="${cid}_calPopover"
                  onclick="Schedule._calBackdropClick('${cid}',event)">
               <div class="sched-cal-popover-card" onclick="event.stopPropagation()">
@@ -258,7 +258,7 @@ const Schedule = (() => {
       </div>`).join('');
 
     return `
-      <!-- Timezone modal overlay — centered, same pattern as calendar popover -->
+      <!-- Timezone modal overlay - centered, same pattern as calendar popover -->
       <div class="sched-tz-popover" id="${cid}_tzPanel"
            onclick="Schedule._tzBackdropClick('${cid}',event)">
         <div class="sched-tz-popover-card" onclick="event.stopPropagation()">

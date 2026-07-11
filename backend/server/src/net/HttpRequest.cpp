@@ -9,7 +9,7 @@
 #include <cctype>
 #include <sstream>
 
-// parse — reads the full HTTP request from a client fd.
+// parse - reads the full HTTP request from a client fd.
 //
 // Fix #1: The client fd is accepted with SOCK_NONBLOCK from accept4(), but we
 //   set SO_RCVTIMEO (5 s) so recv() blocks until data arrives or times out.
@@ -21,7 +21,7 @@
 //   which we treat as an error → connection dropped, thread freed.
 
 bool HttpRequest::parse(int fd) {
-    // Switch fd to blocking mode — it was accepted as SOCK_NONBLOCK for the
+    // Switch fd to blocking mode - it was accepted as SOCK_NONBLOCK for the
     // epoll accept loop, but worker threads need blocking recv() with a timeout.
     int flags = ::fcntl(fd, F_GETFL, 0);
     if (flags >= 0) ::fcntl(fd, F_SETFL, flags & ~O_NONBLOCK);
@@ -32,7 +32,7 @@ bool HttpRequest::parse(int fd) {
     tv.tv_usec = 0;
     ::setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
 
-    // Fix #4: hard cap on request body — reject anything over 1 MB.
+    // Fix #4: hard cap on request body - reject anything over 1 MB.
     // Prevents a malicious client from sending Content-Length: 100MB and
     // exhausting server RAM.
     static constexpr int MAX_BODY_BYTES = 1 * 1024 * 1024; // 1 MB
@@ -160,7 +160,7 @@ bool HttpRequest::parse(int fd) {
     return true;
 }
 
-// getHeader — case-insensitive (keys stored lowercase)
+// getHeader - case-insensitive (keys stored lowercase)
 
 std::string HttpRequest::getHeader(const std::string& name) const {
     std::string lower = name;
@@ -169,7 +169,7 @@ std::string HttpRequest::getHeader(const std::string& name) const {
     return (it != headers.end()) ? it->second : "";
 }
 
-// getToken — Bearer token from Authorization header
+// getToken - Bearer token from Authorization header
 
 std::string HttpRequest::getToken() const {
     std::string auth = getHeader("authorization");
@@ -179,7 +179,7 @@ std::string HttpRequest::getToken() const {
     return "";
 }
 
-// getClientIP — X-Forwarded-For or X-Real-IP
+// getClientIP - X-Forwarded-For or X-Real-IP
 // Fix #16: normalize the IP; fall back to empty string (never "unknown")
 //          so rate limiting keys are always distinct per-IP.
 
@@ -187,7 +187,7 @@ std::string HttpRequest::getClientIP() const {
     std::string ip = getHeader("x-forwarded-for");
     if (ip.empty()) ip = getHeader("x-real-ip");
 
-    // X-Forwarded-For may be "clientIP, proxy1, proxy2" — take the first
+    // X-Forwarded-For may be "clientIP, proxy1, proxy2" - take the first
     auto comma = ip.find(',');
     if (comma != std::string::npos) ip = ip.substr(0, comma);
 
@@ -210,7 +210,7 @@ std::string HttpRequest::getUserAgent() const {
     return getHeader("user-agent");
 }
 
-// getQueryParam — parse a single key from the query string
+// getQueryParam - parse a single key from the query string
 // Fix #9: query params are now stored and accessible.
 
 std::string HttpRequest::getQueryParam(const std::string& key) const {

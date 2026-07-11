@@ -1,17 +1,8 @@
-/**
- * VoteStack User Guide — guide.js
- * Handles: guide toggle, sidebar nav generation,
- * active section tracking, reveal animations,
- * reading progress, back-to-top.
- */
 
-/* ─────────────────────────────────────────────
-   State
-───────────────────────────────────────────── */
 let currentGuide = 'voter'; // 'voter' | 'admin'
 
 /* ─────────────────────────────────────────────
-   Sidebar config — mirrors section IDs in HTML
+   Sidebar config - mirrors section IDs in HTML
 ───────────────────────────────────────────── */
 const NAV_CONFIG = {
   voter: [
@@ -127,7 +118,7 @@ function hide(el) {
 }
 
 /* ─────────────────────────────────────────────
-   Toggle slider — pill slides under active btn
+   Toggle slider - pill slides under active btn
 ───────────────────────────────────────────── */
 function initToggleSlider() {
   const toggle    = document.getElementById('guideToggle');
@@ -151,7 +142,7 @@ function initToggleSlider() {
 
 // Update slider on window resize
 window.addEventListener('resize', initToggleSlider, { passive: true });
-// Re-init scroll spy on resize — header height changes between breakpoints
+// Re-init scroll spy on resize - header height changes between breakpoints
 window.addEventListener('resize', () => {
   clearTimeout(window._resizeTimer);
   window._resizeTimer = setTimeout(() => {
@@ -222,7 +213,7 @@ function initActiveSection() {
       links.forEach(l => {
         l.classList.toggle('is-active', l.dataset.id === id);
       });
-      // On mobile the sidebar is a horizontal scroll nav —
+      // On mobile the sidebar is a horizontal scroll nav -
       // scroll it horizontally to show the active pill.
       // NEVER use scrollIntoView here: it hijacks the page scroll.
       const nav    = document.getElementById('sidebarNav');

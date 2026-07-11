@@ -7,14 +7,14 @@
 #include <atomic>
 
 // ============================================================================
-// RedisClient — singleton that speaks RESP over raw TCP sockets.
-// No external Redis library — uses POSIX sockets directly.
+// RedisClient - singleton that speaks RESP over raw TCP sockets.
+// No external Redis library - uses POSIX sockets directly.
 // Gracefully degrades: if Redis is unavailable, all ops are no-ops.
 //
 // Fix #5:  connectSlot() in the reconnect path is now called while holding
 //          poolMutex_ so two threads cannot race to reconnect the same slot.
 //
-// Fix #6:  available_ is now std::atomic<bool> — safe to read from any thread
+// Fix #6:  available_ is now std::atomic<bool> - safe to read from any thread
 //          without holding the pool mutex.
 // ============================================================================
 

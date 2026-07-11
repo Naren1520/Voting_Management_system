@@ -8,7 +8,7 @@
 class ThreadPool;
 
 // ============================================================================
-// EpollServer — epoll-based, edge-triggered, non-blocking HTTP server.
+// EpollServer - epoll-based, edge-triggered, non-blocking HTTP server.
 //
 // Fix #1 (background cleanup): a dedicated thread runs every 10 minutes to
 //   DELETE expired sessions from Supabase. This removes the need to run the
