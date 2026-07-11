@@ -42,6 +42,9 @@ Thumbs.db
 #  Environment secrets 
 .env
 
+# nginx Basic Auth password file (generated on server, never committed)
+nginx/.htpasswd
+
 #  Docker volume data (written at runtime, not source) 
 prometheus_data/
 grafana_data/
