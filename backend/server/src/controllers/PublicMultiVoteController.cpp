@@ -140,6 +140,55 @@ json PublicMultiVoteController::castVotes(const std::string& electionId,
         res["success"]=false; res["message"]="Election not found"; return res;
     }
 
+    // ── Validate each submitted (position_id, candidate_name) pair ───────
+    // Fetch all valid position_candidates for this election in one query so
+    // we can validate every vote entry without N round-trips.
+    auto pcRes = supabaseRequest("GET",
+        "position_candidates?select=position_id,name&election_id=eq." + electionId);
+
+    // Build a set of "positionId|candidateName" keys for O(1) lookup.
+    std::set<std::string> validPairs;
+    std::set<std::string> validPositionIds;
+    try {
+        auto pcArr = json::parse(pcRes.body);
+        if (pcArr.is_array()) {
+            for (auto& pc : pcArr) {
+                std::string posId   = pc.value("position_id", "");
+                std::string candName = pc.value("name", "");
+                if (!posId.empty() && !candName.empty()) {
+                    validPairs.insert(posId + "|" + candName);
+                    validPositionIds.insert(posId);
+                }
+            }
+        }
+    } catch (...) {
+        res["success"] = false;
+        res["message"] = "Could not validate ballot — please try again";
+        return res;
+    }
+
+    for (auto& vote : votes) {
+        std::string posId = vote.value("position_id", "");
+        std::string cand  = vote.value("candidate_name", "");
+
+        if (posId.empty() || cand.empty()) {
+            res["success"] = false;
+            res["message"] = "Each vote must include position_id and candidate_name";
+            return res;
+        }
+        if (validPositionIds.find(posId) == validPositionIds.end()) {
+            res["success"] = false;
+            res["message"] = "Invalid position submitted";
+            return res;
+        }
+        if (validPairs.find(posId + "|" + cand) == validPairs.end()) {
+            res["success"] = false;
+            res["message"] = "Candidate \"" + cand +
+                             "\" is not registered under the specified position";
+            return res;
+        }
+    }
+
     // ── Atomic secret-ballot multi-vote via RPC ───────────────────────────
     json rpcBody;
     rpcBody["p_election_id"] = electionId;

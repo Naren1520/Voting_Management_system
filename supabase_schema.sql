@@ -294,12 +294,27 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 DECLARE
-    v_vote       json;
-    v_ballot_id  uuid;
-    v_inserted   int;
-    v_pos_id     uuid;
-    v_cand       text;
+    v_vote         json;
+    v_ballot_id    uuid;
+    v_inserted     int;
+    v_pos_id       uuid;
+    v_cand         text;
+    v_any_inserted bool := false;
 BEGIN
+    -- Serialise concurrent calls for the same (election, voter) pair.
+    -- pg_try_advisory_xact_lock hashes two int4 keys; we derive them from
+    -- the UUIDs so different voters never block each other.
+    -- The lock is transaction-scoped and released automatically on
+    -- commit or rollback — no explicit unlock needed.
+    IF NOT pg_try_advisory_xact_lock(
+        ('x' || substring(p_election_id::text, 1, 8))::bit(32)::int,
+        hashtext(p_voter_id)
+    ) THEN
+        -- Another concurrent request for this exact voter is in flight.
+        RETURN json_build_object('success', false,
+               'message', 'Concurrent vote request detected — please try again');
+    END IF;
+
     -- Ensure voter is registered
     IF NOT EXISTS (
         SELECT 1 FROM public.voters
@@ -320,7 +335,33 @@ BEGIN
             CONTINUE;
         END IF;
 
-        -- Record voter participation for this position (no choice stored)
+        -- Validate that the position belongs to this election and that
+        -- the candidate is actually listed under that position.
+        -- This blocks manipulated API requests that pair a candidate with
+        -- a position they are not registered under.
+        IF NOT EXISTS (
+            SELECT 1 FROM public.positions
+            WHERE id = v_pos_id AND election_id = p_election_id
+        ) THEN
+            RETURN json_build_object('success', false,
+                   'message', 'Invalid position for this election');
+        END IF;
+
+        IF NOT EXISTS (
+            SELECT 1 FROM public.position_candidates
+            WHERE position_id = v_pos_id
+              AND election_id  = p_election_id
+              AND name         = v_cand
+        ) THEN
+            RETURN json_build_object('success', false,
+                   'message', 'Candidate "' || v_cand ||
+                              '" is not registered under the specified position');
+        END IF;
+
+        -- Record voter participation for this position (no choice stored).
+        -- ON CONFLICT DO NOTHING is a second-layer guard; the advisory lock
+        -- above prevents the race, but the unique constraint still blocks
+        -- any retry that somehow carries a duplicate.
         INSERT INTO public.multi_vote_ledger
             (election_id, voter_id, position_id, ballot_id)
         VALUES (p_election_id, p_voter_id, v_pos_id, v_ballot_id)
@@ -332,11 +373,18 @@ BEGIN
             CONTINUE;  -- already voted for this position, skip silently
         END IF;
 
+        v_any_inserted := true;
+
         -- Record anonymous ballot choice (no voter_id stored)
         INSERT INTO public.multi_vote_ballots
             (ballot_id, election_id, position_id, candidate_name)
         VALUES (v_ballot_id, p_election_id, v_pos_id, v_cand);
     END LOOP;
+
+    IF NOT v_any_inserted THEN
+        RETURN json_build_object('success', false,
+               'message', 'You have already voted in this election');
+    END IF;
 
     RETURN json_build_object('success', true,
            'message', 'Votes cast successfully');
