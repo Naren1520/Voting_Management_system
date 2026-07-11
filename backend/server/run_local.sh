@@ -41,7 +41,18 @@ export SESSION_COOKIE_SECURE=0
 # Override by setting ALLOWED_ORIGINS in your .env file.
 if [[ -z "${ALLOWED_ORIGINS:-}" ]]; then
   export ALLOWED_ORIGINS="http://localhost,http://localhost:3000,http://127.0.0.1,http://127.0.0.1:3000"
-fi 
+fi
+
+# ── Redis URL (local) ────────────────────────────────────────────────────────
+# If REDIS_PASSWORD is set in .env, use authenticated URL.
+# If not set, fall back to no-auth (local Redis running without --requirepass).
+if [[ -n "${REDIS_PASSWORD:-}" ]]; then
+  export REDIS_URL="redis://:${REDIS_PASSWORD}@127.0.0.1:6379"
+  echo "[run_local] Redis: authenticated (password set)"
+else
+  export REDIS_URL="redis://127.0.0.1:6379"
+  echo "[run_local] Redis: no password (set REDIS_PASSWORD in .env to enable auth)"
+fi
 
 echo "[run_local] SESSION_COOKIE_SECURE=0  (plain HTTP mode)"
 echo "[run_local] ALLOWED_ORIGINS=$ALLOWED_ORIGINS"
